@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  kaifongliff:
+    build: ./kaifongliff
+    container_name: kaifongliff
+    ports:
+      - "3000:3000"
+
+  kaifongai:
+    build: ./kaifongai
+    container_name: kaifongai
+    ports:
+      - "3001:3000"
