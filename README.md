@@ -3,7 +3,7 @@
 ### Project Structure
 
 ```text
-KaifongDocker/
+Kaifongproject/
 ├── docker-compose.yml
 ├── kaifongai/
 │   └── Dockerfile
