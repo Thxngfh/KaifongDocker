@@ -1,0 +1,480 @@
+{  
+  "users": [
+    {
+      "id": 1,
+      "title": "นาย",
+      "name": "สมชาย",
+      "lastname": "ใจดี",
+      "phone": "0812345678",
+      "line_id": "somchai_line",
+      "datetime": "2026-04-01T08:15:00Z"
+    },
+    {
+      "id": 2,
+      "title": "นางสาว",
+      "name": "พิมพ์ชนก",
+      "lastname": "แสงทอง",
+      "phone": "0823456789",
+      "line_id": "pimchanok_line",
+      "datetime": "2026-04-01T09:20:00Z"
+    },
+    {
+      "id": 3,
+      "title": "นาย",
+      "name": "ณัฐพล",
+      "lastname": "บุญมี",
+      "phone": "0834567890",
+      "line_id": "nattapon_line",
+      "datetime": "2026-04-02T10:00:00Z"
+    },
+    {
+      "id": 4,
+      "title": "นาง",
+      "name": "อรทัย",
+      "lastname": "สุขใจ",
+      "phone": "0845678901",
+      "line_id": "orathai_line",
+      "datetime": "2026-04-02T11:10:00Z"
+    },
+    {
+      "id": 5,
+      "title": "นาย",
+      "name": "ธีรภัทร",
+      "lastname": "วงศ์ดี",
+      "phone": "0856789012",
+      "line_id": "teerapat_line",
+      "datetime": "2026-04-03T07:45:00Z"
+    },
+    {
+      "id": 6,
+      "title": "นางสาว",
+      "name": "กนกพร",
+      "lastname": "สิงห์คำ",
+      "phone": "0867890123",
+      "line_id": "kanokporn_line",
+      "datetime": "2026-04-03T13:25:00Z"
+    },
+    {
+      "id": 7,
+      "title": "นาย",
+      "name": "ชัยวัฒน์",
+      "lastname": "รัตนโชติ",
+      "phone": "0878901234",
+      "line_id": "chaiwat_line",
+      "datetime": "2026-04-04T09:40:00Z"
+    },
+    {
+      "id": 8,
+      "title": "นาง",
+      "name": "สุพัตรา",
+      "lastname": "นาคสกุล",
+      "phone": "0889012345",
+      "line_id": "supattra_line",
+      "datetime": "2026-04-04T15:05:00Z"
+    },
+    {
+      "id": 9,
+      "title": "นาย",
+      "name": "ธนกร",
+      "lastname": "มั่นคง",
+      "phone": "0890123456",
+      "line_id": "thanakorn_line",
+      "datetime": "2026-04-05T08:30:00Z"
+    },
+    {
+      "id": 10,
+      "title": "นางสาว",
+      "name": "รัตนา",
+      "lastname": "ศรีสุข",
+      "phone": "0801234567",
+      "line_id": "rattana_line",
+      "datetime": "2026-04-05T17:10:00Z"
+    }
+  ],
+  "staffs": [
+    {
+      "id": 1,
+      "name": "วิชัย",
+      "lastname": "ช่างทอง",
+      "phone": "0899999991",
+      "line_id": "staff_vichai",
+      "datetime": "2026-03-20T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "ศุภกร",
+      "lastname": "แสนดี",
+      "phone": "0899999992",
+      "line_id": "staff_supakorn",
+      "datetime": "2026-03-20T08:10:00Z"
+    },
+    {
+      "id": 3,
+      "name": "อาคม",
+      "lastname": "มีชัย",
+      "phone": "0899999993",
+      "line_id": "staff_akom",
+      "datetime": "2026-03-20T08:20:00Z"
+    },
+    {
+      "id": 4,
+      "name": "มยุรี",
+      "lastname": "ทองใบ",
+      "phone": "0899999994",
+      "line_id": "staff_mayuree",
+      "datetime": "2026-03-20T08:30:00Z"
+    },
+    {
+      "id": 5,
+      "name": "กิตติ",
+      "lastname": "รุ่งเรือง",
+      "phone": "0899999995",
+      "line_id": "staff_kitti",
+      "datetime": "2026-03-20T08:40:00Z"
+    }
+  ],
+  "problems": [
+    {
+      "id": 1,
+      "name": "ไฟฟ้าขัดข้อง",
+      "description": "ไฟดับ ไฟตก ไฟกระพริบ หรืออุปกรณ์ไฟฟ้าสาธารณะมีปัญหา"
+    },
+    {
+      "id": 2,
+      "name": "ถนนชำรุด",
+      "description": "ถนนเป็นหลุม เป็นบ่อ แตกร้าว หรือใช้งานไม่ปลอดภัย"
+    },
+    {
+      "id": 3,
+      "name": "น้ำประปารั่ว",
+      "description": "ท่อประปาแตก น้ำรั่ว น้ำไหลไม่สม่ำเสมอ หรือแรงดันผิดปกติ"
+    },
+    {
+      "id": 4,
+      "name": "ขยะตกค้าง",
+      "description": "มีขยะสะสม กลิ่นเหม็น หรือจุดทิ้งขยะไม่ได้รับการจัดการ"
+    },
+    {
+      "id": 5,
+      "name": "ไฟส่องสว่างเสีย",
+      "description": "เสาไฟถนนไม่ติด ส่องสว่างไม่เพียงพอ หรืออุปกรณ์ชำรุด"
+    },
+    {
+      "id": 6,
+      "name": "ต้นไม้กีดขวาง",
+      "description": "กิ่งไม้ล้ำทาง ต้นไม้เสี่ยงหักโค่น หรือบดบังทัศนวิสัย"
+    },
+    {
+      "id": 7,
+      "name": "ท่อระบายน้ำอุดตัน",
+      "description": "น้ำระบายช้า น้ำขัง หรือระบบระบายน้ำมีสิ่งอุดตัน"
+    },
+    {
+      "id": 8,
+      "name": "เสียงรบกวน",
+      "description": "มีเสียงดังรบกวนจากกิจกรรม สถานประกอบการ หรือพื้นที่ใกล้เคียง"
+    }
+  ],
+  "cases": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "staff_id": 2,
+      "problem_id": 2,
+      "description": "ถนนหน้าหมู่บ้านเป็นหลุมลึก รถจักรยานยนต์ล้มบ่อย",
+      "location": {
+        "lat": 13.7563,
+        "lng": 100.5018
+      },
+      "location_detail": "หมู่บ้านสุขสันต์ ซอย 5 ถนนพหลโยธิน แขวงจตุจักร เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case01.jpg",
+      "status": "pending",
+      "datetime": "2026-04-06T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "staff_id": 1,
+      "problem_id": 1,
+      "description": "ไฟฟ้าดับเป็นช่วง ๆ ตั้งแต่เมื่อคืน",
+      "location": {
+        "lat": 13.7367,
+        "lng": 100.5231
+      },
+      "location_detail": "ซอยวิภาวดี 20 แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case02.jpg",
+      "status": "in_progress",
+      "datetime": "2026-04-06T08:20:00Z"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "staff_id": 3,
+      "problem_id": 5,
+      "description": "ไฟส่องสว่างบริเวณทางเดินสาธารณะไม่ติดมาหลายวัน",
+      "location": {
+        "lat": 13.7295,
+        "lng": 100.5601
+      },
+      "location_detail": "หน้าสวนสาธารณะ ซอยลาดพร้าว 18 แขวงจอมพล เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case03.jpg",
+      "status": "pending",
+      "datetime": "2026-04-06T09:10:00Z"
+    },
+    {
+      "id": 4,
+      "user_id": 4,
+      "staff_id": 4,
+      "problem_id": 4,
+      "description": "มีขยะกองสะสมข้างตลาดส่งกลิ่นเหม็นมาก",
+      "location": {
+        "lat": 13.7651,
+        "lng": 100.5384
+      },
+      "location_detail": "ข้างตลาดประชานิเวศน์ ถนนเทศบาลสงเคราะห์ แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case04.jpg",
+      "status": "completed",
+      "datetime": "2026-04-06T09:45:00Z"
+    },
+    {
+      "id": 5,
+      "user_id": 5,
+      "staff_id": 5,
+      "problem_id": 3,
+      "description": "ท่อประปาแตก น้ำไหลท่วมหน้าบ้าน",
+      "location": {
+        "lat": 13.7802,
+        "lng": 100.5448
+      },
+      "location_detail": "ซอยงามวงศ์วาน 43 แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case05.jpg",
+      "status": "in_progress",
+      "datetime": "2026-04-06T10:15:00Z"
+    },
+    {
+      "id": 6,
+      "user_id": 6,
+      "staff_id": 2,
+      "problem_id": 7,
+      "description": "ฝนตกทีไรน้ำขังหน้าปากซอย เพราะท่อระบายน้ำตัน",
+      "location": {
+        "lat": 13.7856,
+        "lng": 100.5672
+      },
+      "location_detail": "ปากซอยแจ้งวัฒนะ 14 แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case06.jpg",
+      "status": "pending",
+      "datetime": "2026-04-06T11:00:00Z"
+    },
+    {
+      "id": 7,
+      "user_id": 7,
+      "staff_id": 3,
+      "problem_id": 6,
+      "description": "กิ่งไม้ใหญ่ยื่นลงมาบนถนน เกรงว่าจะหักใส่รถ",
+      "location": {
+        "lat": 13.7464,
+        "lng": 100.5347
+      },
+      "location_detail": "ถนนประชาชื่น ใกล้แยกบางซื่อ แขวงบางซื่อ เขตบางซื่อ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case07.jpg",
+      "status": "in_progress",
+      "datetime": "2026-04-06T11:35:00Z"
+    },
+    {
+      "id": 8,
+      "user_id": 8,
+      "staff_id": 4,
+      "problem_id": 8,
+      "description": "มีเสียงดังจากร้านอาหารเปิดเพลงเกินเวลา",
+      "location": {
+        "lat": 13.7429,
+        "lng": 100.5502
+      },
+      "location_detail": "ซอยประชาราษฎร์สาย 1 แขวงบางซื่อ เขตบางซื่อ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case08.jpg",
+      "status": "rejected",
+      "datetime": "2026-04-06T12:10:00Z"
+    },
+    {
+      "id": 9,
+      "user_id": 9,
+      "staff_id": 1,
+      "problem_id": 1,
+      "description": "ไฟหน้าซอยกระพริบทั้งคืนและดับเป็นพัก ๆ",
+      "location": {
+        "lat": 13.7708,
+        "lng": 100.5156
+      },
+      "location_detail": "ซอยพหลโยธิน 24 แขวงจอมพล เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case09.jpg",
+      "status": "completed",
+      "datetime": "2026-04-06T13:00:00Z"
+    },
+    {
+      "id": 10,
+      "user_id": 10,
+      "staff_id": 5,
+      "problem_id": 2,
+      "description": "พื้นถนนทรุดตัวบริเวณหน้าปั๊มน้ำมัน",
+      "location": {
+        "lat": 13.8052,
+        "lng": 100.5561
+      },
+      "location_detail": "ถนนแจ้งวัฒนะ แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case10.jpg",
+      "status": "pending",
+      "datetime": "2026-04-06T13:40:00Z"
+    },
+    {
+      "id": 11,
+      "user_id": 1,
+      "staff_id": 2,
+      "problem_id": 4,
+      "description": "ถังขยะล้นหลายวัน ไม่มีรถมาเก็บ",
+      "location": {
+        "lat": 13.7504,
+        "lng": 100.4975
+      },
+      "location_detail": "ซอยอินทามระ 29 แขวงสามเสนใน เขตพญาไท กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case11.jpg",
+      "status": "completed",
+      "datetime": "2026-04-06T14:15:00Z"
+    },
+    {
+      "id": 12,
+      "user_id": 2,
+      "staff_id": 4,
+      "problem_id": 7,
+      "description": "น้ำขังหลังฝนตกนานมาก คาดว่าท่อระบายน้ำตัน",
+      "location": {
+        "lat": 13.7689,
+        "lng": 100.5296
+      },
+      "location_detail": "ซอยประชานิเวศน์ 1 แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case12.jpg",
+      "status": "in_progress",
+      "datetime": "2026-04-06T14:50:00Z"
+    },
+    {
+      "id": 13,
+      "user_id": 3,
+      "staff_id": 3,
+      "problem_id": 3,
+      "description": "น้ำประปาไหลอ่อนมากตลอดทั้งวัน",
+      "location": {
+        "lat": 13.7411,
+        "lng": 100.5693
+      },
+      "location_detail": "หมู่บ้านประชาชื่นวิลล่า แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case13.jpg",
+      "status": "pending",
+      "datetime": "2026-04-06T15:25:00Z"
+    },
+    {
+      "id": 14,
+      "user_id": 4,
+      "staff_id": 1,
+      "problem_id": 5,
+      "description": "เสาไฟส่องสว่างหน้าป้ายรถเมล์ไม่ติด",
+      "location": {
+        "lat": 13.7528,
+        "lng": 100.5468
+      },
+      "location_detail": "หน้าป้ายรถเมล์ถนนรัชดาภิเษก แขวงดินแดง เขตดินแดง กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case14.jpg",
+      "status": "completed",
+      "datetime": "2026-04-06T16:00:00Z"
+    },
+    {
+      "id": 15,
+      "user_id": 5,
+      "staff_id": 2,
+      "problem_id": 6,
+      "description": "ต้นไม้เอียงมาทางสายไฟ เกรงอันตราย",
+      "location": {
+        "lat": 13.7715,
+        "lng": 100.5624
+      },
+      "location_detail": "ริมถนนงามวงศ์วาน แขวงทุ่งสองห้อง เขตหลักสี่ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case15.jpg",
+      "status": "pending",
+      "datetime": "2026-04-06T16:30:00Z"
+    },
+    {
+      "id": 16,
+      "user_id": 6,
+      "staff_id": 5,
+      "problem_id": 8,
+      "description": "มีเสียงก่อสร้างดังมากช่วงกลางคืน",
+      "location": {
+        "lat": 13.7344,
+        "lng": 100.5612
+      },
+      "location_detail": "คอนโดใกล้แยกรัชโยธิน แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case16.jpg",
+      "status": "rejected",
+      "datetime": "2026-04-06T17:10:00Z"
+    },
+    {
+      "id": 17,
+      "user_id": 7,
+      "staff_id": 4,
+      "problem_id": 2,
+      "description": "มีหลุมขนาดใหญ่กลางถนน เสี่ยงอุบัติเหตุ",
+      "location": {
+        "lat": 13.7587,
+        "lng": 100.5143
+      },
+      "location_detail": "ซอยเสนานิคม 1 แขวงจันทรเกษม เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case17.jpg",
+      "status": "in_progress",
+      "datetime": "2026-04-07T08:20:00Z"
+    },
+    {
+      "id": 18,
+      "user_id": 8,
+      "staff_id": 3,
+      "problem_id": 1,
+      "description": "ไฟในพื้นที่สาธารณะดับเกือบทั้งซอย",
+      "location": {
+        "lat": 13.7469,
+        "lng": 100.5202
+      },
+      "location_detail": "ซอยพหลโยธิน 32 แขวงเสนานิคม เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case18.jpg",
+      "status": "pending",
+      "datetime": "2026-04-07T09:00:00Z"
+    },
+    {
+      "id": 19,
+      "user_id": 9,
+      "staff_id": 2,
+      "problem_id": 4,
+      "description": "จุดทิ้งขยะมีน้ำเสียไหลออกมา",
+      "location": {
+        "lat": 13.7658,
+        "lng": 100.5489
+      },
+      "location_detail": "หลังอาคารพาณิชย์ ถนนงามวงศ์วาน แขวงลาดยาว เขตจตุจักร กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case19.jpg",
+      "status": "completed",
+      "datetime": "2026-04-07T09:35:00Z"
+    },
+    {
+      "id": 20,
+      "user_id": 10,
+      "staff_id": 1,
+      "problem_id": 7,
+      "description": "ตะแกรงระบายน้ำอุดตัน มีเศษขยะสะสมจำนวนมาก",
+      "location": {
+        "lat": 13.7811,
+        "lng": 100.5388
+      },
+      "location_detail": "หน้าร้านสะดวกซื้อ ถนนวิภาวดีรังสิต แขวงตลาดบางเขน เขตหลักสี่ กรุงเทพมหานคร",
+      "picture_url": "https://example.com/cases/case20.jpg",
+      "status": "pending",
+      "datetime": "2026-04-07T10:10:00Z"
+    }
+  ]
+}

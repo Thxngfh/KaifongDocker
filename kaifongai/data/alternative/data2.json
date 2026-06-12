@@ -1,0 +1,1500 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "titles": "นาย",
+      "name": "สมชาย",
+      "lastname": "ใจดี",
+      "phone": "0812345678",
+      "line_id": "somchai_j",
+      "datetime": "2026-01-15T08:30:00Z"
+    },
+    {
+      "id": 2,
+      "titles": "นาง",
+      "name": "สมหญิง",
+      "lastname": "รักสวย",
+      "phone": "0898765432",
+      "line_id": "somying_r",
+      "datetime": "2026-02-20T09:15:00Z"
+    },
+    {
+      "id": 3,
+      "titles": "นางสาว",
+      "name": "มาลี",
+      "lastname": "สุขสันต์",
+      "phone": "0856781234",
+      "line_id": "malee_s",
+      "datetime": "2026-03-10T10:00:00Z"
+    },
+    {
+      "id": 4,
+      "titles": "นาย",
+      "name": "ประสิทธิ์",
+      "lastname": "แก้วมณี",
+      "phone": "0821234567",
+      "line_id": "prasit_k",
+      "datetime": "2026-04-01T08:00:00Z"
+    },
+    {
+      "id": 5,
+      "titles": "นาง",
+      "name": "วันดี",
+      "lastname": "พรมมาศ",
+      "phone": "0867654321",
+      "line_id": "wandee_p",
+      "datetime": "2026-04-05T09:30:00Z"
+    },
+    {
+      "id": 6,
+      "titles": "นางสาว",
+      "name": "กนกวรรณ",
+      "lastname": "ทองศรี",
+      "phone": "0849876543",
+      "line_id": "kanokwan_t",
+      "datetime": "2026-04-10T11:00:00Z"
+    }
+  ],
+
+  "technicians": [
+    {
+      "id": 1,
+      "name": "วิชัย",
+      "lastname": "มั่นคง",
+      "phone": "0811112222",
+      "line_id": "wichai_m",
+      "status": "approved",
+      "datetime": "2023-06-01T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "นภา",
+      "lastname": "สว่างใจ",
+      "phone": "0833334444",
+      "line_id": "napa_s",
+      "status": "approved",
+      "datetime": "2023-07-15T08:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "ประเสริฐ",
+      "lastname": "ทองดี",
+      "phone": "0855556666",
+      "line_id": "prasert_t",
+      "status": "pending",
+      "datetime": "2023-08-20T08:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "สุรชัย",
+      "lastname": "บุญมาก",
+      "phone": "0877778888",
+      "line_id": "surachai_b",
+      "status": "approved",
+      "datetime": "2023-09-01T08:00:00Z"
+    },
+    {
+      "id": 5,
+      "name": "อรทัย",
+      "lastname": "ดวงดี",
+      "phone": "0899990000",
+      "line_id": "oratai_d",
+      "status": "approved",
+      "datetime": "2023-10-15T08:00:00Z"
+    }
+  ],
+
+  "admins": [
+    {
+      "id": 1,
+      "name": "ธนากร",
+      "lastname": "วงศ์สุวรรณ",
+      "phone": "0899998888",
+      "email": "thanakorn@example.com",
+      "datetime": "2023-01-01T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "พิมพ์ใจ",
+      "lastname": "ศรีสมบัติ",
+      "phone": "0877776666",
+      "email": "pimjai@example.com",
+      "datetime": "2023-01-01T08:00:00Z"
+    }
+  ],
+
+  "admin_credentials": [
+    {
+      "id": 1,
+      "admin_id": 1,
+      "username": "thanakorn_admin",
+      "password": "hashed_password_adm1",
+      "is_active": true,
+      "last_login": "2026-04-05T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "admin_id": 2,
+      "username": "pimjai_admin",
+      "password": "hashed_password_adm2",
+      "is_active": true,
+      "last_login": "2026-04-04T09:00:00Z"
+    }
+  ],
+
+  "problems": [
+  {
+    "id": 1,
+    "name": "ไฟฟ้าขัดข้อง",
+    "description": "ปัญหาเกี่ยวกับระบบไฟฟ้าสาธารณะ เช่น ไฟดับ หลอดไฟชำรุด",
+    "is_active": true
+  },
+  {
+    "id": 2,
+    "name": "ถนนชำรุด",
+    "description": "ปัญหาเกี่ยวกับถนน เช่น หลุม บ่อ ถนนทรุดตัว",
+    "is_active": true
+  },
+  {
+    "id": 3,
+    "name": "น้ำประปาขัดข้อง",
+    "description": "ปัญหาเกี่ยวกับระบบน้ำประปา เช่น น้ำไม่ไหล ท่อแตก",
+    "is_active": false
+  },
+  {
+    "id": 4,
+    "name": "ขยะและสิ่งแวดล้อม",
+    "description": "ปัญหาขยะล้น การเผาขยะ หรือมลภาวะในพื้นที่",
+    "is_active": true
+  },
+  {
+    "id": 5,
+    "name": "ต้นไม้และพื้นที่สาธารณะ",
+    "description": "ต้นไม้ล้มทับ กิ่งไม้อันตราย หรือสวนสาธารณะชำรุด",
+    "is_active": false
+  },
+  {
+    "id": 6,
+    "name": "ท่อระบายน้ำ",
+    "description": "ท่อระบายน้ำอุดตัน น้ำท่วมขัง หรือฝาท่อชำรุด",
+    "is_active": true
+  }
+ ],
+
+  "cases": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "technician_id": 2,
+      "problem_id": 2,
+      "description": "ถนนหน้าหมู่บ้านมีหลุมขนาดใหญ่ รถผ่านลำบากและเป็นอันตราย",
+      "location": "ถนนสุขุมวิท",
+      "location_detail": "หน้าซอยสุขุมวิท 21 ใกล้กับร้านสะดวกซื้อ",
+      "location_lat": 35.6762,
+      "location_lng": 139.6503,
+      "location_url": "https://maps.google.com/?q=35.6762,139.6503",
+      "picture_url": "https://picsum.photos/200/300?case=1",
+      "status": "pending",
+      "datetime": "2026-04-01T07:45:00Z"
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "technician_id": 1,
+      "problem_id": 1,
+      "description": "ไฟถนนดับหลายดวงติดต่อกัน ทำให้บริเวณนั้นมืดและไม่ปลอดภัยในเวลากลางคืน",
+      "location": "ถนนพหลโยธิน",
+      "location_detail": "บริเวณหน้าสวนสาธารณะ ช่วงกิโลเมตรที่ 5",
+      "location_lat": 48.8566,
+      "location_lng": 2.3522,
+      "location_url": "https://maps.google.com/?q=48.8566,2.3522",
+      "picture_url": "https://picsum.photos/200/300?case=2",
+      "status": "in_progress",
+      "datetime": "2026-04-03T18:20:00Z"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "technician_id": 3,
+      "problem_id": 3,
+      "description": "น้ำประปาไม่ไหลมา 3 วันแล้ว ชาวบ้านได้รับความเดือดร้อน",
+      "location": "ซอยลาดพร้าว 40",
+      "location_detail": "บ้านเลขที่ 123-145 ฝั่งซ้ายของซอย",
+      "location_lat": 40.7128,
+      "location_lng": -74.0060,
+      "location_url": "https://maps.google.com/?q=40.7128,-74.0060",
+      "picture_url": "https://picsum.photos/200/300?case=3",
+      "status": "resolved",
+      "datetime": "2026-03-28T11:00:00Z"
+    },
+    {
+      "id": 4,
+      "user_id": 1,
+      "technician_id": null,
+      "problem_id": 4,
+      "description": "มีการเผาขยะในพื้นที่โล่งทำให้เกิดควันรบกวนชาวบ้านในละแวกใกล้เคียง",
+      "location": "ถนนรามคำแหง",
+      "location_detail": "ที่ดินว่างเปล่าข้างวัดทองสาธุประดิษฐ์",
+      "location_lat": 51.5074,
+      "location_lng": -0.1278,
+      "location_url": "https://maps.google.com/?q=51.5074,-0.1278",
+      "picture_url": "https://picsum.photos/200/300?case=4",
+      "status": "pending",
+      "datetime": "2026-04-05T13:30:00Z"
+    },
+    {
+      "id": 5,
+      "user_id": 4,
+      "technician_id": 4,
+      "problem_id": 5,
+      "description": "ต้นไม้ขนาดใหญ่ล้มขวางถนน หลังพายุฝนเมื่อคืน ทำให้รถไม่สามารถผ่านได้",
+      "location": "ถนนลาดพร้าว",
+      "location_detail": "หน้าโรงเรียนลาดพร้าววิทยาคาร ช่วงซอย 15",
+      "location_lat": -33.8688,
+      "location_lng": 151.2093,
+      "location_url": "https://maps.google.com/?q=-33.8688,151.2093",
+      "picture_url": "https://picsum.photos/200/300?case=5",
+      "status": "in_progress",
+      "datetime": "2026-04-08T06:30:00Z"
+    },
+    {
+      "id": 6,
+      "user_id": 5,
+      "technician_id": 5,
+      "problem_id": 6,
+      "description": "ท่อระบายน้ำอุดตัน ทำให้น้ำท่วมขังบนถนนทุกครั้งที่ฝนตก ส่งกลิ่นเหม็น",
+      "location": "ซอยอ่อนนุช 12",
+      "location_detail": "หน้าตลาดสดอ่อนนุช ฝั่งทิศใต้",
+      "location_lat": 25.2048,
+      "location_lng": 55.2708,
+      "location_url": "https://maps.google.com/?q=25.2048,55.2708",
+      "picture_url": "https://picsum.photos/200/300?case=6",
+      "status": "pending",
+      "datetime": "2026-04-09T14:00:00Z"
+    },
+    {
+      "id": 7,
+      "user_id": 6,
+      "technician_id": 1,
+      "problem_id": 1,
+      "description": "หลอดไฟโคมถนนชำรุด 5 ดวง ส่งผลให้บริเวณนั้นมืดมากในยามค่ำคืน",
+      "location": "ถนนเพชรบุรี",
+      "location_detail": "ช่วงระหว่างซอย 7 ถึงซอย 9",
+      "location_lat": 1.3521,
+      "location_lng": 103.8198,
+      "location_url": "https://maps.google.com/?q=1.3521,103.8198",
+      "picture_url": "https://picsum.photos/200/300?case=7",
+      "status": "resolved",
+      "datetime": "2026-04-10T19:00:00Z"
+    },
+    {
+      "id": 8,
+      "user_id": 2,
+      "technician_id": null,
+      "problem_id": 2,
+      "description": "ถนนทรุดตัวเป็นแนวยาว ทำให้รถยนต์สะดุดและเกิดอุบัติเหตุบ่อยครั้ง",
+      "location": "ถนนนวมินทร์",
+      "location_detail": "บริเวณสี่แยกนวมินทร์ตัดถนนรามคำแหง",
+      "location_lat": 19.0760,
+      "location_lng": 72.8777,
+      "location_url": "https://maps.google.com/?q=19.0760,72.8777",
+      "picture_url": "https://picsum.photos/200/300?case=8",
+      "status": "pending",
+      "datetime": "2026-04-11T10:15:00Z"
+    },
+    {
+      "id": 9,
+      "user_id": 3,
+      "technician_id": 2,
+      "problem_id": 3,
+      "description": "ท่อน้ำประปาแตกริมถนน น้ำไหลออกตลอดเวลา สูญเสียน้ำจำนวนมาก",
+      "location": "ถนนสีลม",
+      "location_detail": "หน้าอาคารสีลมคอมเพล็กซ์",
+      "location_lat": 52.5200,
+      "location_lng": 13.4050,
+      "location_url": "https://maps.google.com/?q=52.5200,13.4050",
+      "picture_url": "https://picsum.photos/200/300?case=9",
+      "status": "in_progress",
+      "datetime": "2026-03-12T07:00:00Z"
+    },
+    {
+      "id": 10,
+      "user_id": 1,
+      "technician_id": 3,
+      "problem_id": 4,
+      "description": "ขยะกองทับถมไม่ได้รับการเก็บมากกว่า 1 สัปดาห์ ส่งกลิ่นเหม็นรุนแรง",
+      "location": "ซอยทองหล่อ 10",
+      "location_detail": "บริเวณถังขยะหน้าหมู่บ้านทองหล่อวิลล่า",
+      "location_lat": -23.5505,
+      "location_lng": -46.6333,
+      "location_url": "https://maps.google.com/?q=-23.5505,-46.6333",
+      "picture_url": "https://picsum.photos/200/300?case=10",
+      "status": "resolved",
+      "datetime": "2026-03-12T09:30:00Z"
+    },
+    {
+      "id": 11,
+      "user_id": 5,
+      "technician_id": null,
+      "problem_id": 1,
+      "description": "สายไฟฟ้าชำรุดห้อยต่ำลงมาใกล้ถนน เสี่ยงต่อการเกิดอันตราย",
+      "location": "ถนนบางนา-ตราด",
+      "location_detail": "ช่วงกิโลเมตรที่ 3 ใกล้ห้างบิ๊กซีบางนา",
+      "location_lat": 30.0444,
+      "location_lng": 31.2357,
+      "location_url": "https://maps.google.com/?q=30.0444,31.2357",
+      "picture_url": "https://picsum.photos/200/300?case=11",
+      "status": "pending",
+      "datetime": "2026-03-12T15:00:00Z"
+    },
+    {
+      "id": 12,
+      "user_id": 4,
+      "technician_id": 1,
+      "problem_id": 6,
+      "description": "ฝาท่อระบายน้ำหายไป เหลือแต่รูเปิดกว้าง อันตรายต่อผู้สัญจรและรถจักรยานยนต์",
+      "location": "ถนนสุทธิสาร",
+      "location_detail": "หน้าตลาดสุทธิสาร ฝั่งขาออก",
+      "location_lat": 43.6532,
+      "location_lng": -79.3832,
+      "location_url": "https://maps.google.com/?q=43.6532,-79.3832",
+      "picture_url": "https://picsum.photos/200/300?case=12",
+      "status": "in_progress",
+      "datetime": "2026-03-13T08:45:00Z"
+    },
+    {
+      "id": 13,
+      "user_id": 6,
+      "technician_id": 4,
+      "problem_id": 5,
+      "description": "กิ่งไม้ขนาดใหญ่หักพาดสายไฟและบล็อกทางเดิน",
+      "location": "ถนนวิภาวดีรังสิต",
+      "location_detail": "ข้างมหาวิทยาลัยหอการค้าไทย",
+      "location_lat": 37.5665,
+      "location_lng": 126.9780,
+      "location_url": "https://maps.google.com/?q=37.5665,126.9780",
+      "picture_url": "https://picsum.photos/200/300?case=13",
+      "status": "resolved",
+      "datetime": "2026-03-13T11:00:00Z"
+    },
+    {
+      "id": 14,
+      "user_id": 2,
+      "technician_id": 5,
+      "problem_id": 2,
+      "description": "หลุมบ่อขนาดใหญ่กลางถนน ฝนตกน้ำขังทำให้มองไม่เห็น เกิดอุบัติเหตุแล้ว 2 ครั้ง",
+      "location": "ถนนพระราม 9",
+      "location_detail": "หน้าเซ็นทรัลพระราม 9",
+      "location_lat": -34.6037,
+      "location_lng": -58.3816,
+      "location_url": "https://maps.google.com/?q=-34.6037,-58.3816",
+      "picture_url": "https://picsum.photos/200/300?case=14",
+      "status": "in_progress",
+      "datetime": "2026-03-14T07:30:00Z"
+    },
+    {
+      "id": 15,
+      "user_id": 3,
+      "technician_id": null,
+      "problem_id": 3,
+      "description": "แรงดันน้ำประปาต่ำมาก น้ำไหลเพียงเล็กน้อยในช่วงเช้าและเย็น",
+      "location": "ซอยเอกมัย 5",
+      "location_detail": "หมู่บ้านเอกมัยการ์เด้น บ้านเลขที่ 45-67",
+      "location_lat": 19.4326,
+      "location_lng": -99.1332,
+      "location_url": "https://maps.google.com/?q=19.4326,-99.1332",
+      "picture_url": "https://picsum.photos/200/300?case=15",
+      "status": "pending",
+      "datetime": "2026-03-14T10:00:00Z"
+    },
+    {
+      "id": 16,
+      "user_id": 1,
+      "technician_id": 2,
+      "problem_id": 1,
+      "description": "ไฟสัญญาณจราจรเสียทำให้การจราจรติดขัดและเกิดอุบัติเหตุ",
+      "location": "แยกอโศก",
+      "location_detail": "สี่แยกอโศก-สุขุมวิท ทิศตะวันออก",
+      "location_lat": -1.2921,
+      "location_lng": 36.8219,
+      "location_url": "https://maps.google.com/?q=-1.2921,36.8219",
+      "picture_url": "https://picsum.photos/200/300?case=16",
+      "status": "resolved",
+      "datetime": "2026-03-14T13:20:00Z"
+    },
+    {
+      "id": 17,
+      "user_id": 5,
+      "technician_id": 3,
+      "problem_id": 4,
+      "description": "มีการทิ้งขยะก่อสร้างริมทางเท้า สิ่งของกีดขวางทางเดิน",
+      "location": "ถนนพระอาทิตย์",
+      "location_detail": "ริมถนนฝั่งตรงข้ามท่าน้ำพระอาทิตย์",
+      "location_lat": 55.7558,
+      "location_lng": 37.6173,
+      "location_url": "https://maps.google.com/?q=55.7558,37.6173",
+      "picture_url": "https://picsum.photos/200/300?case=17",
+      "status": "pending",
+      "datetime": "2026-03-15T08:00:00Z"
+    },
+    {
+      "id": 18,
+      "user_id": 4,
+      "technician_id": 1,
+      "problem_id": 6,
+      "description": "น้ำท่วมขังหน้าบ้านเนื่องจากท่อระบายน้ำตัน ระดับน้ำสูงกว่า 20 ซม.",
+      "location": "ซอยรัชดาภิเษก 32",
+      "location_detail": "ปากซอยฝั่งซ้าย หน้าร้านอาหาร",
+      "location_lat": 41.9028,
+      "location_lng": 12.4964,
+      "location_url": "https://maps.google.com/?q=41.9028,12.4964",
+      "picture_url": "https://picsum.photos/200/300?case=18",
+      "status": "in_progress",
+      "datetime": "2026-03-15T16:00:00Z"
+    },
+    {
+      "id": 19,
+      "user_id": 6,
+      "technician_id": 5,
+      "problem_id": 5,
+      "description": "ต้นไม้ในสวนสาธารณะเน่าและเอนอยู่ในสภาพอันตราย ใกล้จะล้มทับทางเดิน",
+      "location": "สวนสาธารณะสวนลุมพินี",
+      "location_detail": "ทางเดินฝั่งถนนพระราม 4 ใกล้ประตู 3",
+      "location_lat": 52.3676,
+      "location_lng": 4.9041,
+      "location_url": "https://maps.google.com/?q=52.3676,4.9041",
+      "picture_url": "https://picsum.photos/200/300?case=19",
+      "status": "pending",
+      "datetime": "2026-03-16T09:00:00Z"
+    },
+    {
+      "id": 20,
+      "user_id": 2,
+      "technician_id": 4,
+      "problem_id": 2,
+      "description": "ทางเท้าแตกร้าวและยกตัวจากรากต้นไม้ ผู้สูงอายุสะดุดล้มบ่อยครั้ง",
+      "location": "ถนนสาทร",
+      "location_detail": "ทางเท้าฝั่งขาเข้า ช่วงหน้าสถานทูตต่างๆ",
+      "location_lat": 3.1390,
+      "location_lng": 101.6869,
+      "location_url": "https://maps.google.com/?q=3.1390,101.6869",
+      "picture_url": "https://picsum.photos/200/300?case=20",
+      "status": "resolved",
+      "datetime": "2026-03-16T14:00:00Z"
+    },
+    {
+      "id": 21,
+      "user_id": 3,
+      "technician_id": null,
+      "problem_id": 1,
+      "description": "ไฟฟ้าดับเป็นบริเวณกว้างมากกว่า 6 ชั่วโมง ชาวบ้านได้รับความเดือดร้อน",
+      "location": "ซอยลาดกระบัง 15",
+      "location_detail": "พื้นที่ตั้งแต่ปากซอยถึงบริเวณลึกเข้าไป 500 ม.",
+      "location_lat": -33.9249,
+      "location_lng": 18.4241,
+      "location_url": "https://maps.google.com/?q=-33.9249,18.4241",
+      "picture_url": "https://picsum.photos/200/300?case=21",
+      "status": "pending",
+      "datetime": "2026-03-17T20:00:00Z"
+    },
+    {
+      "id": 22,
+      "user_id": 1,
+      "technician_id": 2,
+      "problem_id": 3,
+      "description": "มิเตอร์น้ำประปาชำรุด ค่าน้ำแพงผิดปกติ สงสัยน้ำรั่วใต้ดิน",
+      "location": "ถนนงามวงศ์วาน",
+      "location_detail": "หมู่บ้านงามวงศ์วาน ซอย 3",
+      "location_lat": 6.5244,
+      "location_lng": 3.3792,
+      "location_url": "https://maps.google.com/?q=6.5244,3.3792",
+      "picture_url": "https://picsum.photos/200/300?case=22",
+      "status": "in_progress",
+      "datetime": "2026-03-17T11:30:00Z"
+    },
+    {
+      "id": 23,
+      "user_id": 5,
+      "technician_id": 3,
+      "problem_id": 4,
+      "description": "ผู้ค้าริมทางทิ้งขยะอาหารลงคลอง ทำให้น้ำเน่าเสียและส่งกลิ่นเหม็น",
+      "location": "คลองแสนแสบ",
+      "location_detail": "บริเวณท่าเรือบางกะปิ ฝั่งตลาด",
+      "location_lat": 41.0082,
+      "location_lng": 28.9784,
+      "location_url": "https://maps.google.com/?q=41.0082,28.9784",
+      "picture_url": "https://picsum.photos/200/300?case=23",
+      "status": "pending",
+      "datetime": "2026-03-18T07:00:00Z"
+    },
+    {
+      "id": 24,
+      "user_id": 4,
+      "technician_id": 1,
+      "problem_id": 6,
+      "description": "ฝาบ่อพักท่อระบายน้ำแตกหัก รถยนต์แล่นผ่านส่งเสียงดังและอาจเกิดอันตราย",
+      "location": "ถนนรัชดาภิเษก",
+      "location_detail": "หน้าห้างเซ็นทรัลลาดพร้าว",
+      "location_lat": 48.2082,
+      "location_lng": 16.3738,
+      "location_url": "https://maps.google.com/?q=48.2082,16.3738",
+      "picture_url": "https://picsum.photos/200/300?case=24",
+      "status": "resolved",
+      "datetime": "2026-03-18T10:00:00Z"
+    },
+    {
+      "id": 25,
+      "user_id": 6,
+      "technician_id": 5,
+      "problem_id": 5,
+      "description": "ต้นปาล์มริมถนนล้มหลังฝนพายุ กีดขวางเลนจราจร 1 เลน",
+      "location": "ถนนเจริญกรุง",
+      "location_detail": "บริเวณช่วงใต้สะพานพระราม 3",
+      "location_lat": 59.3293,
+      "location_lng": 18.0686,
+      "location_url": "https://maps.google.com/?q=59.3293,18.0686",
+      "picture_url": "https://picsum.photos/200/300?case=25",
+      "status": "in_progress",
+      "datetime": "2026-03-19T06:00:00Z"
+    },
+    {
+      "id": 26,
+      "user_id": 2,
+      "technician_id": 4,
+      "problem_id": 2,
+      "description": "ถนนในซอยเสียหายจากรถบรรทุกขนาดหนัก ผิวถนนแตกแยกทั้งซอย",
+      "location": "ซอยแบริ่ง 7",
+      "location_detail": "ตลอดแนวซอยตั้งแต่ต้นซอยถึงปลายซอย",
+      "location_lat": 13.7563,
+      "location_lng": 100.5018,
+      "location_url": "https://maps.google.com/?q=13.7563,100.5018",
+      "picture_url": "https://picsum.photos/200/300?case=26",
+      "status": "pending",
+      "datetime": "2026-03-19T09:00:00Z"
+    },
+    {
+      "id": 27,
+      "user_id": 3,
+      "technician_id": 2,
+      "problem_id": 1,
+      "description": "เสาไฟฟ้าเอนอยู่ในสภาพอันตราย หลังถูกรถชน ยังไม่ได้รับการซ่อม",
+      "location": "ถนนประชาชื่น",
+      "location_detail": "ปากซอยประชาชื่น 19",
+      "location_lat": -6.2088,
+      "location_lng": 106.8456,
+      "location_url": "https://maps.google.com/?q=-6.2088,106.8456",
+      "picture_url": "https://picsum.photos/200/300?case=27",
+      "status": "in_progress",
+      "datetime": "2026-03-19T14:00:00Z"
+    },
+    {
+      "id": 28,
+      "user_id": 1,
+      "technician_id": null,
+      "problem_id": 3,
+      "description": "น้ำประปาสีขุ่นมีตะกอนปนออกมา ชาวบ้านกังวลเรื่องสุขภาพ",
+      "location": "ซอยอินทามระ 15",
+      "location_detail": "หมู่บ้านอินทามระ บ้านเลขที่ 200-230",
+      "location_lat": 34.6937,
+      "location_lng": 135.5023,
+      "location_url": "https://maps.google.com/?q=34.6937,135.5023",
+      "picture_url": "https://picsum.photos/200/300?case=28",
+      "status": "pending",
+      "datetime": "2026-03-20T08:30:00Z"
+    },
+    {
+      "id": 29,
+      "user_id": 5,
+      "technician_id": 3,
+      "problem_id": 4,
+      "description": "มีการลักลอบทิ้งเศษวัสดุก่อสร้างในที่ดินสาธารณะ กองสูงกว่า 2 เมตร",
+      "location": "ถนนพระราม 2",
+      "location_detail": "ที่ดินว่างเปล่าริมถนนช่วงกิโลเมตรที่ 12",
+      "location_lat": 41.8781,
+      "location_lng": -87.6298,
+      "location_url": "https://maps.google.com/?q=41.8781,-87.6298",
+      "picture_url": "https://picsum.photos/200/300?case=29",
+      "status": "resolved",
+      "datetime": "2026-03-20T11:00:00Z"
+    },
+    {
+      "id": 30,
+      "user_id": 4,
+      "technician_id": 5,
+      "problem_id": 6,
+      "description": "ท่อระบายน้ำรั่วซึมใต้ถนน ผิวถนนเริ่มยุบตัวเป็นโพรง",
+      "location": "ถนนนครราชสีมา",
+      "location_detail": "หน้ากรมทหารราบที่ 1",
+      "location_lat": 41.3851,
+      "location_lng": 2.1734,
+      "location_url": "https://maps.google.com/?q=41.3851,2.1734",
+      "picture_url": "https://picsum.photos/200/300?case=30",
+      "status": "in_progress",
+      "datetime": "2026-03-21T09:00:00Z"
+    },
+    {
+      "id": 31,
+      "user_id": 6,
+      "technician_id": 1,
+      "problem_id": 5,
+      "description": "หญ้าและพุ่มไม้ในสวนสาธารณะรกรุงรัง บดบังทัศนวิสัยและทางเดิน",
+      "location": "สวนสาธารณะหนองจอก",
+      "location_detail": "ทางเข้าหลักและเส้นทางรอบสระน้ำ",
+      "location_lat": 24.7136,
+      "location_lng": 46.6753,
+      "location_url": "https://maps.google.com/?q=24.7136,46.6753",
+      "picture_url": "https://picsum.photos/200/300?case=31",
+      "status": "pending",
+      "datetime": "2026-03-21T10:30:00Z"
+    },
+    {
+      "id": 32,
+      "user_id": 2,
+      "technician_id": 2,
+      "problem_id": 2,
+      "description": "สะพานคอนกรีตมีรอยแตกร้าวที่ราวกันตก อันตรายต่อผู้ใช้งาน",
+      "location": "สะพานข้ามคลองบางซื่อ",
+      "location_detail": "ถนนประชาราษฎร์ สาย 1 ตรงจุดข้ามคลอง",
+      "location_lat": 24.8607,
+      "location_lng": 67.0011,
+      "location_url": "https://maps.google.com/?q=24.8607,67.0011",
+      "picture_url": "https://picsum.photos/200/300?case=32",
+      "status": "in_progress",
+      "datetime": "2026-03-22T08:00:00Z"
+    },
+    {
+      "id": 33,
+      "user_id": 3,
+      "technician_id": 4,
+      "problem_id": 1,
+      "description": "กล่องไฟฟ้าข้างทางเปิดโล่ง สายไฟโผล่ออกมา เสี่ยงต่อไฟดูด",
+      "location": "ถนนดินแดง",
+      "location_detail": "ใกล้แยกดินแดง หน้าห้างยูเนี่ยนมอลล์",
+      "location_lat": -12.0464,
+      "location_lng": -77.0428,
+      "location_url": "https://maps.google.com/?q=-12.0464,-77.0428",
+      "picture_url": "https://picsum.photos/200/300?case=33",
+      "status": "resolved",
+      "datetime": "2026-03-22T12:00:00Z"
+    },
+    {
+      "id": 34,
+      "user_id": 1,
+      "technician_id": null,
+      "problem_id": 4,
+      "description": "มีการทิ้งซากรถยนต์และเครื่องใช้ไฟฟ้าเก่าในพื้นที่สาธารณะ",
+      "location": "ซอยลาดพร้าว 80",
+      "location_detail": "บริเวณหลังตลาดนัดลาดพร้าว 80",
+      "location_lat": 35.6892,
+      "location_lng": 51.3890,
+      "location_url": "https://maps.google.com/?q=35.6892,51.3890",
+      "picture_url": "https://picsum.photos/200/300?case=34",
+      "status": "pending",
+      "datetime": "2026-03-23T09:00:00Z"
+    },
+    {
+      "id": 35,
+      "user_id": 5,
+      "technician_id": 3,
+      "problem_id": 3,
+      "description": "ท่อน้ำประปาใต้ดินรั่ว น้ำซึมขึ้นมาบนผิวถนนทำให้ลื่น",
+      "location": "ถนนสุขสวัสดิ์",
+      "location_detail": "หน้าโรงพยาบาลราษฎร์บูรณะ",
+      "location_lat": 23.8103,
+      "location_lng": 90.4125,
+      "location_url": "https://maps.google.com/?q=23.8103,90.4125",
+      "picture_url": "https://picsum.photos/200/300?case=35",
+      "status": "in_progress",
+      "datetime": "2026-03-23T11:30:00Z"
+    },
+    {
+      "id": 36,
+      "user_id": 4,
+      "technician_id": 5,
+      "problem_id": 6,
+      "description": "ปากท่อระบายน้ำอุดตันด้วยใบไม้และเศษขยะ น้ำไม่ระบายเมื่อฝนตก",
+      "location": "ถนนเทพารักษ์",
+      "location_detail": "หน้าห้างเทสโก้โลตัสเทพารักษ์",
+      "location_lat": 14.5995,
+      "location_lng": 120.9842,
+      "location_url": "https://maps.google.com/?q=14.5995,120.9842",
+      "picture_url": "https://picsum.photos/200/300?case=36",
+      "status": "resolved",
+      "datetime": "2026-03-24T08:00:00Z"
+    },
+    {
+      "id": 37,
+      "user_id": 6,
+      "technician_id": 1,
+      "problem_id": 2,
+      "description": "ป้ายจราจรล้มขวางทางเท้า หลังถูกรถชน ยังไม่มีหน่วยงานมาเก็บ",
+      "location": "ถนนบรมราชชนนี",
+      "location_detail": "หน้าห้างเซ็นทรัลปิ่นเกล้า ฝั่งขาออก",
+      "location_lat": 52.2297,
+      "location_lng": 21.0122,
+      "location_url": "https://maps.google.com/?q=52.2297,21.0122",
+      "picture_url": "https://picsum.photos/200/300?case=37",
+      "status": "pending",
+      "datetime": "2026-03-24T14:00:00Z"
+    },
+    {
+      "id": 38,
+      "user_id": 2,
+      "technician_id": 2,
+      "problem_id": 1,
+      "description": "ไฟสปอตไลท์ส่องสว่างในสวนสาธารณะเสียทั้งหมด บรรยากาศมืดและน่ากลัว",
+      "location": "สวนสาธารณะรัชดาภิเษก",
+      "location_detail": "ลานออกกำลังกายฝั่งทิศเหนือ",
+      "location_lat": 38.7169,
+      "location_lng": -9.1395,
+      "location_url": "https://maps.google.com/?q=38.7169,-9.1395",
+      "picture_url": "https://picsum.photos/200/300?case=38",
+      "status": "in_progress",
+      "datetime": "2026-03-25T07:00:00Z"
+    },
+    {
+      "id": 39,
+      "user_id": 3,
+      "technician_id": 4,
+      "problem_id": 5,
+      "description": "ต้นไทรขนาดใหญ่รากงอกทำลายท่อน้ำและผิวถนนโดยรอบ",
+      "location": "ถนนพหลโยธิน",
+      "location_detail": "หน้ามหาวิทยาลัยเกษตรศาสตร์ ประตูหลัก",
+      "location_lat": 55.6761,
+      "location_lng": 12.5683,
+      "location_url": "https://maps.google.com/?q=55.6761,12.5683",
+      "picture_url": "https://picsum.photos/200/300?case=39",
+      "status": "pending",
+      "datetime": "2026-03-25T10:00:00Z"
+    },
+    {
+      "id": 40,
+      "user_id": 1,
+      "technician_id": 3,
+      "problem_id": 4,
+      "description": "น้ำเสียจากโรงงานไหลลงคลองสาธารณะ น้ำเปลี่ยนสีเป็นดำและส่งกลิ่น",
+      "location": "คลองประเวศบุรีรมย์",
+      "location_detail": "บริเวณใต้สะพานถนนร่มเกล้า",
+      "location_lat": -36.8485,
+      "location_lng": 174.7633,
+      "location_url": "https://maps.google.com/?q=-36.8485,174.7633",
+      "picture_url": "https://picsum.photos/200/300?case=40",
+      "status": "in_progress",
+      "datetime": "2026-03-26T09:00:00Z"
+    },
+    {
+      "id": 41,
+      "user_id": 5,
+      "technician_id": null,
+      "problem_id": 2,
+      "description": "ขอบถนนพังทลายลงคลองข้าง ความกว้างถนนแคบลงครึ่งหนึ่ง",
+      "location": "ถนนริมคลองลาดพร้าว",
+      "location_detail": "ช่วงหน้าตลาดมีนบุรี ฝั่งทิศใต้",
+      "location_lat": 53.3498,
+      "location_lng": -6.2603,
+      "location_url": "https://maps.google.com/?q=53.3498,-6.2603",
+      "picture_url": "https://picsum.photos/200/300?case=41",
+      "status": "pending",
+      "datetime": "2026-03-26T11:00:00Z"
+    },
+    {
+      "id": 42,
+      "user_id": 4,
+      "technician_id": 1,
+      "problem_id": 3,
+      "description": "น้ำประปาไม่ไหลในช่วงกลางคืน ตั้งแต่ 22:00 ถึง 05:00 น. ทุกวัน",
+      "location": "ซอยสุขุมวิท 77",
+      "location_detail": "หมู่บ้านออนนุชวิลเลจ เฟส 2",
+      "location_lat": 47.3769,
+      "location_lng": 8.5417,
+      "location_url": "https://maps.google.com/?q=47.3769,8.5417",
+      "picture_url": "https://picsum.photos/200/300?case=42",
+      "status": "resolved",
+      "datetime": "2026-03-27T08:00:00Z"
+    },
+    {
+      "id": 43,
+      "user_id": 6,
+      "technician_id": 5,
+      "problem_id": 6,
+      "description": "รางระบายน้ำข้างทางเท้าพังและทรุดตัว เป็นอันตรายต่อผู้เดินเท้า",
+      "location": "ถนนอ่อนนุช",
+      "location_detail": "หน้าตลาดอ่อนนุช ทางเข้าหลัก",
+      "location_lat": 37.9838,
+      "location_lng": 23.7275,
+      "location_url": "https://maps.google.com/?q=37.9838,23.7275",
+      "picture_url": "https://picsum.photos/200/300?case=43",
+      "status": "in_progress",
+      "datetime": "2026-03-27T14:00:00Z"
+    },
+    {
+      "id": 44,
+      "user_id": 2,
+      "technician_id": 2,
+      "problem_id": 1,
+      "description": "หม้อแปลงไฟฟ้าส่งเสียงดังผิดปกติตลอดคืน ชาวบ้านนอนไม่หลับ",
+      "location": "ซอยอารีย์ 4",
+      "location_detail": "ข้างอาคารพักอาศัยอารีย์พลาซ่า",
+      "location_lat": 33.8938,
+      "location_lng": 35.5018,
+      "location_url": "https://maps.google.com/?q=33.8938,35.5018",
+      "picture_url": "https://picsum.photos/200/300?case=44",
+      "status": "pending",
+      "datetime": "2026-03-28T06:00:00Z"
+    },
+    {
+      "id": 45,
+      "user_id": 3,
+      "technician_id": 4,
+      "problem_id": 5,
+      "description": "ต้นไม้ในเกาะกลางถนนตายและแห้ง รกรุงรังไม่สวยงาม",
+      "location": "ถนนพระราม 4",
+      "location_detail": "เกาะกลางถนนช่วงหน้าสถานีรถไฟหัวลำโพง",
+      "location_lat": 5.6037,
+      "location_lng": -0.1870,
+      "location_url": "https://maps.google.com/?q=5.6037,-0.1870",
+      "picture_url": "https://picsum.photos/200/300?case=45",
+      "status": "resolved",
+      "datetime": "2026-03-28T10:00:00Z"
+    },
+    {
+      "id": 46,
+      "user_id": 1,
+      "technician_id": null,
+      "problem_id": 4,
+      "description": "มีการทิ้งขยะอิเล็กทรอนิกส์บริเวณใต้ทางด่วน ปริมาณมากและอันตราย",
+      "location": "ทางด่วนศรีรัช",
+      "location_detail": "ใต้ทางด่วนบริเวณซอยวิภาวดี 16",
+      "location_lat": 33.5731,
+      "location_lng": -7.5898,
+      "location_url": "https://maps.google.com/?q=33.5731,-7.5898",
+      "picture_url": "https://picsum.photos/200/300?case=46",
+      "status": "pending",
+      "datetime": "2026-03-29T09:00:00Z"
+    },
+    {
+      "id": 47,
+      "user_id": 5,
+      "technician_id": 3,
+      "problem_id": 2,
+      "description": "ไหล่ทางพังเสียหายรุนแรง รถเล็กไม่สามารถจอดพักข้างทางได้",
+      "location": "ถนนกาญจนาภิเษก",
+      "location_detail": "ช่วงกิโลเมตรที่ 22 ฝั่งขาออก",
+      "location_lat": 4.7110,
+      "location_lng": -74.0721,
+      "location_url": "https://maps.google.com/?q=4.7110,-74.0721",
+      "picture_url": "https://picsum.photos/200/300?case=47",
+      "status": "in_progress",
+      "datetime": "2026-03-29T13:00:00Z"
+    },
+    {
+      "id": 48,
+      "user_id": 4,
+      "technician_id": 1,
+      "problem_id": 3,
+      "description": "ท่อน้ำประปาหน้าโรงเรียนแตกน้ำไหลท่วมบริเวณทางเข้า",
+      "location": "ถนนสุขาภิบาล 1",
+      "location_detail": "หน้าโรงเรียนสุขาภิบาล 1 ช่วงประตูหลัก",
+      "location_lat": -33.4489,
+      "location_lng": -70.6693,
+      "location_url": "https://maps.google.com/?q=-33.4489,-70.6693",
+      "picture_url": "https://picsum.photos/200/300?case=48",
+      "status": "resolved",
+      "datetime": "2026-03-30T07:30:00Z"
+    },
+    {
+      "id": 49,
+      "user_id": 6,
+      "technician_id": 5,
+      "problem_id": 6,
+      "description": "ท่อระบายน้ำฝนไม่เพียงพอ เมื่อฝนตกหนักน้ำท่วมสูงถึง 50 ซม.",
+      "location": "ซอยรามคำแหง 24",
+      "location_detail": "ช่วงกลางซอยจนถึงปลายซอย",
+      "location_lat": 23.1136,
+      "location_lng": -82.3666,
+      "location_url": "https://maps.google.com/?q=23.1136,-82.3666",
+      "picture_url": "https://picsum.photos/200/300?case=49",
+      "status": "in_progress",
+      "datetime": "2026-03-30T16:00:00Z"
+    },
+    {
+      "id": 50,
+      "user_id": 2,
+      "technician_id": 2,
+      "problem_id": 1,
+      "description": "ระบบไฟส่องสว่างใต้สะพานลอยคนข้ามเสีย มืดมากและไม่ปลอดภัยสำหรับผู้หญิง",
+      "location": "ถนนสุขุมวิท",
+      "location_detail": "สะพานลอยหน้าสถานีรถไฟฟ้า BTS อโศก",
+      "location_lat": 9.0320,
+      "location_lng": 38.7469,
+      "location_url": "https://maps.google.com/?q=9.0320,38.7469",
+      "picture_url": "https://picsum.photos/200/300?case=50",
+      "status": "pending",
+      "datetime": "2026-02-01T19:00:00Z"
+    }
+    ],
+    "case_status_logs" : [
+  {
+    "id": 1,
+    "case_id": 1,
+    "status": "pending",
+    "changed_at": "2026-04-01T07:45:00Z"
+  },
+  {
+    "id": 2,
+    "case_id": 2,
+    "status": "pending",
+    "changed_at": "2026-04-03T18:20:00Z"
+  },
+  {
+    "id": 3,
+    "case_id": 2,
+    "status": "in_progress",
+    "changed_at": "2026-04-03T19:20:00Z"
+  },
+  {
+    "id": 4,
+    "case_id": 3,
+    "status": "pending",
+    "changed_at": "2026-03-28T11:00:00Z"
+  },
+  {
+    "id": 5,
+    "case_id": 3,
+    "status": "in_progress",
+    "changed_at": "2026-03-28T12:00:00Z"
+  },
+  {
+    "id": 6,
+    "case_id": 3,
+    "status": "resolved",
+    "changed_at": "2026-03-29T12:00:00Z"
+  },
+  {
+    "id": 7,
+    "case_id": 4,
+    "status": "pending",
+    "changed_at": "2026-04-05T13:30:00Z"
+  },
+  {
+    "id": 8,
+    "case_id": 5,
+    "status": "pending",
+    "changed_at": "2026-04-08T06:30:00Z"
+  },
+  {
+    "id": 9,
+    "case_id": 5,
+    "status": "in_progress",
+    "changed_at": "2026-04-08T07:30:00Z"
+  },
+  {
+    "id": 10,
+    "case_id": 6,
+    "status": "pending",
+    "changed_at": "2026-04-09T14:00:00Z"
+  },
+  {
+    "id": 11,
+    "case_id": 7,
+    "status": "pending",
+    "changed_at": "2026-04-10T19:00:00Z"
+  },
+  {
+    "id": 12,
+    "case_id": 7,
+    "status": "in_progress",
+    "changed_at": "2026-04-10T20:00:00Z"
+  },
+  {
+    "id": 13,
+    "case_id": 7,
+    "status": "resolved",
+    "changed_at": "2026-04-11T20:00:00Z"
+  },
+  {
+    "id": 14,
+    "case_id": 8,
+    "status": "pending",
+    "changed_at": "2026-04-11T10:15:00Z"
+  },
+  {
+    "id": 15,
+    "case_id": 9,
+    "status": "pending",
+    "changed_at": "2026-03-12T07:00:00Z"
+  },
+  {
+    "id": 16,
+    "case_id": 9,
+    "status": "in_progress",
+    "changed_at": "2026-03-12T08:00:00Z"
+  },
+  {
+    "id": 17,
+    "case_id": 10,
+    "status": "pending",
+    "changed_at": "2026-03-12T09:30:00Z"
+  },
+  {
+    "id": 18,
+    "case_id": 10,
+    "status": "in_progress",
+    "changed_at": "2026-03-12T10:30:00Z"
+  },
+  {
+    "id": 19,
+    "case_id": 10,
+    "status": "resolved",
+    "changed_at": "2026-03-13T10:30:00Z"
+  },
+  {
+    "id": 20,
+    "case_id": 11,
+    "status": "pending",
+    "changed_at": "2026-03-12T15:00:00Z"
+  },
+  {
+    "id": 21,
+    "case_id": 12,
+    "status": "pending",
+    "changed_at": "2026-03-13T08:45:00Z"
+  },
+  {
+    "id": 22,
+    "case_id": 12,
+    "status": "in_progress",
+    "changed_at": "2026-03-13T09:45:00Z"
+  },
+  {
+    "id": 23,
+    "case_id": 13,
+    "status": "pending",
+    "changed_at": "2026-03-13T11:00:00Z"
+  },
+  {
+    "id": 24,
+    "case_id": 13,
+    "status": "in_progress",
+    "changed_at": "2026-03-13T12:00:00Z"
+  },
+  {
+    "id": 25,
+    "case_id": 13,
+    "status": "resolved",
+    "changed_at": "2026-03-14T12:00:00Z"
+  },
+  {
+    "id": 26,
+    "case_id": 14,
+    "status": "pending",
+    "changed_at": "2026-03-14T07:30:00Z"
+  },
+  {
+    "id": 27,
+    "case_id": 14,
+    "status": "in_progress",
+    "changed_at": "2026-03-14T08:30:00Z"
+  },
+  {
+    "id": 28,
+    "case_id": 15,
+    "status": "pending",
+    "changed_at": "2026-03-14T10:00:00Z"
+  },
+  {
+    "id": 29,
+    "case_id": 16,
+    "status": "pending",
+    "changed_at": "2026-03-14T13:20:00Z"
+  },
+  {
+    "id": 30,
+    "case_id": 16,
+    "status": "in_progress",
+    "changed_at": "2026-03-14T14:20:00Z"
+  },
+  {
+    "id": 31,
+    "case_id": 16,
+    "status": "resolved",
+    "changed_at": "2026-03-15T14:20:00Z"
+  },
+  {
+    "id": 32,
+    "case_id": 17,
+    "status": "pending",
+    "changed_at": "2026-03-15T08:00:00Z"
+  },
+  {
+    "id": 33,
+    "case_id": 18,
+    "status": "pending",
+    "changed_at": "2026-03-15T16:00:00Z"
+  },
+  {
+    "id": 34,
+    "case_id": 18,
+    "status": "in_progress",
+    "changed_at": "2026-03-15T17:00:00Z"
+  },
+  {
+    "id": 35,
+    "case_id": 19,
+    "status": "pending",
+    "changed_at": "2026-03-16T09:00:00Z"
+  },
+  {
+    "id": 36,
+    "case_id": 20,
+    "status": "pending",
+    "changed_at": "2026-03-16T14:00:00Z"
+  },
+  {
+    "id": 37,
+    "case_id": 20,
+    "status": "in_progress",
+    "changed_at": "2026-03-16T15:00:00Z"
+  },
+  {
+    "id": 38,
+    "case_id": 20,
+    "status": "resolved",
+    "changed_at": "2026-03-17T15:00:00Z"
+  },
+  {
+    "id": 39,
+    "case_id": 21,
+    "status": "pending",
+    "changed_at": "2026-03-17T20:00:00Z"
+  },
+  {
+    "id": 40,
+    "case_id": 22,
+    "status": "pending",
+    "changed_at": "2026-03-17T11:30:00Z"
+  },
+  {
+    "id": 41,
+    "case_id": 22,
+    "status": "in_progress",
+    "changed_at": "2026-03-17T12:30:00Z"
+  },
+  {
+    "id": 42,
+    "case_id": 23,
+    "status": "pending",
+    "changed_at": "2026-03-18T07:00:00Z"
+  },
+  {
+    "id": 43,
+    "case_id": 24,
+    "status": "pending",
+    "changed_at": "2026-03-18T10:00:00Z"
+  },
+  {
+    "id": 44,
+    "case_id": 24,
+    "status": "in_progress",
+    "changed_at": "2026-03-18T11:00:00Z"
+  },
+  {
+    "id": 45,
+    "case_id": 24,
+    "status": "resolved",
+    "changed_at": "2026-03-19T11:00:00Z"
+  },
+  {
+    "id": 46,
+    "case_id": 25,
+    "status": "pending",
+    "changed_at": "2026-03-19T06:00:00Z"
+  },
+  {
+    "id": 47,
+    "case_id": 25,
+    "status": "in_progress",
+    "changed_at": "2026-03-19T07:00:00Z"
+  },
+  {
+    "id": 48,
+    "case_id": 26,
+    "status": "pending",
+    "changed_at": "2026-03-19T09:00:00Z"
+  },
+  {
+    "id": 49,
+    "case_id": 27,
+    "status": "pending",
+    "changed_at": "2026-03-19T14:00:00Z"
+  },
+  {
+    "id": 50,
+    "case_id": 27,
+    "status": "in_progress",
+    "changed_at": "2026-03-19T15:00:00Z"
+  },
+  {
+    "id": 51,
+    "case_id": 28,
+    "status": "pending",
+    "changed_at": "2026-03-20T08:30:00Z"
+  },
+  {
+    "id": 52,
+    "case_id": 29,
+    "status": "pending",
+    "changed_at": "2026-03-20T11:00:00Z"
+  },
+  {
+    "id": 53,
+    "case_id": 29,
+    "status": "in_progress",
+    "changed_at": "2026-03-20T12:00:00Z"
+  },
+  {
+    "id": 54,
+    "case_id": 29,
+    "status": "resolved",
+    "changed_at": "2026-03-21T12:00:00Z"
+  },
+  {
+    "id": 55,
+    "case_id": 30,
+    "status": "pending",
+    "changed_at": "2026-03-21T09:00:00Z"
+  },
+  {
+    "id": 56,
+    "case_id": 30,
+    "status": "in_progress",
+    "changed_at": "2026-03-21T10:00:00Z"
+  },
+  {
+    "id": 57,
+    "case_id": 31,
+    "status": "pending",
+    "changed_at": "2026-03-21T10:30:00Z"
+  },
+  {
+    "id": 58,
+    "case_id": 32,
+    "status": "pending",
+    "changed_at": "2026-03-22T08:00:00Z"
+  },
+  {
+    "id": 59,
+    "case_id": 32,
+    "status": "in_progress",
+    "changed_at": "2026-03-22T09:00:00Z"
+  },
+  {
+    "id": 60,
+    "case_id": 33,
+    "status": "pending",
+    "changed_at": "2026-03-22T12:00:00Z"
+  },
+  {
+    "id": 61,
+    "case_id": 33,
+    "status": "in_progress",
+    "changed_at": "2026-03-22T13:00:00Z"
+  },
+  {
+    "id": 62,
+    "case_id": 33,
+    "status": "resolved",
+    "changed_at": "2026-03-23T13:00:00Z"
+  },
+  {
+    "id": 63,
+    "case_id": 34,
+    "status": "pending",
+    "changed_at": "2026-03-23T09:00:00Z"
+  },
+  {
+    "id": 64,
+    "case_id": 35,
+    "status": "pending",
+    "changed_at": "2026-03-23T11:30:00Z"
+  },
+  {
+    "id": 65,
+    "case_id": 35,
+    "status": "in_progress",
+    "changed_at": "2026-03-23T12:30:00Z"
+  },
+  {
+    "id": 66,
+    "case_id": 36,
+    "status": "pending",
+    "changed_at": "2026-03-24T08:00:00Z"
+  },
+  {
+    "id": 67,
+    "case_id": 36,
+    "status": "in_progress",
+    "changed_at": "2026-03-24T09:00:00Z"
+  },
+  {
+    "id": 68,
+    "case_id": 36,
+    "status": "resolved",
+    "changed_at": "2026-03-25T09:00:00Z"
+  },
+  {
+    "id": 69,
+    "case_id": 37,
+    "status": "pending",
+    "changed_at": "2026-03-24T14:00:00Z"
+  },
+  {
+    "id": 70,
+    "case_id": 38,
+    "status": "pending",
+    "changed_at": "2026-03-25T07:00:00Z"
+  },
+  {
+    "id": 71,
+    "case_id": 38,
+    "status": "in_progress",
+    "changed_at": "2026-03-25T08:00:00Z"
+  },
+  {
+    "id": 72,
+    "case_id": 39,
+    "status": "pending",
+    "changed_at": "2026-03-25T10:00:00Z"
+  },
+  {
+    "id": 73,
+    "case_id": 40,
+    "status": "pending",
+    "changed_at": "2026-03-26T09:00:00Z"
+  },
+  {
+    "id": 74,
+    "case_id": 40,
+    "status": "in_progress",
+    "changed_at": "2026-03-26T10:00:00Z"
+  },
+  {
+    "id": 75,
+    "case_id": 41,
+    "status": "pending",
+    "changed_at": "2026-03-26T11:00:00Z"
+  },
+  {
+    "id": 76,
+    "case_id": 42,
+    "status": "pending",
+    "changed_at": "2026-03-27T08:00:00Z"
+  },
+  {
+    "id": 77,
+    "case_id": 42,
+    "status": "in_progress",
+    "changed_at": "2026-03-27T09:00:00Z"
+  },
+  {
+    "id": 78,
+    "case_id": 42,
+    "status": "resolved",
+    "changed_at": "2026-03-28T09:00:00Z"
+  },
+  {
+    "id": 79,
+    "case_id": 43,
+    "status": "pending",
+    "changed_at": "2026-03-27T14:00:00Z"
+  },
+  {
+    "id": 80,
+    "case_id": 43,
+    "status": "in_progress",
+    "changed_at": "2026-03-27T15:00:00Z"
+  },
+  {
+    "id": 81,
+    "case_id": 44,
+    "status": "pending",
+    "changed_at": "2026-03-28T06:00:00Z"
+  },
+  {
+    "id": 82,
+    "case_id": 45,
+    "status": "pending",
+    "changed_at": "2026-03-28T10:00:00Z"
+  },
+  {
+    "id": 83,
+    "case_id": 45,
+    "status": "in_progress",
+    "changed_at": "2026-03-28T11:00:00Z"
+  },
+  {
+    "id": 84,
+    "case_id": 45,
+    "status": "resolved",
+    "changed_at": "2026-03-29T11:00:00Z"
+  },
+  {
+    "id": 85,
+    "case_id": 46,
+    "status": "pending",
+    "changed_at": "2026-03-29T09:00:00Z"
+  },
+  {
+    "id": 86,
+    "case_id": 47,
+    "status": "pending",
+    "changed_at": "2026-03-29T13:00:00Z"
+  },
+  {
+    "id": 87,
+    "case_id": 47,
+    "status": "in_progress",
+    "changed_at": "2026-03-29T14:00:00Z"
+  },
+  {
+    "id": 88,
+    "case_id": 48,
+    "status": "pending",
+    "changed_at": "2026-03-30T07:30:00Z"
+  },
+  {
+    "id": 89,
+    "case_id": 48,
+    "status": "in_progress",
+    "changed_at": "2026-03-30T08:30:00Z"
+  },
+  {
+    "id": 90,
+    "case_id": 48,
+    "status": "resolved",
+    "changed_at": "2026-03-31T08:30:00Z"
+  },
+  {
+    "id": 91,
+    "case_id": 49,
+    "status": "pending",
+    "changed_at": "2026-03-30T16:00:00Z"
+  },
+  {
+    "id": 92,
+    "case_id": 49,
+    "status": "in_progress",
+    "changed_at": "2026-03-30T17:00:00Z"
+  },
+  {
+    "id": 93,
+    "case_id": 50,
+    "status": "pending",
+    "changed_at": "2026-02-01T19:00:00Z"
+  }
+
+  ]
+  
+  
+
+}

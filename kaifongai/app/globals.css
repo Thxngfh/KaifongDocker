@@ -1,0 +1,128 @@
+@import "tailwindcss";
+/*สำหรับตั้งค่าสีหน้า ตามส่วนต่างๆ*/
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-inter: 'Inter', sans-serif;
+}
+
+.admin-theme{
+  /* base */
+  --background: #FFFFFF;
+}
+
+@theme {
+  --color-accent: var(--accent);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-foreground: var(--foreground);
+  --color-foreground3: var(--foreground3);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+}
+
+:root {
+    /* base */
+  --background: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface2: #F5F6FA;
+
+  /* text */
+  --foreground: #161B29;
+  --foreground2: #4D4632; /* text ใน table เช่นคอลัมหน่วยงาน*/
+  --foreground3: #231B00; /*text ในจำนวนคำร้องเรียน*/
+  --foreground2: #4D4632;
+  --muted-foreground: #575E72;
+  --foreground3: #3D4457;
+  
+  --muted-foreground: #575E72;
+
+  /* brand */
+  /* sidebar + header */
+  --primary: #161B29;  
+  --secondary: #2B303F;     
+  --primary-foreground: #FFFFFF;
+
+  /* accent */
+  --accent: #FFD100;
+
+  /* status */
+  --success: #10B981;
+  --warning: #D97706;
+  --danger: #E11D48;
+  
+  --toggle-muted: #D1D5DB; /*table*/
+  
+}
+.dashboard-ranking{
+  --muted-foreground: #64748B;
+  --rank-foreground: #6F5A00; 
+  --rank-foreground2: #725C00;
+  --rank-icon: #CBD5E1;
+}
+
+.admin-theme{
+      /* base */
+  --background: #ffffff;
+  --surface: #ffffff;
+
+  /* text */
+  --foreground: #161B29;
+  --foreground2: #4D4632;
+  --muted-foreground: #575E72;
+  --foreground3: #3D4457;
+  
+
+  /* brand */
+  /* sidebar + header */
+  --primary: #161B29;  
+  --secondary: #2B303F;     
+  --primary-foreground: #FFFFFF;
+
+  /* accent */
+  --accent: #FFD100;
+
+  /* status */
+  --success: #10B981;
+  --warning: #D97706;
+  --danger: #E11D48;
+}
+
+@theme admin {
+  /* base */
+  --background: #F1F1F2;
+  --surface: #FFFFFF;
+  --surface2: #F5F6FA;
+
+  /* text */
+  --foreground: #161B29;
+  --foreground2: #4D4632;
+  --muted-foreground: #575E72;
+  --foreground3: #3D4457;
+  
+
+  /* brand */
+  /* sidebar + header */
+  --primary: #161B29;  
+  --secondary: #2B303F;     
+  --primary-foreground: #FFFFFF;
+
+  /* accent */
+  --accent: #FFD100;
+
+  /* status */
+  --success: #10B981;
+  --warning: #D97706;
+  --danger: #E11D48;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
