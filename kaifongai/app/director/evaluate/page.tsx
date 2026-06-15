@@ -22,7 +22,6 @@ const columns = [
   { key: "phone", title: "ติดต่อ" },
   { key: "status", title: "สถานะ" },
   { key: "staff", title: "เจ้าหน้าที่ที่รับผิดชอบ" },
-  { key: "types", title: "ประเภทปัญหา"}
 ]
 
 const problemImageMap: Record<string, string> = {

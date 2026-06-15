@@ -1,14 +1,13 @@
 "use client"
 import React from 'react'
-import EmojiButton from '@/components/ui/Director/EmojiButton'
-import EmojiButton2 from '@/components/ui/Director/EmojiButton2'
-import ComplaintSearchInput from '@/components/ui/Admin_director/ComplainSearchInput'
-import { RiDropdownList } from 'react-icons/ri'
 import ManualToolbar from '@/components/ui/Director/ManualToolbar'
 import ComplaintPagination from '@/components/ui/Admin_director/PageNavigation'
 import FileCard from '@/components/ui/Director/fileCard'
 import { FaPlus } from 'react-icons/fa6'
 import { Sarabun} from "next/font/google";
+import { useState } from "react";
+import AddManualModal from '@/components/ui/Director/AddManualModal'
+
 
 const thaiFont = Sarabun({
   subsets: ["thai"],
@@ -115,6 +114,10 @@ const StaffManualPage = () => {
     const [search, setSearch] = React.useState("")
     const pageSize = 3
 
+    //search
+    const [openModal, setOpenModal] = useState(false);
+    const [editingItem, setEditingItem] = useState<any>(null);
+
     const filteredData = React.useMemo(() => {
         const keyword = search.toLowerCase().trim();
     
@@ -151,10 +154,17 @@ const StaffManualPage = () => {
                 </p>
             </div>
 
-            <button className="bg-accent px-4 py-3 rounded-xl font-bold shadow-md cursor-pointer hover:bg-yellow-500 transition flex items-center gap-2">
+            <button
+            onClick={() => { setEditingItem(null); setOpenModal(true); }}
+            className="bg-accent px-4 py-3 rounded-xl font-bold shadow-md cursor-pointer hover:bg-yellow-500 transition flex items-center gap-2">
                 <FaPlus />
                 <span className="text-black text-md">อัพโหลดคู่มือใหม่</span>
             </button>
+            <AddManualModal
+                isOpen={openModal}
+                action={() => setOpenModal(false)}
+                initialData={editingItem}
+            />
         </div>
 
             {/* <button className='bg-accent p-4 rounded-xl font-bold shadow-md cursor-pointer hover:bg-yellow-500 transition flex flex-row'>

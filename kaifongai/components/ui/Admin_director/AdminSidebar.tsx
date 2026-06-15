@@ -173,7 +173,6 @@ export default function Sidebar({ isOpen }: SidebarProps) {
 
             <hr className="mx-1 border-black/20" />
         </div>
-
             <div className="absolute bottom-0 w-full px-8 py-6 text-white text-xl">
                 {/*บอกโรลว่าเป็นใคร*/}
                 <div className="flex flex-row items-center gap-2">

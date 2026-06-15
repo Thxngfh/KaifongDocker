@@ -1,14 +1,12 @@
 "use client"
 import React from 'react'
-import EmojiButton from '@/components/ui/Director/EmojiButton'
-import EmojiButton2 from '@/components/ui/Director/EmojiButton2'
-import ComplaintSearchInput from '@/components/ui/Admin_director/ComplainSearchInput'
-import { RiDropdownList } from 'react-icons/ri'
+import { useEffect, useState } from "react";
 import ManualToolbar from '@/components/ui/Director/ManualToolbar'
 import ComplaintPagination from '@/components/ui/Admin_director/PageNavigation'
 import FileCard from '@/components/ui/Director/fileCard'
 import { FaPlus } from 'react-icons/fa6'
 import { Sarabun} from "next/font/google";
+import AddManualModal from '@/components/ui/Director/AddManualModal'
 
 const thaiFont = Sarabun({
     subsets: ["thai"],
@@ -115,6 +113,11 @@ const ReporterManualPage = () => {
     const [search, setSearch] = React.useState("")
     const pageSize = 3
 
+    //search
+    const [openModal, setOpenModal] = useState(false);
+    const [editingItem, setEditingItem] = useState<any>(null);
+    
+
     const filteredData = React.useMemo(() => {
         const keyword = search.toLowerCase().trim();
         
@@ -151,31 +154,18 @@ const ReporterManualPage = () => {
                 </p>
             </div>
 
-            <button className="bg-accent px-4 py-3 rounded-xl font-bold shadow-md cursor-pointer hover:bg-yellow-500 transition flex items-center gap-2">
+            <button
+            onClick={() => { setEditingItem(null); setOpenModal(true); }}
+            className="bg-accent px-4 py-3 rounded-xl font-bold shadow-md cursor-pointer hover:bg-yellow-500 transition flex items-center gap-2">
                 <FaPlus />
                 <span className="text-black text-md">อัพโหลดคู่มือใหม่</span>
             </button>
+            <AddManualModal
+                isOpen={openModal}
+                action={() => setOpenModal(false)}
+                initialData={editingItem}
+            />
         </div>
-
-            {/* <div className="flex gap-5 mt-8">
-                {/* อันนี้เดี๋ยวเปลี่ยนทีหลังให้มันตามลิงค์ไม่ใช่staticแบบนี้ (มีcomponentsอยู่แล้ว) */}
-                {/* <button className='bg-white p-4 rounded-xl font-bold shadow-xs cursor-pointer hover:bg-gray-200 transition border-1 border-gray-200'>
-                    <span className='ml-1 text-[#575E72]'>
-                        🧑‍💼 คู่มือการใช้งานเจ้าหน้าที่
-                    </span>
-                    <span className="bg-[#DEE2F5] text-[#575E72] text-xs rounded-xl ml-4 mr-1 px-2.5 py-1.5">
-                        12
-                    </span>
-                </button>
-                <button className='bg-accent p-4 rounded-xl font-bold shadow-md cursor-pointer hover:bg-yellow-500 transition'>
-                    <span className='ml-1 text-black'>
-                        📣 คู่มือการใช้งานผู้แจ้งเรื่อง
-                    </span>
-                    <span className="bg-black text-accent text-xs rounded-xl ml-4 mr-1 px-2 py-1">
-                        05
-                    </span>
-                </button> */}
-            {/* </div>  */}
 
             <div className='mt-8'>
                 <ManualToolbar

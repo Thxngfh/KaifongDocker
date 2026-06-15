@@ -8,11 +8,11 @@ const thaiFont = Sarabun({
 })
 
 export const metadata: Metadata = {
-  title: "Admin",
-  description: "Admin dashboard",
+  title: "Director",
+  description: "Director dashboard",
 };
 
-export default function AdminLayout({
+export default function DirectorLayout({
   children,
 }: {
   children: React.ReactNode;
