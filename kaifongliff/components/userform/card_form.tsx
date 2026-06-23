@@ -15,7 +15,11 @@ interface FormErrors {
     phone: string;
 }
 
-export default function card_form() {
+interface CardFormProps {
+    isSubmitDisabled?: boolean;
+}
+
+export default function card_form({ isSubmitDisabled = true }: CardFormProps) {
     const router = useRouter()
     const [selected, setSelected] = React.useState<string>("");
     const [name, setName] = React.useState<string>("");
@@ -88,6 +92,12 @@ export default function card_form() {
         return onlyDigitsRegex.test(digits);
     };
 
+    const isForeignPhone = (phoneNumber: string) => {
+        const digits = phoneNumber.replace(/\D/g, "");
+        const onlyDigitsRegex = /^(0)[1-9]\d{8}$/; 
+        return onlyDigitsRegex.test(digits);
+    }
+
     // Validate all fields
     const validateForm = () => {
         const newErrors: FormErrors = {
@@ -108,26 +118,30 @@ export default function card_form() {
         if (!name.trim() || name.trim().length === 0) {
             newErrors.name = "*กรุณากรอกชื่อ";
         } else if(!isNameValid(name)){
-            newErrors.name = "รูปแบบไม่ถูกต้อง";
+            newErrors.name = "รูปแบบไม่ถูกต้อง กรุณาใส่ชื่อภาษาไทย";
         }
 
         // Validate surname
         if (!surname.trim() || surname.trim().length === 0) {
             newErrors.surname = "*กรุณากรอกนามสกุล";
         } else if(!isNameValid(surname)){
-            newErrors.surname = "รูปแบบไม่ถูกต้อง";
+            newErrors.surname = "รูปแบบไม่ถูกต้อง กรุณาใส่ชื่อภาษาไทย";
         }
 
         // Validate phone
         if (!phone.trim() || phone.trim().length === 0) {
             newErrors.phone = "*กรุณากรอกเบอร์โทรศัพท์";
-        } else if (!isPhoneValid(phone)) {
+        } else if (!isPhoneValid(phone) && !isForeignPhone(phone)) {
             newErrors.phone = "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง";
+        } else if (!isPhoneValid(phone) && isForeignPhone(phone)){
+            newErrors.phone = "กรุณากรอกเบอร์ไทย";
         }
 
         setErrors(newErrors);
         return Object.values(newErrors).every(error => error === "");
     };
+
+    //ถ้ายังไม่ติ๊ก consent PDPA จะไม่ให้ส่งformไปยังหน้าถัดไป
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -212,7 +226,8 @@ export default function card_form() {
               <button 
                   type="submit" 
                   id="next-button" 
-                  className='bg-nt text-black rounded-full px-6 py-3 mt-6 font-bold w-100 h-18 shadow-md hover:cursor-pointer hover:bg-nt/70 transition duration-300 ease-in-out flex items-center justify-center space-x-2'
+                  className='bg-nt text-black rounded-full px-6 py-3 mt-6 font-bold w-100 h-18 shadow-md hover:cursor-pointer hover:bg-nt/70 transition duration-300 ease-in-out flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed'
+                  disabled={isSubmitDisabled}
               > 
              
                   <div className='flex items-center justify-center text-xl'>

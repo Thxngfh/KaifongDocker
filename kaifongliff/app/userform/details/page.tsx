@@ -11,6 +11,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
 import { usePhotoStore } from "@/hooks/usePhotoStore"
 import liff from "@line/liff";
+import { compressImage } from "@/lib/compressImage"
 
 const sarabun = Sarabun({
   subsets: ['thai'],
@@ -67,19 +68,17 @@ export default function Details() {
     setShowSuccessMessage(false);
 
     try {
-      // 1. อัพรูปไป Vercel Blob ทุกไฟล์พร้อมกัน
+      // 1. compress + อัพรูปไป Vercel Blob ทุกไฟล์พร้อมกัน
+      //มือถือ → compress เหลือ ~500KB → ส่งขึ้น server → server แค่ rotate → upload blob
       const photo = await Promise.all(
         photos.map(async file => {
+          const compressed = await compressImage(file)  // compress ฝั่ง client ก่อนส่ง
           const fd = new FormData()
-          fd.append("file", file)
+          fd.append("file", compressed)
 
           const res = await fetch("/api/upload", { method: "POST", body: fd })
+          const dataPhoto = await res.json()
 
-          // log ดูว่า API return อะไรกลับมา
-          const text = await res.text()
-          console.log("upload response:", text)
-
-          const dataPhoto = JSON.parse(text)
           return {
             file_url:  dataPhoto.file_url,
             file_path: dataPhoto.file_path,
@@ -89,20 +88,33 @@ export default function Details() {
             file_size: dataPhoto.file_size,
           }
         })
-      )
-
+)
       // 2. POST ข้อมูลทั้งหมดลง DB ในคำสั่งเดียว (upsert user + insert complaint + files + workflow)
       const res = await fetch("/api/form/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          
+          // ข้อมูลสำหรับตาราง user
+          // upsert ด้วย line_user_id เพื่อให้ 1 line account มีได้หลาย complaint
+          user: {
+            tenant_id: "1",
 
+            line_user_id: user.line_user_id || "authen", // ได้จาก authen
+
+            title_name: user.prefix,
+            first_name: user.name,
+            last_name:  user.lastname,
+            phone_number: user.phone,
+
+            is_active: true,
+          },
           // ข้อมูลสำหรับตาราง complaint
           complaint: {
-            complaint_no: "", // C-202605001-0002 บันทึกแบบ mockdata เลย
+            complaint_no: "C-202605001-0002", // C-202605001-0002 บันทึกแบบ mockdata เลย
 
-            tenant_id: "static", // จะเป็นข้อมูลที่สร้างหลังจากดึงข้อมูลของตัวหน่วยงานได้ ตอนนี้ใช้ id ตัวเลขแบบ static ไปก่อน แก้เลขที่ตรงนี้ได้
-            user_id: "", // backend ใส่เองหลังสร้าง user
+            tenant_id: "1", // จะเป็นข้อมูลที่สร้างหลังจากดึงข้อมูลของตัวหน่วยงานได้ ตอนนี้ใช้ id ตัวเลขแบบ static ไปก่อน แก้เลขที่ตรงนี้ได้
+            user_id: "(user_id จาก User)", // backend ใส่เองหลังสร้าง user
 
             district: detail.district,
             province: detail.province,
@@ -113,6 +125,7 @@ export default function Details() {
 
             category_id: detail.categoryId,
             subcategory_id: detail.subcategoryId,
+            priority_id: "", //ใส่ค่าว่างได้ ไม่จำเปนต้องใส่ จะลบออกก็ไดด้ แค่เขียนเปรียบยเทียบตารางเฉยๆ
 
             current_status_id: "ffff0000-0000-0000-0000-000000000003",
 
@@ -148,9 +161,9 @@ export default function Details() {
 
           // ข้อมูลสำหรับตาราง workflow
           workflow: {
-            workflow_log_id: "รอ auto uuid ไม่ใช้",
+            workflow_log_id: "(DB สร้างอัตโนมัติ : UUID)",
 
-            complaint_id: "auto จาก complaint ที่เพิ่งสร้าง",
+            complaint_id: "(จาก complaint ที่เพิ่งสร้าง)",
 
             from_status_id: null, // ตอนสร้างใหม่ยังไม่มีสถานะก่อนหน้า
 
@@ -158,29 +171,13 @@ export default function Details() {
 
             action_type: "SUBMIT", // ตอน null → pending
 
-            action_by: "ได้มาจากตอนดึง auto increment userID ของ complaint",
+            action_by: "(user_id จาก User)", //ได้มาจากตอนดึง auto increment userID ของ complaint
 
             action_role_id: "ประชาชน", // บทบาทคือใครเป็นคนกระทำ
             action_note: "รอดำเนินการ",
 
-            ip_address: null, // ยังไม่ใช้หรืออาจจะไม่ได้ใช้เลย
             assigned_team_id: null,
             assigned_user_id: null,
-          },
-
-          // ข้อมูลสำหรับตาราง user
-          // upsert ด้วย line_user_id เพื่อให้ 1 line account มีได้หลาย complaint
-          user: {
-            tenant_id: "static",
-
-            line_user_id: user.line_user_id || "authen", // ได้จาก authen
-
-            title_name: user.prefix,
-            first_name: user.name,
-            last_name:  user.lastname,
-            phone_number: user.phone,
-
-            is_active: true,
           },
 
           // ก็คือต้องเก็บ fullname phone ในตาราง user อีก userId ก็จะเพิ่มแถวข้อมูล user ในดาต้าเบส โดยที่มี lineID ซ้ำกัน

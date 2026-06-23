@@ -86,7 +86,7 @@ const page = () => {
 
   return (
     <div className={`${sarabun.className} mobile-viewport`}>
-      <Navbar/>
+      <Navbar showBackButton={true}/>
 
     {/* หัวข้อ */}
       <div className='flex flex-col items-start px-8'>

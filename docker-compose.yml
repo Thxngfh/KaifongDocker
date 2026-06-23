@@ -6,33 +6,9 @@ services:
     container_name: kaifongliff
     ports:
       - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://kaifong:kaifong1234@postgres:5432/kaifongdb
-    depends_on:
-      - postgres
 
   kaifongai:
     build: ./kaifongai
     container_name: kaifongai
     ports:
       - "3001:3000"
-    environment:
-      - DATABASE_URL=postgresql://kaifong:kaifong1234@postgres:5432/kaifongdb
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:18
-    container_name: kaifong_db
-    restart: always
-    environment:
-      POSTGRES_USER: kaifong
-      POSTGRES_PASSWORD: kaifong1234
-      POSTGRES_DB: kaifongdb
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql
-
-volumes:
-  postgres_data:

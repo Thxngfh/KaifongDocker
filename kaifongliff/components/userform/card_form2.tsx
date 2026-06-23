@@ -358,6 +358,7 @@ const card_form2 = () => {
                 setUploadError(`"${file.name}" ไม่รองรับ รองรับเฉพาะ JPEG, PNG, WebP`)
                 continue
             }
+            
             if (file.size < MIN_SIZE) {
                 setUploadError(`"${file.name}" เล็กเกินไป (ขั้นต่ำ 1 KB)`)
                 continue

@@ -67,16 +67,19 @@ KaifongLIFF/
 │   │   └── details/              #     Step 3: สรุปข้อมูลก่อนส่ง
 │   │
 │   ├── track-complaint/          #   → ติดตามเรื่องร้องเรียน
-│   │   ├── page.tsx              #     รายการเรื่องร้องเรียนทั้งหมด
-│   │   ├── complaint/[id]/       #     ดูรายละเอียด + สถานะ
-│   │   └── details/[id]/         #     ดูข้อมูลเรื่องร้องเรียน (Evidence)
+│   │   ├── complaint/            #     ดูรายละเอียด + สถานะ คำร้องเรียนทั้งหมด
+│   │   └── details/[id]/         #     ดูข้อมูลเรื่องร้องเรียน (Evidence) ตาม id ที่กด card คำร้องเรียน
 │   │
 │   └── api/                      #   → Backend API Routes
-│       ├── complaint/            #     POST — ส่งเรื่องร้องเรียน + อัปโหลดรูป
-│       ├── form/                 #     POST — บันทึกข้อมูลผู้แจ้งลง session
+|       ├── complaint/            #     GET — ดึงรายการคำร้องทั้งหมดของผู้ใช้ปัจจุบัน เพื่อแสดงหน้าติดตามคำร้อง
+|       │   └── [id]/             #     GET — ดึงรายละเอียดคำร้องตาม complaint_id เพื่อแสดงหน้ารายละเอียดคำร้อง
+│       ├── form/                 
+|            ├──complaint         #     POST — ข้อมูลส่วนรายละเอียดเรื่องร้องทุกข์ลง session
+|            ├──reporter          #     POST — ข้อมูลส่วนรายละเอียดผู้แจ้งลง session
+|            ├──submit            #     POST — ส่วนบันทึกข้อมูลฟอร์มทั้งหมดไปยัง Database
 │       ├── static-map/           #     GET  — Proxy รูป Google Static Map
-│       ├── upload/               #     GET  — สร้าง upload token (Vercel Blob)
-│       └── user/                 #     GET  — ดึงข้อมูลผู้ใช้จาก session
+│       └── upload/               #     GET  — สร้าง upload token (Vercel Blob)
+│       
 │
 ├── components/                   # 🧩 Reusable Components
 │   ├── navbar.tsx                #   → Navbar ด้านบน
@@ -97,7 +100,7 @@ KaifongLIFF/
 │   │   └── step_progress_*.tsx   #     ตัวแสดง Progress ของแต่ละ Step
 │   │
 │   └── complaint/                #   → Components สำหรับติดตามเรื่อง
-│       ├── Header.tsx            #     Header + ปุ่มกลับ
+│       ├── Header.tsx            #     แถบต้อนรับผู้ใช้
 │       ├── SearchBar.tsx         #     ค้นหาเรื่องร้องเรียน
 │       ├── StatusTabs.tsx        #     แท็บกรองตามสถานะ
 │       ├── RequestCard.tsx       #     การ์ดแสดงรายการเรื่อง
@@ -113,9 +116,10 @@ KaifongLIFF/
 │
 ├── lib/                          # 📚 Utilities & Data Logic
 │   ├── session.ts                #   → ดึง user ID ปัจจุบัน
+|   ├── compressImage.ts          #   → เอาไว้บีบอัดไฟล์ที่ฝั่ง client
 │   └── mockDB/                   #   → Mock database logic
 │       ├── requests.types.ts     #     TypeScript interfaces ทั้งหมด
-│       ├── caseUtils.ts          #     สร้างเลขเรื่อง, ดึงข้อมูลเรื่อง
+│       ├── caseUtils.ts          #     formatเลขเรื่อง, คำนวณเวลาของสถานะ
 │       └── status.ts             #     Mapping สถานะ → สี, %, label
 │
 └── data/                         # 📊 Static Data
@@ -199,7 +203,7 @@ npm start
 │  • กรอก เลขบัตรประชาชน       │
 │  • กด [ถัดไป]               │
 └─────────────┬───────────────┘
-              │  POST /api/form (บันทึกลง session)
+              │  POST /api/form/complaint และ POST /api/form/reporter (บันทึกลง session)
               ▼
 ┌─────────────────────────────┐
 │  Step 2: รายละเอียดเรื่อง    │  /userform/Complaint_Details
@@ -212,7 +216,7 @@ npm start
 │  • ยินยอม PDPA              │
 │  • กด [ส่งเรื่อง]           │
 └─────────────┬───────────────┘
-              │  POST /api/complaint (ส่งข้อมูล + อัปโหลดรูป)
+              │  POST /api/form/submit (ส่งข้อมูล + อัปโหลดรูป)
               ▼
 ┌─────────────────────────────┐
 │  Step 3: ยืนยันสำเร็จ       │  /userform/details
@@ -230,20 +234,22 @@ npm start
         │
         ▼
 ┌─────────────────────────────┐
-│  รายการเรื่องร้องเรียน       │  /track-complaint
+│  รายการเรื่องร้องเรียน       │  /track-complaint/complaint
 │  ─────────────────────────  │
 │  • ค้นหาเรื่อง               │
 │  • กรองตามสถานะ (แท็บ)       │
 │    - ทั้งหมด                 │
 │    - รอดำเนินการ             │
 │    - กำลังดำเนินการ          │
-│    - เสร็จสิ้น               │
+│    - เสร็จสิ้น              |
+|    - พักงาน              │
+|    - ปฎิเสธ              |
 │  • แสดงรายการ (5 ต่อหน้า)    │
 │  • กดเลือกเรื่อง             │
 └─────────────┬───────────────┘
               ▼
 ┌─────────────────────────────┐
-│  รายละเอียดเรื่อง           │  /track-complaint/complaint/[id]
+│  รายละเอียดเรื่อง           │  /track-complaint/details/[id]
 │  ─────────────────────────  │
 │  • สถานะปัจจุบัน + Progress  │
 │  • Timeline ขั้นตอน          │
@@ -267,9 +273,11 @@ npm start
 
 | Method | Endpoint | คำอธิบาย | Input | Output |
 |---|---|---|---|---|
-| `POST` | `/api/form` | บันทึกข้อมูลผู้แจ้งลง session | `FormData` (prefix, name, phone, idCard) | `{ success: true }` |
-| `POST` | `/api/complaint` | ส่งเรื่องร้องเรียน + อัปโหลดรูปไป Vercel Blob | `FormData` (topic, detail, lat, lng, address, photos[]) | `{ caseNumber, photoUrls }` |
-| `GET` | `/api/user` | ดึงข้อมูลผู้ใช้จาก session | — | `{ user: {...} }` |
+| `POST` | `/api/form/reporter` | บันทึกข้อมูลผู้แจ้งลง session | `FormData` (prefix, name, phone, idCard) | `{ success: true }` |
+| `POST` | `/api/form/complaint` | - รับข้อมูลคำร้องจากฟอร์ม<br>- บันทึกข้อมูลชั่วคราวลง Cookie<br>- เก็บจำนวนรูปภาพที่แนบมา | `{ title, category_id, subcategory_id, detail, location, photos[] }` | `{ ok }` |
+| `POST` | `/api/form/submit` | - รับข้อมูลคำร้องจากฟอร์ม<br>- Upsert ข้อมูลผู้ใช้จาก `line_user_id`<br>- บันทึกคำร้องและไฟล์แนบ<br>- สร้าง Workflow Log เริ่มต้นของคำร้อง | `{ complaint, files[], workflow, user }` | `{ ok, data }` |
+| `GET` | `/api/complaint` | - ดึงรายการคำร้องของผู้ใช้ปัจจุบัน<br>- เรียงจากใหม่ไปเก่า<br>- แปลงข้อมูลสำหรับหน้า Track Complaint<br>- สรุปจำนวนคำร้องแต่ละสถานะ | - | `{ user, counts, requests[] }` |
+| `GET` | `/api/complaint/[id]` | - ดึงรายละเอียดคำร้องตาม `complaint_id`<br>- แสดงข้อมูลผู้ร้องและรายละเอียดคำร้อง<br>- ดึงรูปหลักฐานประกอบคำร้อง<br>- แปลงสถานะและข้อมูลสำหรับหน้า Detail | - | `{ id, complaintNo, userInfo, complaintInfo, images, status }` |
 | `GET` | `/api/upload` | สร้าง client upload token (Vercel Blob) | — | `{ token, url }` |
 | `GET` | `/api/static-map` | ดึงรูป Static Map จาก Google (Proxy ซ่อน API Key) | `?lat=...&lng=...&zoom=...&size=...` | รูปภาพ (image/png) |
 
@@ -296,9 +304,9 @@ npm start
 
 | Component | หน้าที่ |
 |---|---|
-| `Header.tsx` | หัวหน้า + ปุ่มย้อนกลับ |
+| `Header.tsx` | แถบข้อความต้อนรับ |
 | `SearchBar.tsx` | ช่องค้นหาเรื่องร้องเรียน |
-| `StatusTabs.tsx` | แท็บกรองตามสถานะ (ทั้งหมด / รอ / กำลัง / เสร็จ) |
+| `StatusTabs.tsx` | แท็บกรองตามสถานะ (ทั้งหมด / รอ / กำลัง / เสร็จ / พักงาน / ปฎิเสธ ) |
 | `RequestCard.tsx` | การ์ดแสดงเรื่องร้องเรียนในลิสต์ |
 | `StatusCard.tsx` | การ์ดแสดงสถานะปัจจุบัน + % ดำเนินการ |
 | `ProgressSteps.tsx` | Timeline แสดงลำดับขั้นตอนสถานะ |
@@ -413,8 +421,8 @@ function MyComponent() {
 | ไฟล์ | หน้าที่ |
 |---|---|
 | `requests.types.ts` | TypeScript interfaces — `RequestItem`, `CreateComplaintPayload`, etc. |
-| `caseUtils.ts` | `generateCaseNumber()` — สร้างเลขที่เรื่อง, `getUserComplaints()` — ดึงเรื่องของ user, `getComplaintById()` — ดึงเรื่องตาม ID |
-| `status.ts` | Mapping สถานะ → ชื่อไทย, สี, เปอร์เซ็นต์ (รอดำเนินการ=10%, กำลังดำเนินการ=50%, เสร็จสิ้น=100%) |
+| `caseUtils.ts` | calcResolvedDuration() — คำนวณระยะเวลาที่ใช้แก้ไขคำร้องจนเสร็จสิ้น, calcPendingDuration() — คำนวณระยะเวลาที่คำร้องยังรอดำเนินการ, getGroup() — จัดกลุ่มคำร้องเป็นสัปดาห์นี้หรือก่อนหน้านี้, formatDuration() — แปลงระยะเวลาเป็นข้อความที่อ่านง่าย, getComplaintNumber() — แปลงเลขคำร้องเป็นรูปแบบ REQ-XXXX/YY |
+| `status.ts` | Mapping สถานะ → ชื่อไทย, สี, เปอร์เซ็นต์ status progress|
 
 ---
 
@@ -422,6 +430,8 @@ function MyComponent() {
 
 - [ ] เชื่อมฐานข้อมูลจริง (แทน mock data)
 - [ ] ระบบ authentication จริง (แทน hardcode user ID)
-- [ ] เพิ่ม unit tests
 - [ ] เพิ่ม error handling ที่ครอบคลุมขึ้น
-- [ ] รองรับ offline mode
+
+## หมายเหตุ
+- การอธิบายโค้ดโดยระเอียดสามารถดูได้ที่ comment code ที่ตัวโปรเจคจาก main ล่าสุด
+- สามารถปรับโค้ดและแก้ไขโครงสร้างไฟล์ได้ตามสะดวก

@@ -1,8 +1,9 @@
-import React from 'react'
+"use client"
+import React, { useState } from 'react'
 import Navbar from '../../../components/navbar'
 import StepProgress from '../../../components/userform/step_progress_1'
 import Cardform from '../../../components/userform/card_form'
-import Cardpdpa from '../../../components/userform/card_pdpa'
+import CardPdpa from '../../../components/userform/card_pdpa'
 import { Sarabun } from 'next/font/google';
 import { IoMdArrowRoundForward  } from 'react-icons/io';
 import Link from 'next/link';
@@ -14,6 +15,8 @@ const sarabun = Sarabun({
 
 
 const page = () => {
+  const [pdpaAccepted, setPdpaAccepted] = useState(false);
+  const [submitDisabled, setSubmitDisabled] = useState(true);
   return (
     <div className={`${sarabun.className} mobile-viewport`}>
       <Navbar />
@@ -26,11 +29,17 @@ const page = () => {
         <p className='text-[#4D4632] text-lg mt-2'>กรุณากรอกข้อมูลจริงเพื่อประโยชน์ในการร้องเรียนเรื่อง</p>
 
         {/* ฟอร์ม */}
-        <Cardform/>
+        <Cardform isSubmitDisabled={submitDisabled}/>
 
         {/* คำเตือนpdpa */}
-        <Cardpdpa />
-      </div>
+        <CardPdpa 
+          isChecked={pdpaAccepted}
+          onCheckChange={(isChecked) => {
+            setPdpaAccepted(isChecked);
+            setSubmitDisabled(!isChecked);
+          }}
+        />
+        </div>
     </div>
   )
 }
