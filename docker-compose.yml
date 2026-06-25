@@ -1,16 +1,24 @@
+version: '3.8'
+
 services:
-  db:
+  postgres:
     image: postgres:16
-    container_name: kaifong-db
-    restart: always
+    container_name: kaifong_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kaifong
+      POSTGRES_PASSWORD: kaifong1234
+      POSTGRES_DB: kaifongdb
     ports:
       - "5433:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: kaifong
     volumes:
-      - ./kaifong-db:/var/lib/postgresql/data
+      - kaifong_db:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaifong -d kaifongdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   kaifongliff:
     build: ./kaifongliff
@@ -18,7 +26,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
 
   kaifongai:
     build: ./kaifongai
@@ -26,7 +35,9 @@ services:
     ports:
       - "3001:3000"
     depends_on:
-      - db
+      postgres:
+        condition: service_healthy
 
 volumes:
-  pgdata:
+  kaifong_db:
+      
