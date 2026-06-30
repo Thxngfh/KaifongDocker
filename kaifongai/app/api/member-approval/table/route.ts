@@ -1,34 +1,55 @@
-/**
- * API: /api/member-approval/table
- * ทำหน้าที่: ดึงข้อมูลสมาชิกทั้งหมดในระบบ (รวมถึงสถานะ Pending, Approved, Rejected)
- * ความสัมพันธ์:
- *   - ทำงานร่วมกับหน้าจอตารางอนุมัติสมาชิก (Member Approval Table) ในแดชบอร์ดระบบจัดการ
- *   - ใช้ฟังก์ชัน `readData()` จาก `@/services/memberData` เพื่ออ่านข้อมูลสมาชิกจำลอง
- *   - สัมพันธ์กับ `/api/member-approval/update-table` ที่ทำหน้าที่แก้ไขข้อมูลสมาชิกในแหล่งนี้
- *     และ `/api/member-approval/summary` ที่ทำหน้าที่คำนวณสรุปสถิติจากสมาชิกกลุ่มเดียวกัน
- */
-
 import { NextResponse } from "next/server";
-import type {Member} from "@/services/memberData"
-import {readData} from "@/services/memberData" 
+import pool from "@/lib/db";
+import type { Member } from "@/services/memberData";
 
-/**
- * GET Handler
- * ทำหน้าที่: รับ Request แบบ GET เพื่อส่งคืนข้อมูลรายการสมาชิกทั้งหมดในรูปแบบ JSON ไปยังฝั่ง Client
- * ความสัมพันธ์: ถูกเรียกโดยตารางบนหน้า UI เพื่อแสดงรายชื่อสมาชิกและสถานะการอนุมัติ
- */
 export async function GET() {
-  const data = await getMember();
-  return NextResponse.json(data);
+  try {
+    const data = await getMember();
+    return NextResponse.json(data);
+  } catch (error: any) {
+    console.error("DB ERROR (/api/member-approval/table):", error);
+    return NextResponse.json(
+      { success: false, error: error?.message || String(error) },
+      { status: 500 }
+    );
+  }
 }
 
-/**
- * getMember
- * ทำหน้าที่: ดึงข้อมูลอาร์เรย์ของสมาชิกทั้งหมดจากไฟล์เก็บข้อมูล JSON จำลอง
- * ความสัมพันธ์: ทำการดึงคุณสมบัติ `.member` จากข้อมูลที่โหลดเข้ามาผ่าน `readData()`
- */
-/* สมาชิกทั้งหมด */
 export async function getMember(): Promise<Member[]> {
-  return readData().member;
-}
+  const result = await pool.query(`
+    SELECT
+      u.user_id,
+      u.first_name,
+      u.last_name,
+      u.email,
+      u.phone_number,
+      u.line_user_id,
+      u.status,
+      u.is_active,
+      r.role_name,
+      d.department_name,
+      u.created_at,
+      u.approved_at
+    FROM users u
+    LEFT JOIN roles r ON u.role_id = r.role_id
+    LEFT JOIN user_departments ud ON ud.user_id = u.user_id AND ud.is_primary = true
+    LEFT JOIN departments d ON ud.department_id = d.department_id
+    ORDER BY u.created_at DESC
+  `);
 
+  return result.rows.map((row) => ({
+    id: row.user_id,
+    name: row.first_name || "",
+    lastname: row.last_name || "",
+    email: row.email || "",
+    phone: row.phone_number || "",
+    line_id: row.line_user_id || "",
+    status: row.status,
+    is_active: row.is_active,
+    role: row.role_name || "",
+    department: row.department_name || "",
+    technician_type: "",
+    datetime: new Date(row.created_at).toISOString(),
+    approve_at: row.approved_at ? new Date(row.approved_at).toISOString() : undefined,
+  }));
+}

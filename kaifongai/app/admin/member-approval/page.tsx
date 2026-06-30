@@ -37,7 +37,7 @@ function MemberApproval() {
   const [tableData, setTableData] = useState<Member[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 5;
-  const [buttonStates, setButtonStates] = useState<{ [id: number]: string }>({});
+  const [buttonStates, setButtonStates] = useState<{ [id: string]: string }>({});
 
   const [showFilter, setShowFilter] = useState(false);
   const [statusFilter, setStatusFilter] = useState("pending");

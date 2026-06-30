@@ -4,7 +4,7 @@ import path from "path";
 const filePath = path.join(process.cwd(), "data/member.json");
 
 export interface Member {
-  id: number;
+  id: string;
   name: string;
   lastname: string;
   email: string;
@@ -12,7 +12,7 @@ export interface Member {
   line_id: string;
   status: "approved" | "rejected" | "pending" | string;
   is_active: boolean;
-  role: "ผู้ตรวจสอบ" | "เจ้าหน้าที่" | "แอดมิน" | string;
+  role: string;   // "ผู้ตรวจสอบ" | "เจ้าหน้าที่" | "แอดมิน" 
   department: string;
   technician_type: string;
   datetime: string;

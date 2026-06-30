@@ -155,16 +155,16 @@ export function summaryOnlineTechnicians(data: DashboardData): SummaryItem{
  */
 //อันดับปัญหา 
 export function getRanking(data: DashboardData) {
-  const problemCount: Record<number, number> = {};
+  const problemCount: Record<string, number> = {};
   data.cases.forEach(c => {
     problemCount[c.problem_id] = (problemCount[c.problem_id] || 0) + 1;
   });
 
   const rankingArray = Object.entries(problemCount)
     .map(([pid, count]) => {
-      const problem = data.problems.find(p => p.id === Number(pid));
+      const problem = data.problems.find(p => p.id === pid);
       return {
-        id: Number(pid),
+        id: pid,
         problemName: problem?.name || "",
         description: problem?.description || "",
         count

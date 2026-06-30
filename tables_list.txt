@@ -1,0 +1,24 @@
+[?1049h[22;0;0t[24;1H[?1h=                 List of relations
+ Schema |          Name           | Type  |  Owner  
+--------+-------------------------+-------+---------
+ public | ai_analysis             | table | kaifong
+ public | ai_feedback             | table | kaifong
+ public | ai_insight_summary      | table | kaifong
+ public | ai_keywords             | table | kaifong
+ public | api_logs                | table | kaifong
+ public | area_summary            | table | kaifong
+ public | audit_logs              | table | kaifong
+ public | categories              | table | kaifong
+ public | category_summary        | table | kaifong
+ public | channels                | table | kaifong
+ public | complaint_feedback      | table | kaifong
+ public | complaint_files         | table | kaifong
+ public | complaints              | table | kaifong
+ public | daily_complaint_summary | table | kaifong
+ public | departments             | table | kaifong
+ public | integrations            | table | kaifong
+ public | liff_sessions           | table | kaifong
+ public | notification_templates  | table | kaifong
+ public | notifications           | table | kaifong
+ public | permissions             | table | kaifong
+:[K[K:[K[K:[K[K:[K[K [KESCESC[K[[[KAA[K:[K

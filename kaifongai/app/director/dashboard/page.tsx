@@ -196,14 +196,22 @@ function Dashboard() {
   }
 
   {/*รับค่าidของ ploblems มาแมพกับ icon*/ }
-  const getConfigRanking: Record<number, ComponentType<SVGProps<SVGSVGElement>> | string> = {
+  /** const getConfigRanking: Record<number, ComponentType<SVGProps<SVGSVGElement>> | string> = {
     1: LightBulbIcon, //ไฟฟ้า
     2: FaTools, //ถนน
     3: IoWaterOutline, //น้ำประปา
     4: TrashIcon, //ขยะ
     5: BsTree, //ต้นไม้
     6: FunnelIcon  //ท่อระบายน้ำ
-
+  }
+  */
+  const getConfigRanking: Record<string, ComponentType<SVGProps<SVGSVGElement>> | string> = {
+    "โครงสร้างพื้นฐานและสาธารณูปโภค": FaTools, //ถนน
+    "สิ่งแวดล้อมและสุขาภิบาล": TrashIcon, //ขยะ
+    "สาธารณสุขและมลพิษ": IoWaterOutline, //น้ำประปา
+    "ความเป็นระเบียบเรียบร้อยและจราจร": FunnelIcon, //ท่อระบายน้ำ
+    "สวัสดิการสังคมและพัฒนาชุมชน": BsTree, //ต้นไม้
+    "การบริการเจ้าหน้าที่และธรรมาภิบาล": LightBulbIcon, //ไฟฟ้า
   }
 
   return (
@@ -253,7 +261,7 @@ function Dashboard() {
             <RankingCard
               key={index}
               rank={index + 1}
-              icon={getConfigRanking[item.id]}
+              icon={getConfigRanking[item.title]}
               title={item.title}
               value={item.value}
               subvalue={item.subvalue}
