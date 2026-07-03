@@ -57,19 +57,34 @@ export interface DashboardData {
 }
 */
 export interface Case {
-  id: string;
+  // fields เก่า (เก็บไว้เพื่อ compatibility)
+  id?: string;
   user_id?: string;
-  problem_id: string;
-  datetime: string;
-  status: "pending" | "in_progress" | "resolved" | string;
+  problem_id?: string;
+  datetime?: string;
+  status?: string;
   description?: string;
   location?: string;
-  location_detail?: string;
-  location_lat?: number;
-  location_lng?: number;
-  location_url?: string;
   picture_url?: string;
+
+  // fields จาก PostgreSQL จริง
+  complaint_id?: string;
+  complaint_no?: string;
+  title?: string;
+  detail?: string;
+  district?: string;
+  province?: string;
+  created_at?: string;
+  updated_at?: string;
+  status_code?: string;
+  status_name?: string;
+  category_name?: string;
+  subcategory_name?: string;
+  priority_code?: string;
+  priority_name?: string;
+  channel_name?: string;
 }
+
 export interface User {
   id: number;
   titles?: string,
@@ -94,7 +109,7 @@ export interface Problem {
   description: string;
   is_active?: boolean
 }
-export interface case_status_log{
+export interface case_status_log {
   id: string,
   case_id: string,
   status: string,
@@ -105,5 +120,5 @@ export interface DashboardData {
   users: User[];
   technicians: Technician[];
   problems: Problem[];
-  case_status_logs: case_status_log[]; 
+  case_status_logs: case_status_log[];
 }

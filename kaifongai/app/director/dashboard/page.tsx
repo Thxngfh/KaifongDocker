@@ -11,7 +11,7 @@ import { BsTree } from "react-icons/bs";
 import { IoWaterOutline } from "react-icons/io5";
 import { FaTools } from "react-icons/fa";
 import { Sarabun } from "next/font/google";
-import { CalendarCheck,CalendarPlus, CalendarDays} from "lucide-react";
+import { CalendarCheck, CalendarPlus, CalendarDays } from "lucide-react";
 
 const thaiFont = Sarabun({
   subsets: ["thai"],
@@ -83,7 +83,7 @@ function Dashboard() {
         let textColor = "";
         let text = "";
 
-        switch (value) {
+        /**switch (value) {
           case "pending":
             bgColor = "bg-red-400/20";
             textColor = "text-red-700";
@@ -113,39 +113,109 @@ function Dashboard() {
     },
     { key: "time", title: "เวลาที่แจ้ง", className: "text-sm text-gray-400" },
   ];
+*/
+        switch (value) {
+          case "pending":
+            bgColor = "bg-red-400/20";
+            textColor = "text-red-700";
+            text = "ยังไม่ได้รับเรื่อง";
+            break;
+          case "in_progress":
+            bgColor = "bg-yellow-400/20";
+            textColor = "text-yellow-700";
+            text = "กำลังดำเนินการ";
+            break;
+          case "resolved":
+            bgColor = "bg-green-400/20";
+            textColor = "text-green-700";
+            text = "แก้ไขเสร็จสิ้น";
+            break;
+          case "closed":
+            bgColor = "bg-gray-400/20";
+            textColor = "text-gray-600";
+            text = "ปิดแล้ว";
+            break;
+          case "paused":
+            bgColor = "bg-orange-400/20";
+            textColor = "text-orange-700";
+            text = "พักงาน";
+            break;
+          case "rejected":
+            bgColor = "bg-red-600/20";
+            textColor = "text-red-800";
+            text = "ถูกปฏิเสธ";
+            break;
+          default:
+            bgColor = "bg-gray-400/20";
+            text = "-";
+        }
+
+        return (
+          <div className={`w-24 h-6 flex items-center justify-center rounded-full ${bgColor} ${textColor} font-bold text-xs`}>
+            {text}
+          </div>
+        );
+      },
+    },
+    { key: "time", title: "เวลาที่แจ้ง", className: "text-sm text-gray-400" },
+  ];
 
   useEffect(() => {
-  fetch("/api/table")
-    .then((res) => res.json())
-    .then((cases: Case[]) => {
-      const formatted = cases.map((c) => {
-        const date = new Date(c.datetime);
+    fetch("/api/table")
+      .then((res) => res.json())
+      .then((cases: Case[]) => {
+        const formatted = cases.map((c) => {
+          const date = new Date(c.created_at!);
+          /*
+                      return {
+                        id: `REQ-${String(c.id).padStart(2, "0")}/${String(
+                          date.getFullYear() + 543
+                        ).slice(-2)}`,
+                        problems: c.description,
+                        area: c.location,
+                        status: c.status,
+                        time: date
+                          .toLocaleString("th-TH", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hourCycle: "h12",
+                          })
+                          .replace("ก่อนเที่ยง", "AM")
+                          .replace("หลังเที่ยง", "PM"),
+                      };
+                    });
+          
+                    setTableData(formatted);
+                  })
+                  .catch((err) => console.error("Fetch error:", err));
+              }, []);
+          */
+          return {
+            id: c.complaint_no ?? "-",
+            problems: c.title || c.detail?.slice(0, 50) || "-",
+            area: [c.district, c.province].filter(Boolean).join(", ") || "-",
+            status: (c.status_code ?? "").toLowerCase(),
+            time: date
+              .toLocaleString("th-TH", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hourCycle: "h12",
+              })
+              .replace("ก่อนเที่ยง", "AM")
+              .replace("หลังเที่ยง", "PM"),
+          };
+        });
 
-        return {
-          id: `REQ-${String(c.id).padStart(2, "0")}/${String(
-            date.getFullYear() + 543
-          ).slice(-2)}`,
-          problems: c.description,
-          area: c.location,
-          status: c.status,
-          time: date
-            .toLocaleString("th-TH", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hourCycle: "h12",
-            })
-            .replace("ก่อนเที่ยง", "AM")
-            .replace("หลังเที่ยง", "PM"),
-        };
-      });
-
-      setTableData(formatted);
-    })
-    .catch((err) => console.error("Fetch error:", err));
-}, []);
+        setTableData(formatted);
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  }, []);
 
   useEffect(() => {
     fetch("/api/summary")
@@ -185,7 +255,7 @@ function Dashboard() {
 
     if (title.includes("เดือน")) {
       return {
-        icon:  CalendarDays,
+        icon: CalendarDays,
         color: "#dadcea"
       }
     }
@@ -219,7 +289,7 @@ function Dashboard() {
       <div className="max-w-7xl mx-3 px-6 sm:px-6 lg:px-8 py-8 w-full">
         <h1 className="text-3xl font-bold text-foreground mb-7">แดชบอร์ด</h1>
         <h2 className="text-xl font-bold text-foreground mx-12 mb-4">
-         จำนวนเรื่องร้องเรียน
+          จำนวนเรื่องร้องเรียน
         </h2>
 
         {/*การ์ดส่วน1*/}
@@ -236,7 +306,7 @@ function Dashboard() {
             );
           })}
         </div>
-        
+
 
         {/*การ์ดส่วน2*/}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mx-12 mb-6">
@@ -274,8 +344,8 @@ function Dashboard() {
           {/* header */}
           <div
             className={`flex items-center justify-between px-6 py-6 border-b ${showAll
-                ? "bg-surface border-surface"
-                : "bg-[#EAEDFF] border-[#EAEDFF]"
+              ? "bg-surface border-surface"
+              : "bg-[#EAEDFF] border-[#EAEDFF]"
               }`}
           >
             <h2 className="font-bold text-foreground text-xl">
@@ -361,14 +431,14 @@ function Dashboard() {
           </div>
         </div>
         {showAll && (
-            <div className="flex justify-center mt-6">
-              <ComplaintPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
+          <div className="flex justify-center mt-6">
+            <ComplaintPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </div>
     </div>
 

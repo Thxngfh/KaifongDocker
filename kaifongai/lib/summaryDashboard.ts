@@ -28,14 +28,14 @@ export function summaryToday(data: DashboardData): SummaryItem{
     const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' +
                      String(today.getDate()).padStart(2, '0');
 
-    const casesToday = data.cases.filter(c => c.datetime.slice(0, 10) === todayStr).length;
+    const casesToday = data.cases.filter(c => c.datetime?.slice(0, 10) === todayStr).length;
 
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
     const yesterdayStr = yesterday.getFullYear() + '-' + String(yesterday.getMonth() + 1).padStart(2, '0') + '-' +
                      String(yesterday.getDate()).padStart(2, '0');
 
-   const casesYesterday = data.cases.filter(c => c.datetime.slice(0, 10) === yesterdayStr).length;
+   const casesYesterday = data.cases.filter(c => c.datetime?.slice(0, 10) === yesterdayStr).length;
    
    // % เพิ่มขึ้น = (วันนี้ - เมื่อวาน) / เมื่อวาน * 100
    const todayPercent = casesYesterday > 0 
@@ -60,8 +60,8 @@ export function summaryMonth(data: DashboardData): SummaryItem{
   const lastMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
   const lastMonth = lastMonthDate.getFullYear() + "-" + String(lastMonthDate.getMonth() + 1).padStart(2, "0");
 
-  const total = data.cases.filter(c => c.datetime.slice(0, 7) === currentMonth).length;
-  const prev = data.cases.filter(c => c.datetime.slice(0, 7) === lastMonth).length;
+  const total = data.cases.filter(c => c.datetime?.slice(0, 7) === currentMonth).length;
+  const prev = data.cases.filter(c => c.datetime?.slice(0, 7) === lastMonth).length;
   // % เพิ่มขึ้น = (เดือนนี้ - เดือนก่อน) / เดือนก่อน * 100
   const percent = prev > 0 ? ((total - prev) / prev * 100).toFixed(2) : "0";
   
@@ -101,7 +101,7 @@ export function summaryWeek(data: DashboardData): SummaryItem {
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const total = data.cases.filter(c => new Date(c.datetime) >= weekAgo).length;
+  const total = data.cases.filter(c => new Date(c.datetime!) >= weekAgo).length;
   return { title: "ร้องเรียนใหม่สัปดาห์นี้", value: total};
 }
 
@@ -157,7 +157,7 @@ export function summaryOnlineTechnicians(data: DashboardData): SummaryItem{
 export function getRanking(data: DashboardData) {
   const problemCount: Record<string, number> = {};
   data.cases.forEach(c => {
-    problemCount[c.problem_id] = (problemCount[c.problem_id] || 0) + 1;
+    problemCount[c.problem_id ?? ""] = (problemCount[c.problem_id ?? ""] || 0) + 1;
   });
 
   const rankingArray = Object.entries(problemCount)
