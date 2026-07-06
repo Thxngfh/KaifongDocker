@@ -7,6 +7,7 @@ export type ComplaintChannel = "Line" | "App" | "Web"
 
 export type Complaint = {
   id: string
+  complaintId?: string
   problems: string
   app: ComplaintChannel
   title: string

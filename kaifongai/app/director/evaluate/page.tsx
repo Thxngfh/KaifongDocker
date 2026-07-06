@@ -4,9 +4,9 @@ import React, { useState, useMemo, useEffect } from "react"
 import ComplaintToolbar from "@/components/ui/Admin_director/ComplainToolbar"
 import ComplaintPagination from "@/components/ui/Admin_director/PageNavigation"
 import ComplaintTable from "./table/complainTable"
-import { complaints } from "./table/data"
 import { Sarabun } from "next/font/google"
 import EvaluateFilterModal from "../../../components/ui/Director/Filtermodal"
+import type { Complaint } from "./table/complain"
 
 const thaiFont = Sarabun({
   subsets: ["thai"],
@@ -25,14 +25,44 @@ const columns = [
 ]
 
 const problemImageMap: Record<string, string> = {
-  "ไฟฟ้าขัดข้อง": "⚡",
-  "ถนนชำรุด": "🛣️",
-  "น้ำประปาขัดข้อง": "💧",
-  "ขยะและสิ่งแวดล้อม": "🗑️",
-  "ต้นไม้และพื้นที่สาธารณะ": "🌳",
-  "ท่อระบายน้ำ": "🕳️",
+  "ถนนและทางเท้า": "🛣️",
+  "ไฟฟ้าสาธารณะ": "💡",
+  "ระบบระบายน้ำ": "🕳️",
+  "อาคารและสิ่งก่อสร้าง": "🏗️",
+  "การจัดการขยะ": "🗑️",
+  "พื้นที่สีเขียว": "🌳",
+  "ความสะอาดทั่วไป": "🧹",
+  "สัตว์รบกวน": "🐀",
+  "เหตุรำคาญทางเสียง": "🔊",
+  "มลพิษทางอากาศและน้ำ": "💨",
+  "การควบคุมโรค": "🦠",
+  "อาหารและตลาด": "🍽️",
+  "การจราจรและท้องถนน": "🚦",
+  "หาบเร่แผงลอย": "🛒",
+  "สัตว์จรจัด": "🐕",
+  "ป้ายผิดกฎหมาย": "🪧",
+  "เบี้ยยังชีพและสวัสดิการ": "💰",
+  "ศูนย์พัฒนาเด็กเล็ก": "👶",
+  "กิจกรรมชุมชน": "🎉",
+  "อาชีพและรายได้": "💼",
+  "พฤติกรรมการบริการ": "🧑‍💼",
+  "ระบบดิจิทัลและการติดต่อ": "💻",
+  "ความโปร่งใส": "🔍",
+  "ข้อเสนอแนะทั่วไป": "💬",
 };
+/*
+function mapChannel(code: string): "Line" | "Web" | "App" {
+  if (code === "LINE_LIFF") return "Line"
+  if (code === "WEB") return "Web"
+  return "App" // Call Center / อื่นๆ
+}
 
+function mapStatus(code: string): "กำลังดำเนินการ" | "ประเมินผลเสร็จสิ้น" | "ไม่รับเรื่อง" {
+  if (code === "IN_PROGRESS") return "กำลังดำเนินการ"
+  if (code === "RESOLVED" || code === "CLOSED") return "ประเมินผลเสร็จสิ้น"
+  return "ไม่รับเรื่อง" // PENDING / PAUSED / REJECTED
+}
+*/
 export default function Page() {
   const [activeTab, setActiveTab] = useState<"all" | "pending">("all")
   const [search, setSearch] = useState("")
@@ -41,6 +71,9 @@ export default function Page() {
 
   const [selectedStatus, setSelectedStatus] = useState<string[]>([])
   const [selectedProblems, setSelectedProblems] = useState<string[]>([])
+
+  const [complaints, setComplaints] = useState<Complaint[]>([])
+  const [loading, setLoading] = useState(true)
 
   const pageSize = 5
 
@@ -82,7 +115,7 @@ export default function Page() {
   }
 
     return result
-  }, [activeTab, search, selectedStatus, selectedProblems])
+  }, [complaints, activeTab, search, selectedStatus, selectedProblems])
 
   const totalPages = Math.ceil(filteredData.length / pageSize)
 
@@ -94,6 +127,20 @@ export default function Page() {
   useEffect(() => {
     setCurrentPage(1)
   }, [search, activeTab, selectedStatus, selectedProblems])
+
+  useEffect(() => {
+    fetch("/api/evaluate")
+      .then((res) => res.json())
+      .then((rows) => {
+        // API ทำ mapping field และสถานะเป็นภาษาไทยให้แล้ว ใช้ตรงๆ ได้เลย
+        setComplaints(rows as Complaint[])
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err)
+        setLoading(false)
+      })
+  }, [])
 
   return (
     <div className={`${thaiFont.className} min-h-screen bg-background`}>

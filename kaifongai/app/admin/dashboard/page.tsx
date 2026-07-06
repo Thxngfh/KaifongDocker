@@ -312,7 +312,7 @@ function Dashboard() {
             <RankingCard
               key={index}
               rank={index + 1}
-              icon={getConfigRanking[item.id]}
+              icon={getConfigRanking[item.title]}
               title={item.title}
               value={item.value}
               subvalue={item.subvalue}

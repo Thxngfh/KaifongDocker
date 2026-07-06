@@ -36,7 +36,7 @@ export default function ComplaintTable({ columns, data }: Props) {
             {data.map((row) => (
               <tr
                 key={row.id}
-                onClick={() => router.push(`/director/evaluate/detail/${row.id}`)}
+                onClick={() => router.push(`/director/evaluate/detail/${row.complaintId ?? row.id}`)}
                 className="border-b border-gray-200 h-20 hover:bg-gray-50 cursor-pointer transition"
               >
                 <td className="px-6 py-4 text-[#575E72]">{row.id}</td>
