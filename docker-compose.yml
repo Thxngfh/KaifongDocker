@@ -25,6 +25,12 @@ services:
     container_name: kaifongliff
     ports:
       - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: kaifong
+      DB_PASSWORD: kaifong1234
+      DB_NAME: kaifongdb
     depends_on:
       postgres:
         condition: service_healthy
