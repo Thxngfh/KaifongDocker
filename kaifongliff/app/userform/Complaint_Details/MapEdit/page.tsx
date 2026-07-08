@@ -13,7 +13,7 @@ import Map from '../../../../components/Map'
 const sarabun = Sarabun({
   subsets: ['thai'],
   weight: ['100', '200', '300', '400', '500', '600', '700'],});
-
+/*
 const page = () => {
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{
@@ -24,7 +24,30 @@ const page = () => {
     province?: string;
     district?: string;
   } | null>(null);
+*/
 
+const page = () => {
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{
+    name: string;
+    address: string;
+    lat: number;
+    lng: number;
+    province?: string;
+    district?: string;
+  } | null>(
+    // ⚠️ TEMP DEBUG — ใส่ค่าปลอมไว้ทดสอบ flow ตอนยังไม่มี Google Maps API key
+    // ต้องลบ object นี้ทิ้ง เปลี่ยนกลับเป็น null ก่อน merge/deploy จริง
+    {
+      name: "ตำแหน่งทดสอบ (DEBUG)",
+      address: "123 ถนนทดสอบ แขวงทดสอบ เขตทดสอบ",
+      lat: 13.736717,
+      lng: 100.523186,
+      province: "กรุงเทพมหานคร",
+      district: "ทดสอบ",
+    }
+  );
+  
   // รับค่าจาก SearchBar
   const router = useRouter()
 
