@@ -9,12 +9,7 @@ import { GrWaypoint } from 'react-icons/gr';
 import { useRouter } from 'next/navigation' 
 import { useState } from 'react';
 import { usePhotoStore } from "@/hooks/usePhotoStore"
-import mockData from "@/data/mock_data_may2026.json"
 import StaticMap from './staticMap';
-
-
-const categories = mockData.meta.reference_ids.categories;
-const subcategories = mockData.meta.reference_ids.subcategories;
 
 /*ตอนนี้ข้อมูล accuracy ไม่ได้ถูกใช้งานแล้ว */
 
@@ -28,11 +23,24 @@ interface FormErrors {
     additionalNotes: string;
     photo: string;
 }
+interface Category {
+    category_id: string;
+    category_name: string;
+}
+interface Subcategory {
+    subcategory_id: string;
+    category_id: string;
+    subcategory_name: string;
+}
 
 const MAX_PHOTOS = 5 
 
 const card_form2 = () => {
     const router = useRouter()
+
+    const [categories, setCategories] = React.useState<Category[]>([]);
+    const [subcategories, setSubcategories] = React.useState<Subcategory[]>([]);
+
     const [selected, setSelected] = React.useState<string>("");
     const [selectedSub, setselectedSub] = React.useState<string>("");
     const [detail, setDetail] = React.useState<string>("");
@@ -130,6 +138,16 @@ const card_form2 = () => {
       }
 
     }, []);
+
+    useEffect(() => {
+        fetch("/api/categories")
+          .then((res) => res.json())
+          .then((data) => {
+            setCategories(data.categories);
+            setSubcategories(data.subcategories);
+          })
+          .catch((err) => console.error("โหลด categories ไม่สำเร็จ", err));
+      }, []);
 
     // ฟังก์ชันสำหรับดึงตำแหน่งปัจจุบันของผู้ใช้และแปลงเป็นที่อยู่โดยใช้ Google Geocoding API เมื่อผู้ใช้กดปุ่ม "ใช้ตำแหน่งปัจจุบัน"
     const handleUseCurrentLocation = () => {
@@ -249,9 +267,9 @@ const card_form2 = () => {
         }
 
         // ตรวจสอบปัญหาย่อย (subcategory_id)
-        const selectedCategoryIdx = categories.findIndex(cat => cat.category_id === selected);
-        const relatedSubs = selectedCategoryIdx >= 0 ? subcategories.filter(sub => sub.category_idx === selectedCategoryIdx) : [];
-        
+        const selectedCategoryId = selected;
+        const relatedSubs = subcategories.filter((sub) => sub.category_id === selectedCategoryId);
+
         if (relatedSubs && relatedSubs.length > 0) {
             if (!selectedSub) {
                 newErrors.subIssue = "*กรุณาเลือกปัญหาย่อย";
@@ -302,6 +320,7 @@ const card_form2 = () => {
         e.preventDefault();
         
         const isValid = validateForm();
+        console.log("DEBUG errors:", errors);
 
         if(!isValid) {
             return;
@@ -311,8 +330,8 @@ const card_form2 = () => {
         const categoryObj = categories.find(c => c.category_id === selected);
         const subcategoryObj = subcategories.find(s => s.subcategory_id === selectedSub);
         
-        const categoryName = categoryObj?.name ?? selected;
-        const subcategoryName = subcategoryObj?.name ?? selectedSub;
+        const categoryName = categoryObj?.category_name ?? selected;
+        const subcategoryName = subcategoryObj?.subcategory_name ?? selectedSub;
 
         // เตรียมข้อมูลสำหรับส่งไปยัง backend
         const res = await fetch('/api/form/complaint', {

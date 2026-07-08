@@ -1,3 +1,4 @@
+/** 
 // app/api/requests/route.ts
 
 import data from "@/data/mock_data_may2026.json";
@@ -127,5 +128,126 @@ function getStatusCode(statusId: string): Status {
       return "pending";
   }
 }
+*/
 
-   
+// app/api/complaint/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
+import pool from "@/lib/db";
+import { sessionOptions, SessionData } from "@/lib/iron-session-config";
+import { calcResolvedDuration, calcPendingDuration, getGroup, getComplaintNumber } from "@/lib/mockDB/caseUtils";
+import type { Status, ServiceRequest, RequestsPayload } from "@/lib/mockDB/requests.types";
+import { STATUS_PROGRESS } from "@/lib/mockDB/status";
+
+function mapStatusCode(code: string | null): Status {
+  switch (code) {
+    case "OPEN":
+    case "PENDING":
+      return "pending";
+    case "IN_PROGRESS":
+      return "in_progress";
+    case "RESOLVED":
+    case "CLOSED":
+      return "resolved";
+    case "PAUSED":
+      return "paused";
+    case "REJECTED":
+      return "rejected";
+    default:
+      return "pending";
+  }
+}
+
+export async function GET(): Promise<Response> {
+  const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
+
+  if (!session.isLoggedIn || !session.userId) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.userId;
+
+  // ดึงชื่อ user มาแสดงส่วน nav ด้วย
+  const userRes = await pool.query(
+    `SELECT display_name FROM users WHERE user_id = $1`,
+    [userId]
+  );
+  const userName = userRes.rows[0]?.display_name ?? "ผู้ใช้งาน";
+
+  const { rows: complaints } = await pool.query(
+    `SELECT
+       c.complaint_id,
+       c.complaint_no,
+       c.category_id,
+       cat.category_name,
+       c.district,
+       c.province,
+       c.created_at,
+       c.resolved_at,
+       sm.status_code,
+       latest_log.action_note AS latest_action_note,
+       fb.score_overall AS rating
+     FROM complaints c
+     LEFT JOIN categories cat ON cat.category_id = c.category_id
+     LEFT JOIN status_master sm ON sm.status_id = c.current_status_id
+     LEFT JOIN LATERAL (
+       SELECT action_note
+       FROM workflow_logs wl
+       WHERE wl.complaint_id = c.complaint_id
+       ORDER BY wl.action_datetime DESC
+       LIMIT 1
+     ) latest_log ON true
+     LEFT JOIN complaint_feedback fb
+       ON fb.complaint_id = c.complaint_id AND fb.user_id = c.user_id
+     WHERE c.user_id = $1
+     ORDER BY c.created_at DESC`,
+    [userId]
+  );
+
+  const requests: ServiceRequest[] = complaints.map((c) => {
+    const status: Status = mapStatusCode(c.status_code);
+    const isResolved = status === "resolved";
+
+    return {
+      id: c.complaint_id,
+      complaintNo: getComplaintNumber(c.complaint_no) || "",
+      title: c.category_name ?? "",
+      actionNote: isResolved
+        ? calcResolvedDuration(c.created_at, c.resolved_at)
+        : c.latest_action_note ?? "-",
+      category: c.category_id,
+      status,
+      district: c.district,
+      province: c.province,
+      detailMeta: isResolved
+        ? ""
+        : status === "pending"
+        ? "\u00A0\u00A0\u00A0·\u00A0\u00A0" + calcPendingDuration(c.created_at)
+        : `${calcPendingDuration(c.created_at)}`,
+      progress: STATUS_PROGRESS[status],
+      date: new Date(c.created_at).toLocaleDateString("th-TH", {
+        day: "numeric", month: "short", year: "numeric",
+        timeZone: "Asia/Bangkok",
+      }),
+      group: getGroup(c.created_at),
+      rating: c.rating ?? undefined,
+      showRateAction: isResolved,
+    };
+  });
+
+  const payload: RequestsPayload = {
+    user: { name: userName },
+    counts: {
+      all: requests.length,
+      in_progress: requests.filter((r) => r.status === "in_progress").length,
+      resolved: requests.filter((r) => r.status === "resolved").length,
+      pending: requests.filter((r) => r.status === "pending").length,
+      paused: requests.filter((r) => r.status === "paused").length,
+      rejected: requests.filter((r) => r.status === "rejected").length,
+    },
+    requests,
+  };
+
+  return Response.json(payload);
+}

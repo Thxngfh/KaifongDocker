@@ -32,6 +32,25 @@ function LIFFProvider({ children }: { children: React.ReactNode }) {
           .then(() => {
             console.log("LIFF init succeeded.");
             setLiffObject(liff);
+
+            if (liff.isLoggedIn()) {
+              liff.getProfile().then((profile) => {
+                console.log("LIFF profile:", profile);
+                fetch("/api/auth/liff-login", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    lineUserId: profile.userId,
+                    displayName: profile.displayName,
+                  }),
+                })
+                  .then((res) => res.json())
+                  .then((data) => console.log("Login result:", data))
+                  .catch((err) => console.error("Login failed:", err));
+              });
+            } else {
+              liff.login();
+            }
           })
           .catch((error: Error) => {
             console.log("LIFF init failed.");

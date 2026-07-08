@@ -5,42 +5,71 @@ import StepProgress from '../../../components/userform/step_progress_1'
 import Cardform from '../../../components/userform/card_form'
 import CardPdpa from '../../../components/userform/card_pdpa'
 import { Sarabun } from 'next/font/google';
-import { IoMdArrowRoundForward  } from 'react-icons/io';
+import { IoMdArrowRoundForward } from 'react-icons/io';
 import Link from 'next/link';
+import { useLIFF } from "@/providers/liff-providers";
 
 //font sarabun
 const sarabun = Sarabun({
   subsets: ['thai'],
-  weight: ['100', '200', '300', '400', '500', '600', '700'],});
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+});
 
 
 const page = () => {
   const [pdpaAccepted, setPdpaAccepted] = useState(false);
   const [submitDisabled, setSubmitDisabled] = useState(true);
+
+  const { liff, isLoading, liffError } = useLIFF();
+
+  console.log("DEBUG LIFF STATUS:", {
+    isLoading,
+    liffError,
+    hasLiff: !!liff,
+  });
+
   return (
     <div className={`${sarabun.className} mobile-viewport`}>
+  
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          background: "yellow",
+          zIndex: 9999,
+          padding: 8,
+        }}
+      >
+        LIFF: {isLoading
+          ? "loading..."
+          : liffError
+          ? `error: ${liffError}`
+          : "ready ✅"}
+      </div>
+  
       <Navbar />
       <StepProgress />
 
-      {/* หัวข้อและคำอธิบายของฟอร์ม */}
-      <div className='flex flex-col items-start px-8'>
-        <p className='text-[#231B00] text-3xl font-bold mt-10'>ข้อมูลผู้แจ้ง</p>
-        <p className='text-[#5D5C74] text-xl mt-1 font-normal'>Reporter Info</p>
-        <p className='text-[#4D4632] text-lg mt-2'>กรุณากรอกข้อมูลจริงเพื่อประโยชน์ในการร้องเรียนเรื่อง</p>
+      {/* หัวข้อและคำอธิบายของฟอร์ม */ }
+  <div className='flex flex-col items-start px-8'>
+    <p className='text-[#231B00] text-3xl font-bold mt-10'>ข้อมูลผู้แจ้ง</p>
+    <p className='text-[#5D5C74] text-xl mt-1 font-normal'>Reporter Info</p>
+    <p className='text-[#4D4632] text-lg mt-2'>กรุณากรอกข้อมูลจริงเพื่อประโยชน์ในการร้องเรียนเรื่อง</p>
 
-        {/* ฟอร์ม */}
-        <Cardform isSubmitDisabled={submitDisabled}/>
+    {/* ฟอร์ม */}
+    <Cardform isSubmitDisabled={submitDisabled} />
 
-        {/* คำเตือนpdpa */}
-        <CardPdpa 
-          isChecked={pdpaAccepted}
-          onCheckChange={(isChecked) => {
-            setPdpaAccepted(isChecked);
-            setSubmitDisabled(!isChecked);
-          }}
-        />
-        </div>
-    </div>
+    {/* คำเตือนpdpa */}
+    <CardPdpa
+      isChecked={pdpaAccepted}
+      onCheckChange={(isChecked) => {
+        setPdpaAccepted(isChecked);
+        setSubmitDisabled(!isChecked);
+      }}
+    />
+  </div>
+    </div >
   )
 }
 

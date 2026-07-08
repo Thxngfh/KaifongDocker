@@ -1,3 +1,4 @@
+/** 
 import data from "@/data/mock_data_may2026.json";
 import { calcResolvedDuration, calcPendingDuration,getComplaintNumber } from "@/lib/mockDB/caseUtils";
 import type { ServiceRequest,Status, UserPayload } from "@/lib/mockDB/requests.types";
@@ -119,4 +120,117 @@ function getStatusCode(statusId: string): Status {
       return "pending";
   }
 }
+*/
 
+import { NextResponse } from "next/server";
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
+import pool from "@/lib/db";
+import { sessionOptions, SessionData } from "@/lib/iron-session-config";
+import { calcResolvedDuration, calcPendingDuration, getComplaintNumber } from "@/lib/mockDB/caseUtils";
+import type { ServiceRequest, Status, UserPayload } from "@/lib/mockDB/requests.types";
+
+function mapStatusCode(code: string | null): Status {
+  switch (code) {
+    case "OPEN":
+    case "PENDING":
+      return "pending";
+    case "IN_PROGRESS":
+      return "in_progress";
+    case "RESOLVED":
+    case "CLOSED":
+      return "resolved";
+    case "PAUSED":
+      return "paused";
+    case "REJECTED":
+      return "rejected";
+    default:
+      return "pending";
+  }
+}
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
+  if (!session.isLoggedIn || !session.userId) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const { rows } = await pool.query(
+    `SELECT
+       c.complaint_id, c.complaint_no, c.title, c.detail, c.additional_detail,
+       c.location_text, c.created_at, c.resolved_at, c.user_id,
+       cat.category_name,
+       sub.subcategory_name,
+       sm.status_code,
+       u.title_name, u.first_name, u.last_name, u.phone_number,
+       latest_log.action_note AS latest_action_note
+     FROM complaints c
+     LEFT JOIN categories cat ON cat.category_id = c.category_id
+     LEFT JOIN subcategories sub ON sub.subcategory_id = c.subcategory_id
+     LEFT JOIN status_master sm ON sm.status_id = c.current_status_id
+     LEFT JOIN users u ON u.user_id = c.user_id
+     LEFT JOIN LATERAL (
+       SELECT action_note FROM workflow_logs wl
+       WHERE wl.complaint_id = c.complaint_id
+       ORDER BY wl.action_datetime DESC LIMIT 1
+     ) latest_log ON true
+     WHERE c.complaint_id = $1`,
+    [id]
+  );
+
+  const item = rows[0];
+  if (!item) return Response.json({ error: "not found" }, { status: 404 });
+
+  // กันไม่ให้เห็น complaint ของคนอื่น
+  if (item.user_id !== session.userId) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  const { rows: files } = await pool.query(
+    `SELECT file_name, file_path, file_url FROM complaint_files WHERE complaint_id = $1`,
+    [id]
+  );
+
+  const status: Status = mapStatusCode(item.status_code);
+  const isResolved = status === "resolved";
+
+  const result: Partial<ServiceRequest> & Partial<UserPayload> = {
+    id: item.complaint_id,
+    complaintNo: getComplaintNumber(item.complaint_no),
+    title: item.title ?? "",
+
+    title_name: item.title_name ?? "",
+    first_name: item.first_name ?? "",
+    last_name: item.last_name ?? "",
+    phone_number: item.phone_number,
+
+    category: item.category_name ?? "-",
+    subcategory: item.subcategory_name ?? "-",
+    location: item.location_text,
+    detail: item.detail,
+    additional: item.additional_detail ?? "",
+
+    images: files.map((f) => ({
+      url: f.file_url,
+      filePath: f.file_path,
+      filename: f.file_name,
+    })),
+
+    status,
+    actionNote: isResolved
+      ? calcResolvedDuration(item.created_at, item.resolved_at)
+      : item.latest_action_note ?? "-",
+    detailMeta: isResolved
+      ? ""
+      : status === "pending"
+      ? "\u00A0\u00A0\u00A0·\u00A0\u00A0" + calcPendingDuration(item.created_at)
+      : `\n${calcPendingDuration(item.created_at)}`,
+  };
+
+  return Response.json(result);
+}
