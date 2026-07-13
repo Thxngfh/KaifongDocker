@@ -23,7 +23,7 @@ git lfs install
 ## 1. Clone โปรเจกต์
 
 ```bash
-git clone <Repository URL>
+git clone https://github.com/Thxngfh/KaifongDocker.git
 cd KaifongProject
 ```
 
