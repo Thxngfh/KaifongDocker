@@ -148,7 +148,7 @@ docker compose logs -f
 # โครงสร้างโปรเจกต์
 
 ```
-KaifongProject
+KaifongDocker
 │
 ├── db
 │   ├── dumps
@@ -184,16 +184,20 @@ git lfs pull
 ```bash
 git lfs install
 
-git clone <Repository URL>
+git clone https://github.com/Thxngfh/KaifongDocker.git
+cd KaifongDocker
 
-cd KaifongProject
-
+docker compose down -v
 docker compose up --build -d
 
-psql -h localhost -p 5433 \
--U kaifong \
--d kaifongdb \
--f db/dumps/complaint_system_db_v002.sql
+Get-Content db/dumps/complaint_system_db_v002.sql |
+docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb
+
+SELECT COUNT(*)
+FROM information_schema.tables
+WHERE table_schema = 'public';
 ```
 
 จากนั้นเข้าใช้งานได้ที่
