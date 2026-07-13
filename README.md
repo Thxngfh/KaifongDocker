@@ -24,7 +24,7 @@ git lfs install
 
 ```bash
 git clone https://github.com/Thxngfh/KaifongDocker.git
-cd KaifongProject
+cd KaifongDocker
 ```
 
 > เนื่องจากโปรเจกต์ใช้ **Git LFS** ไฟล์ฐานข้อมูลจะถูกดาวน์โหลดอัตโนมัติหลัง Clone
