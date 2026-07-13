@@ -4,13 +4,13 @@
 
 ---
 
-# สิ่งที่ต้องติดตั้งก่อน
+## สิ่งที่ต้องติดตั้ง
 
 - Git
 - Git LFS
 - Docker Desktop
 
-## ติดตั้ง Git LFS (ทำเพียงครั้งเดียว)
+ติดตั้ง Git LFS (ครั้งแรกเท่านั้น)
 
 ```bash
 git lfs install
@@ -18,18 +18,14 @@ git lfs install
 
 ---
 
-# วิธีใช้งาน
-
-## 1. Clone โปรเจกต์
+## 1. Clone Project
 
 ```bash
 git clone https://github.com/Thxngfh/KaifongDocker.git
 cd KaifongDocker
 ```
 
-> เนื่องจากโปรเจกต์ใช้ **Git LFS** ไฟล์ฐานข้อมูลจะถูกดาวน์โหลดอัตโนมัติหลัง Clone
-
-หากไฟล์ไม่ถูกดาวน์โหลด สามารถรัน
+หากไฟล์ฐานข้อมูลยังไม่ถูกดาวน์โหลด
 
 ```bash
 git lfs pull
@@ -37,9 +33,10 @@ git lfs pull
 
 ---
 
-## 2. เปิด Docker
+## 2. Start Docker
 
 ```bash
+docker compose down -v
 docker compose up --build -d
 ```
 
@@ -51,26 +48,40 @@ docker ps
 
 ---
 
-## 3. Restore ฐานข้อมูล (ครั้งแรกเท่านั้น)
+## 3. Restore Database (ครั้งแรกเท่านั้น)
 
-นำเข้าฐานข้อมูลจากไฟล์
-
+```powershell
+Get-Content db/dumps/complaint_system_db_v002.sql |
+docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 ```
-db/dumps/complaint_system_db_v002.sql
-```
-
-รันคำสั่ง
-
-```bash
-psql -h localhost -p 5433 \
--U kaifong \
--d kaifongdb \
--f db/dumps/complaint_system_db_v002.sql
-```
-
-เมื่อ Restore สำเร็จ ครั้งถัดไปไม่ต้อง Restore ใหม่ (ตราบใดที่ไม่ได้ลบ Docker Volume)
 
 ---
+
+## 4. ตรวจสอบจำนวนตาราง
+
+เข้าสู่ PostgreSQL
+
+```bash
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb
+```
+
+จากนั้นรัน
+
+```sql
+SELECT COUNT(*)
+FROM information_schema.tables
+WHERE table_schema = 'public';
+```
+
+ผลลัพธ์ที่ถูกต้อง
+
+```
+ count
+-------
+ 41
+```
+
+หากได้ 41 ตาราง แสดงว่าฐานข้อมูลพร้อมใช้งาน
 
 # การเข้าใช้งานระบบ
 
