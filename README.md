@@ -1,74 +1,201 @@
-# Kaifong Docker Setup
+# Kaifong Project
 
-### Project Structure
+ระบบจัดการเรื่องร้องเรียน Kaifong ประกอบด้วย Frontend, Backend และฐานข้อมูล PostgreSQL ที่ทำงานผ่าน Docker
 
-```text
-Kaifongproject/
-├── docker-compose.yml
-├── kaifongai/
-│   └── Dockerfile
-├── kaifongliff/
-│   └── Dockerfile
-└── db/
-    ├── init/
-    │   └── create-table.sql
-    ├── migrations/
-    │   ├── member_approval_status.sql
-    │   └── production_migration.sql
-    ├── seed/
-    │   └── insert.sql
-    └── dumps/   ❌ (ไม่ใช้ใน repo)
-```
-## Database Dumps (External Storage)
+---
 
-Database backup files are stored externally to keep the repository lightweight.
+# สิ่งที่ต้องติดตั้งก่อน
 
-📦 Google Drive:
-https://drive.google.com/drive/folders/156CQtFrefy9GVsojv9JfrTOQlAEyPHKc
+- Git
+- Git LFS
+- Docker Desktop
 
-⚠️ These files are not included in this repository.
-
-How to restore:
-Run from project root directory
-
-psql -d kaifong_db -f db/dumps/complaint_system_db_v002.sql
-
-Note: Database dump file is provided by senior developer and should not be renamed.
-
-### วิธีการใช้งาน
-
-1. Clone Repository
+## ติดตั้ง Git LFS (ทำเพียงครั้งเดียว)
 
 ```bash
-git clone https://github.com/Thxngfh/KaifongDocker.git
-cd KaifongDocker
+git lfs install
 ```
 
-2. Build และ Run Container
+---
+
+# วิธีใช้งาน
+
+## 1. Clone โปรเจกต์
+
+```bash
+git clone <Repository URL>
+cd KaifongProject
+```
+
+> เนื่องจากโปรเจกต์ใช้ **Git LFS** ไฟล์ฐานข้อมูลจะถูกดาวน์โหลดอัตโนมัติหลัง Clone
+
+หากไฟล์ไม่ถูกดาวน์โหลด สามารถรัน
+
+```bash
+git lfs pull
+```
+
+---
+
+## 2. เปิด Docker
+
+```bash
+docker compose up --build -d
+```
+
+ตรวจสอบว่า Container ทำงาน
+
+```bash
+docker ps
+```
+
+---
+
+## 3. Restore ฐานข้อมูล (ครั้งแรกเท่านั้น)
+
+นำเข้าฐานข้อมูลจากไฟล์
+
+```
+db/dumps/complaint_system_db_v002.sql
+```
+
+รันคำสั่ง
+
+```bash
+psql -h localhost -p 5433 \
+-U kaifong \
+-d kaifongdb \
+-f db/dumps/complaint_system_db_v002.sql
+```
+
+เมื่อ Restore สำเร็จ ครั้งถัดไปไม่ต้อง Restore ใหม่ (ตราบใดที่ไม่ได้ลบ Docker Volume)
+
+---
+
+# การเข้าใช้งานระบบ
+
+### LIFF Frontend
+
+```
+http://localhost:3000
+```
+
+### AI / Dashboard
+
+```
+http://localhost:3001
+```
+
+---
+
+# ข้อมูลฐานข้อมูล
+
+| รายการ | ค่า |
+|--------|------|
+| Host | localhost |
+| Port | 5433 |
+| Database | kaifongdb |
+| Username | kaifong |
+| Password | kaifong1234 |
+
+---
+
+# คำสั่งที่ใช้บ่อย
+
+### เปิดระบบ
+
+```bash
+docker compose up -d
+```
+
+### Build ใหม่
 
 ```bash
 docker compose up --build
 ```
 
-### Database Setup (PostgreSQL)
+### ปิดระบบ
 
 ```bash
-# 1. สร้าง database (ถ้ายังไม่มี)
-createdb kaifong_db
-
-# 2. สร้าง table structure
-psql -d kaifong_db -f db/init/create-table.sql
-
-# 3. run migrations
-psql -d kaifong_db -f db/migrations/member_approval_status.sql
-psql -d kaifong_db -f db/migrations/production_migration.sql
-
-# 4. insert seed data
-psql -d kaifong_db -f db/seed/insert.sql
+docker compose down
 ```
-### Services
 
-| Service      | URL                   |
-| ------------ | --------------------- |
-| Kaifong LIFF | http://localhost:3000 |
-| Kaifong AI   | http://localhost:3001 |
+### ลบ Container และฐานข้อมูลทั้งหมด
+
+```bash
+docker compose down -v
+```
+
+### ดู Log
+
+```bash
+docker compose logs -f
+```
+
+---
+
+# โครงสร้างโปรเจกต์
+
+```
+KaifongProject
+│
+├── db
+│   ├── dumps
+│   ├── init
+│   ├── migrations
+│   └── seed
+│
+├── kaifongai
+│
+├── kaifongliff
+│
+├── docker-compose.yml
+│
+└── README.md
+```
+
+---
+
+# หมายเหตุ
+
+- โปรเจกต์นี้ใช้ **Git LFS** สำหรับจัดเก็บไฟล์ฐานข้อมูล (`complaint_system_db_v002.sql`)
+- กรุณาติดตั้ง Git LFS ก่อน Clone โปรเจกต์
+- หาก Clone แล้วไม่พบไฟล์ฐานข้อมูล ให้รัน
+
+```bash
+git lfs pull
+```
+
+---
+
+# ขั้นตอนการติดตั้ง (สรุป)
+
+```bash
+git lfs install
+
+git clone <Repository URL>
+
+cd KaifongProject
+
+docker compose up --build -d
+
+psql -h localhost -p 5433 \
+-U kaifong \
+-d kaifongdb \
+-f db/dumps/complaint_system_db_v002.sql
+```
+
+จากนั้นเข้าใช้งานได้ที่
+
+- LIFF : http://localhost:3000
+- AI : http://localhost:3001
+
+## การอัปเดตโปรเจกต์
+
+หากมีการอัปเดตจาก GitHub ให้รัน
+
+```bash
+git pull
+git lfs pull
+docker compose up --build -d
+```
