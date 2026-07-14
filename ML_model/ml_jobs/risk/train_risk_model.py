@@ -102,6 +102,14 @@ CAT_LABEL_PREFIX = {
 def log(msg):
     print(f"[{datetime.now().isoformat(timespec='seconds')}] {msg}", flush=True)
 
+def clean_raw_data(df):
+    df = df.drop_duplicates(subset=['complaint_id'])
+    text_cols = ['district', 'category_name', 'subcategory_name', 'detail']
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.strip()
+            df[col] = df[col].str.replace(r'\s+', ' ', regex=True)
+    return df
 
 def describe_feature(fname):
     for col in CAT_FEATURES:
@@ -152,6 +160,8 @@ def build_labeled_df(dfs, v_sla):
     complaints['longitude'] = pd.to_numeric(complaints.get('longitude'), errors='coerce')
     workflow_logs['action_datetime'] = pd.to_datetime(workflow_logs.get('action_datetime'), errors='coerce')
 
+    complaints = clean_raw_data(complaints)
+  
     reject_ids = set(workflow_logs.loc[workflow_logs['action_type'] == 'REJECT', 'complaint_id'])
     sla_breach_label = v_sla.set_index('complaint_id')['is_resolution_breached'].rename('sla_breached')
 
@@ -402,6 +412,8 @@ def score_open_complaints(complaints, categories, subcategories, priority_lvl, s
     )
     df_open = complaints[is_open].copy()
     log(f'Open complaints to score: {len(df_open):,} of {len(complaints):,} total')
+
+    df_open = clean_raw_data(df_open)
 
     if df_open.empty:
         return df_open, None, 0
