@@ -52,7 +52,15 @@ CLUSTER_COLORS = ['#E53935', '#FB8C00', '#43A047', '#1E88E5',
 
 def log(msg):
     print(f"[{datetime.now().isoformat(timespec='seconds')}] {msg}", flush=True)
-
+  
+def clean_raw_data(df):
+    df = df.drop_duplicates(subset=['complaint_id'])
+    text_cols = ['district', 'category_name', 'subcategory_name', 'detail']
+    for col in text_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.strip()
+            df[col] = df[col].str.replace(r'\s+', ' ', regex=True)
+    return df
 
 def load_data(engine):
     tables = ['complaints', 'categories', 'subcategories', 'priority_levels', 'workflow_logs']
@@ -78,6 +86,8 @@ def build_base_df(dfs, v_sla):
 
     complaints['latitude']  = pd.to_numeric(complaints.get('latitude'),  errors='coerce')
     complaints['longitude'] = pd.to_numeric(complaints.get('longitude'), errors='coerce')
+
+    complaints = clean_raw_data(complaints)
 
     df = complaints.merge(categories[['category_id', 'category_name']], on='category_id', how='left')
     df = df.merge(subcategories[['subcategory_id', 'subcategory_name']], on='subcategory_id', how='left')
