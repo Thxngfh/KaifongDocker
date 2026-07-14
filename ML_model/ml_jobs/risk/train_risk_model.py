@@ -56,7 +56,7 @@ import requests
 # ============================================================
 # Config — env-driven so the same image works across environments
 # ============================================================
-DATABASE_URL = os.environ["DATABASE_URL"]  # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
+DATABASE_URL = "" # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
 
 ACCEPT_ROC_AUC = float(os.environ.get("RISK_ACCEPT_ROC_AUC", 0.75))   # validation threshold to stop retrain loop
 MAX_RETRAIN_ROUNDS = int(os.environ.get("RISK_MAX_RETRAIN_ROUNDS", 3))
