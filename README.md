@@ -68,18 +68,19 @@ docker exec -it kaifong_db psql -U kaifong -d kaifongdb
 จากนั้นรัน
 
 ```sql
-SELECT COUNT(*)
+SELECT table_type, COUNT(*)
 FROM information_schema.tables
-WHERE table_schema = 'public';
+WHERE table_schema = 'public'
+GROUP BY table_type;
 ```
 
 ผลลัพธ์ที่ถูกต้อง
 
-```
- count
--------
- 41
-```
+ table_type | count 
+------------+-------
+ VIEW       |     2
+ BASE TABLE |    40
+(2 rows)
 
 หากได้ 41 ตาราง แสดงว่าฐานข้อมูลพร้อมใช้งาน
 
@@ -195,9 +196,10 @@ docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 
 docker exec -it kaifong_db psql -U kaifong -d kaifongdb
 
-SELECT COUNT(*)
+SELECT table_type, COUNT(*)
 FROM information_schema.tables
-WHERE table_schema = 'public';
+WHERE table_schema = 'public'
+GROUP BY table_type;
 ```
 
 จากนั้นเข้าใช้งานได้ที่
