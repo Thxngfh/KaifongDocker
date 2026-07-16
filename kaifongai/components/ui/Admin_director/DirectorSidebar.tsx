@@ -20,6 +20,7 @@ type SidebarProps = {
 export default function Sidebar({ isOpen }: SidebarProps) {
     const [memberOpen, setMemberOpen] = useState(false)
     const [manualOpen, setManualOpen] = useState(false)
+    const [dashboardOpen, setDashboardOpen] = useState(false)
 
     return (
         <aside
@@ -49,15 +50,70 @@ export default function Sidebar({ isOpen }: SidebarProps) {
             <hr className="mx-5 border-gray-200" />
 
         <div className="p-4 text-white text-lg">
-            <Link
-                href="/director/dashboard"
-                className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
-            >
-                <div className="flex flex-row items-center gap-3">
-                    <MdOutlineDashboard size={24} />
-                    <div>แดชบอร์ด</div>
+            <div className="py-1">
+                <button
+                    type="button"
+                    onClick={() => setDashboardOpen((prev) => !prev)}
+                    className="block w-full rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-row items-center gap-3">
+                            <MdOutlineDashboard size={24} />
+                            <div>แดชบอร์ด</div>
+                        </div>
+
+                        <MdKeyboardArrowDown
+                            size={24}
+                            className={`transition-transform duration-300 ${
+                                dashboardOpen ? "rotate-180" : ""
+                            }`}
+                        />
+                    </div>
+                </button>
+
+                <div
+                    className={`overflow-hidden transition-all duration-300 ${
+                        dashboardOpen ? "max-h-60 mt-1" : "max-h-0"
+                    }`}
+                >
+                    <div className="ml-10 space-y-1 text-base">
+                        <Link
+                            href="/director/dashboard"
+                            className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
+                        >
+                            ภาพรวม
+                        </Link>
+
+                        <Link
+                            href="/director/dashboard/executive"
+                            className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
+                        >
+                            ภาพรวมผู้บริหาร
+                        </Link>
+
+                        <Link
+                            href="/director/dashboard/sla"
+                            className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
+                        >
+                            SLA Dashboard
+                        </Link>
+
+                        <Link
+                            href="/director/dashboard/staff-performance"
+                            className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
+                        >
+                            ผลปฏิบัติงานเจ้าหน้าที่
+                        </Link>
+
+                        <Link
+                            href="/director/dashboard/prediction"
+                            className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
+                        >
+                            AI พยากรณ์ความเสี่ยง
+                        </Link>
+                    </div>
                 </div>
-            </Link>
+            </div>
 
             <hr className="mx-1 border-black/20" />
 

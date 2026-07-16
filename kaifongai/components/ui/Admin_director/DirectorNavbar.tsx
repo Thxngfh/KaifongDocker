@@ -20,6 +20,10 @@ export default function Navbar({ isOpen, onMenuClick }: NavbarProps) {
                         "/director/manual/reporter",
                         "/director/evaluate/detail/",
                         "/director/manual/user",
+                        "/director/dashboard/executive",
+                        "/director/dashboard/sla",
+                        "/director/dashboard/staff-performance",
+                        "/director/dashboard/prediction",
                     ]
 
     return (
@@ -66,6 +70,34 @@ export default function Navbar({ isOpen, onMenuClick }: NavbarProps) {
                             <span className="text-gray-400">คู่มือการใช้งาน</span>
                             <span className="mx-2 text-white">/</span>
                             <span className="text-accent">คู่มือการใช้งานประชาชน</span>
+                        </>
+                    )}
+                    {pathname === Linknames[6] && (
+                        <>
+                            <span className="text-gray-400">แดชบอร์ด</span>
+                            <span className="mx-2 text-white">/</span>
+                            <span className="text-accent">ภาพรวมผู้บริหาร</span>
+                        </>
+                    )}
+                    {pathname === Linknames[7] && (
+                        <>
+                            <span className="text-gray-400">แดชบอร์ด</span>
+                            <span className="mx-2 text-white">/</span>
+                            <span className="text-accent">SLA Dashboard</span>
+                        </>
+                    )}
+                    {pathname === Linknames[8] && (
+                        <>
+                            <span className="text-gray-400">แดชบอร์ด</span>
+                            <span className="mx-2 text-white">/</span>
+                            <span className="text-accent">ผลปฏิบัติงานเจ้าหน้าที่</span>
+                        </>
+                    )}
+                    {pathname === Linknames[9] && (
+                        <>
+                            <span className="text-gray-400">แดชบอร์ด</span>
+                            <span className="mx-2 text-white">/</span>
+                            <span className="text-accent">AI พยากรณ์ความเสี่ยง</span>
                         </>
                     )}
                 </div>
