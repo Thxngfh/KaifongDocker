@@ -222,4 +222,17 @@ Get-Content db/migrations/unique_line_user_id.sql | docker exec -i kaifong_db ps
 Get-Content db/migrations/user_departments.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 Get-Content db/migrations/complaint_title.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 Get-Content .\db\migrations\unique_summary_table.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+
+Get-Content .\db\seed\users.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy users (user_id, tenant_id, title_name, first_name, last_name, display_name, line_user_id, email, phone_number, citizen_type, role_id, is_active, last_login_at, created_at, updated_at) FROM STDIN WITH (FORMAT csv, HEADER true)"
+
+Get-Content .\db\seed\insert_part1_base.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+
+Get-Content .\db\seed\insert_part2_summary.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+
+Get-Content .\db\seed\insert_part1_base.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content .\db\seed\insert_part2_summary.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content .\db\seed\complaints_bkk.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaints (complaint_id, complaint_no, tenant_id, channel_id, user_id, category_id, subcategory_id, priority_id, latitude, longitude, district, province, detail, additional_detail, location_text, geocoded_at, location_accuracy, current_status_id, assigned_team_id, assigned_user_id, is_public_view, due_date, resolved_at, closed_at, created_at, updated_at) FROM STDIN WITH (FORMAT csv, HEADER true)"
+Get-Content .\db\seed\complaint_files.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_files FROM STDIN WITH (FORMAT csv, HEADER true)"
+Get-Content .\db\seed\complaint_feedback.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_feedback FROM STDIN WITH (FORMAT csv, HEADER true)"
+Get-Content .\db\seed\workflow_logs_new.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy workflow_logs FROM STDIN WITH (FORMAT csv, HEADER true)"
 ```
