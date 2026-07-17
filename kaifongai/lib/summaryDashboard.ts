@@ -86,7 +86,9 @@ export function summaryPending(data: DashboardData): SummaryItem{
  */
 //success
 export function summaryResolved(data: DashboardData): SummaryItem {
-  const total = data.cases.filter(c => c.status === "resolved").length;
+  const total = data.cases.filter(
+  (c) => c.status === "resolved" || c.status === "closed"
+).length;
   const percent = ((total / data.cases.length) * 100).toFixed(1);
   return { title: "แก้ไขเสร็จสิ้นแล้ว", value: total,color:"#059669"};
 }
@@ -115,7 +117,9 @@ export function summaryWeek(data: DashboardData): SummaryItem {
  */
 //เวลาเฉลี่ยในการปิดงาน (วัน)
 export function summaryAvgCloseTime(data: DashboardData): SummaryItem{
-  const resolvedCases = data.cases.filter(c => c.status === "resolved");
+  const resolvedCases = data.cases.filter(
+  (c) => c.status === "resolved" || c.status === "closed"
+);
  const times = resolvedCases
   .map(c => {
     const logs = data.case_status_logs
@@ -123,7 +127,9 @@ export function summaryAvgCloseTime(data: DashboardData): SummaryItem{
       .sort((a, b) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime());
 
     const pending = logs.find(l => l.status === "pending");
-    const resolved = [...logs].reverse().find(l => l.status === "resolved");
+   const resolved = [...logs]
+  .reverse()
+  .find((l) => l.status === "resolved" || l.status === "closed");
 
     if (!pending || !resolved) return null; 
 

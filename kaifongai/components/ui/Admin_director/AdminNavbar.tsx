@@ -45,21 +45,21 @@ export default function Navbar({ isOpen, onMenuClick }: NavbarProps) {
                         <>
                             <span className="text-gray-400">สมาชิก</span>
                             <span className="mx-2 text-white">/</span>
-                            <span className="text-accent">จัดการสิทธิ์</span>
+                            <span className="text-accent">อนุมัติสมาชิก</span>
                         </>
                     )}
                     {pathname === Linknames[2] && (
                         <>
                             <span className="text-gray-400">สมาชิก</span>
                             <span className="mx-2 text-white">/</span>
-                            <span className="text-accent">อนุมัติสมาชิก</span>
+                            <span className="text-accent">จัดการสิทธิ์</span>
                         </>
                     )}
                     {pathname === Linknames[3] && (
                         <>
                             <span className="text-gray-400">คู่มือการใช้งาน</span>
                             <span className="mx-2 text-white">/</span>
-                            <span className="text-accent">คู่มือการใช้งานช่าง</span>
+                            <span className="text-accent">คู่มือการใช้งานเจ้าหน้าที่</span>
                         </>
                     )}
                     {pathname === Linknames[4] && (
@@ -69,7 +69,7 @@ export default function Navbar({ isOpen, onMenuClick }: NavbarProps) {
                             <span className="text-accent">คู่มือการใช้งานผู้แจ้งเรื่อง</span>
                             </>
                     )}
-                    {pathname === Linknames[5] ? "ประเภทปัญหา" : ""}
+                    {pathname.startsWith(Linknames[5]) ? "ประเภทปัญหา" : ""}
                     {pathname === Linknames[6] && (
                         <>
                             <span className="text-gray-400">คู่มือการใช้งาน</span>

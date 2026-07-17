@@ -15,6 +15,11 @@ export function Pagination({
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
+  const startPage = Math.min(
+  Math.max(1, currentPage - 1),
+  Math.max(1, totalPages - 2)
+)
+
   return (
     <div
       role="navigation"
@@ -33,25 +38,38 @@ export function Pagination({
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      {Array.from({ length: totalPages }, (_, index) => {
-        const page = index + 1;
-        const isActive = currentPage === page;
-        return (
-          <button
-            key={page}
-            type="button"
-            onClick={() => onPageChange(page)}
-            className={`inline-flex h-12 w-12 items-center justify-center rounded-md px-2.5 text-sm font-medium ${
-              isActive
-                ? "bg-nt text-primary-foreground"
-                : "text-muted-foreground hover:bg-accent"
-            }`}
-            aria-current={isActive ? "page" : undefined}
-          >
-            {page}
-          </button>
-        );
-      })}
+      {Array.from({ length: Math.min(3, totalPages) }, (_, index) => {
+    const page = startPage + index
+
+    return (
+      <button
+        key={page}
+        type="button"
+        onClick={() => onPageChange(page)}
+        className={`inline-flex h-12 w-12 items-center justify-center rounded-md px-2.5 text-sm font-medium ${
+          currentPage === page
+            ? "bg-nt text-primary-foreground"
+            : "text-muted-foreground hover:bg-accent"
+        }`}
+      >
+        {page}
+      </button>
+    )
+  })}
+
+    {startPage + 2 < totalPages && (
+      <>
+        <span className="px-1 text-muted-foreground">...</span>
+
+        <button
+          type="button"
+          onClick={() => onPageChange(totalPages)}
+          className="inline-flex h-12 w-12 items-center justify-center rounded-md px-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
+        >
+          {totalPages}
+        </button>
+      </>
+  )}
 
       <button
         type="button"

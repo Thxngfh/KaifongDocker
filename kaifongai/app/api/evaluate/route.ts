@@ -5,19 +5,23 @@ import pool from "@/lib/db";
 function mapStatus(code: string): string {
   switch (code) {
     case "PENDING":
+      return "รอดำเนินการ";
+
     case "IN_PROGRESS":
-    case "PAUSED":
       return "กำลังดำเนินการ";
 
     case "RESOLVED":
     case "CLOSED":
-      return "ประเมินผลเสร็จสิ้น";
+      return "เสร็จสิ้น";
+
+    case "PAUSED":
+      return "พักงาน";
 
     case "REJECTED":
-      return "ไม่รับเรื่อง";
+      return "ถูกปฏิเสธ";
 
     default:
-      return "กำลังดำเนินการ";
+      return "รอดำเนินการ";
   }
 }
 
@@ -28,7 +32,7 @@ export async function GET() {
       SELECT
         c.complaint_id,
         c.complaint_no,
-        c.title,
+        cat.category_name AS title,
         ch.channel_name,
         u.display_name       AS person_name,
         u.phone_number       AS person_phone,
@@ -48,7 +52,7 @@ export async function GET() {
     // 🔄 map ให้ format ตรงกับ frontend
     const complaints = result.rows.map((row, i) => ({
       id: String(i + 1),
-      complainID: row.complaint_id,
+      complaintId: row.complaint_id,
       problems: row.complaint_no,
       app: row.channel_name ?? "Web",
       title: row.title ?? "-",

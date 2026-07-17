@@ -1,7 +1,9 @@
 export type ComplaintStatus =
+  | "รอดำเนินการ"
   | "กำลังดำเนินการ"
-  | "ประเมินผลเสร็จสิ้น"
-  | "ไม่รับเรื่อง"
+  | "เสร็จสิ้น"
+  | "พักงาน"
+  | "ถูกปฏิเสธ"
 
 export type ComplaintChannel = "Line" | "App" | "Web"
 

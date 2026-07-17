@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DataTable from "@/components/ui/Admin_director/DataTableBase"
 import ComplaintPagination from "@/components/ui/Admin_director/PageNavigation";
 import IOSSwitch from "@/components/ui/Admin_director/Toggle";
@@ -23,7 +24,7 @@ const thaiFont = Sarabun({
 });
 
 export interface Problem {
-    id: number;
+    id: string;
     name: string;
     description: string;
     is_active: boolean;
@@ -37,6 +38,7 @@ export interface ProblemSummary {
 };
 
 function ProblemType() {
+    const router = useRouter();
     const [summary, setSummary] = useState<ProblemSummary | null>(null);
     const [tableData, setTableData] = useState<Problem[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -55,7 +57,7 @@ function ProblemType() {
 
 
 
-    const [pendingRemoval, setPendingRemoval] = useState<Set<number>>(new Set());
+    const [pendingRemoval, setPendingRemoval] = useState<Set<string>>(new Set());
 
     const filteredData = tableData.filter((item) => {
         const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
@@ -87,12 +89,12 @@ function ProblemType() {
     ];
 
     const problemImageMap: Record<string, string> = {
-        "ไฟฟ้าขัดข้อง": "⚡",
-        "ถนนชำรุด": "🛣️",
-        "น้ำประปาขัดข้อง": "💧",
-        "ขยะและสิ่งแวดล้อม": "🗑️",
-        "ต้นไม้และพื้นที่สาธารณะ": "🌳",
-        "ท่อระบายน้ำ": "🕳️",
+    "โครงสร้างพื้นฐานและสาธารณูปโภค": "🏗️",
+    "สิ่งแวดล้อมและสุขาภิบาล": "🗑️",
+    "สาธารณสุขและมลพิษ": "🏥",
+    "ความเป็นระเบียบเรียบร้อยและจราจร": "🚦",
+    "สวัสดิการสังคมและพัฒนาชุมชน": "🏘️",
+    "การบริการเจ้าหน้าที่และธรรมาภิบาล": "📋",
     };
 
 
@@ -103,7 +105,6 @@ function ProblemType() {
             .then((json) => {
                 console.log("json:", json);
                 console.log("json.data:", json.data);
-                setTableData(json.data);
                 setTableData(json.data);
             })
             .catch((err) => console.error("Fetch error:", err));
@@ -188,11 +189,18 @@ function ProblemType() {
                                     <td className="px-8 py-4">
                                         <div className="flex justify-between gap-3">
                                         <span className={`${monoFont.className}`}>{row.id}</span>
-                                        <span className="text-2xl">{ problemImageMap[row.name] }</span>
+                                        <span className="text-2xl">{problemImageMap[row.name]}</span>
                                         </div>
 
                                     </td>
-                                    <td className="px-8 py-4 font-bold">{row.name}{" "}</td>
+                                    <td
+                                        className="px-8 py-4 font-bold cursor-pointer hover:text-yellow-600 hover:underline"
+                                        onClick={() =>
+                                            router.push(`/admin/problem-type/${row.id}`)
+                                        }
+                                    >
+                                        {row.name}{" "}
+                                    </td>
                                     <td className={`px-6 py-4  ${!row.is_active ? "text-gray-400" : "text-[var(--muted-foreground)]"}`}>{!row.is_active ? "ปิดการใช้งานชั่วคราว - " : ""}{row.description}</td>
                                     <td className="px-6 py-4 ">
                                         <div className="flex items-center justify-between">
@@ -250,7 +258,20 @@ function ProblemType() {
                                                         setOpenModal(true);
                                                     }}
                                                 />
-                                                <DeleteButton />
+                                                <DeleteButton
+                                                    onDelete={() => {
+                                                        if (
+                                                        window.confirm(
+                                                            "ยืนยันการลบประเภทปัญหานี้?"
+                                                        )
+                                                        ) {
+                                                        console.log(
+                                                            "delete category:",
+                                                            row.id
+                                                        );
+                                                        }
+                                                    }}
+                                                    />
                                             </div>
                                         </div>
                                     </td>

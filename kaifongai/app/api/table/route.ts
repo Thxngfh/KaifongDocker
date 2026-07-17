@@ -7,7 +7,6 @@ export async function GET() {
       SELECT
         c.complaint_id,
         c.complaint_no,
-        c.title,
         c.detail,
         c.district,
         c.province,

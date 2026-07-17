@@ -13,7 +13,7 @@ export async function GET(
       SELECT
         c.complaint_id,
         c.complaint_no,
-        c.title,
+        cat.category_name AS title,
         c.detail,
         c.district,
         c.province,

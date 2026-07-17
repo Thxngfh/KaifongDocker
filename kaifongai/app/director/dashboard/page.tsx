@@ -27,7 +27,7 @@ interface SummaryItem {
   icon?: ComponentType<SVGProps<SVGSVGElement>> | string;
   title: string;
   value: number | string;
-  subvalue: number;
+  subvalue: number | string;
   color?: string;
 }
 
@@ -52,10 +52,16 @@ function Dashboard() {
   const [showFilter, setShowFilter] = useState(false);
 
   const filteredTable = tableData.filter((item) => {
-    if (statusFilter === "all") return true;
-    return item.status === statusFilter;
-  });
+  if (statusFilter === "all") return true;
 
+  // ในฐานข้อมูลมีทั้ง resolved และ closed
+  // แต่หน้า KaifongAI แสดงรวมกันเป็น "เสร็จสิ้น"
+  if (statusFilter === "resolved") {
+    return item.status === "resolved" || item.status === "closed";
+  }
+
+  return item.status === statusFilter;
+});
   const totalPages = Math.ceil(filteredTable.length / limit);
 
   const displayedData = filteredTable.slice(
@@ -66,7 +72,6 @@ function Dashboard() {
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter, showAll]);
-
 
   //table 
   const columns = [
@@ -83,80 +88,55 @@ function Dashboard() {
         let textColor = "";
         let text = "";
 
-        /**switch (value) {
-          case "pending":
-            bgColor = "bg-red-400/20";
-            textColor = "text-red-700";
-            text = "ยังไม่ได้รับเรื่อง";
-            break;
-          case "in_progress":
-            bgColor = "bg-yellow-400/20";
-            textColor = "text-yellow-700";
-            text = "กำลังดำเนินการ";
-            break;
-          case "resolved":
-            bgColor = "bg-green-400/20";
-            textColor = "text-green-700";
-            text = "แก้ไขเสร็จสิ้น";
-            break;
-          default:
-            bgColor = "bg-grey-400/20";
-            break;
-        }
-
-        return (
-          <div className={`w-24 h-6 flex items-center justify-center rounded-full ${bgColor} ${textColor} font-bold  text-xs`}>
-            {text}
-          </div>
-        )
-      },
-    },
-    { key: "time", title: "เวลาที่แจ้ง", className: "text-sm text-gray-400" },
-  ];
-*/
         switch (value) {
           case "pending":
-            bgColor = "bg-red-400/20";
-            textColor = "text-red-700";
-            text = "ยังไม่ได้รับเรื่อง";
-            break;
-          case "in_progress":
             bgColor = "bg-yellow-400/20";
             textColor = "text-yellow-700";
+            text = "รอดำเนินการ";
+            break;
+
+          case "in_progress":
+            bgColor = "bg-blue-400/20";
+            textColor = "text-blue-700";
             text = "กำลังดำเนินการ";
             break;
+
           case "resolved":
+          case "closed":
             bgColor = "bg-green-400/20";
             textColor = "text-green-700";
-            text = "แก้ไขเสร็จสิ้น";
+            text = "เสร็จสิ้น";
             break;
-          case "closed":
-            bgColor = "bg-gray-400/20";
-            textColor = "text-gray-600";
-            text = "ปิดแล้ว";
-            break;
+
           case "paused":
-            bgColor = "bg-orange-400/20";
-            textColor = "text-orange-700";
+            bgColor = "bg-gray-100";
+            textColor = "text-gray-700";
             text = "พักงาน";
             break;
+
           case "rejected":
-            bgColor = "bg-red-600/20";
-            textColor = "text-red-800";
+            bgColor = "bg-red-100";
+            textColor = "text-red-700";
             text = "ถูกปฏิเสธ";
             break;
+
           default:
-            bgColor = "bg-gray-400/20";
+            bgColor = "bg-gray-300/20";
+            textColor = "text-gray-700";
             text = "-";
+            break;
         }
 
         return (
-          <div className={`w-24 h-6 flex items-center justify-center rounded-full ${bgColor} ${textColor} font-bold text-xs`}>
+          <div
+            className={`w-24 h-6 flex items-center justify-center rounded-full ${bgColor} ${textColor} font-bold text-xs`}
+          >
             {text}
           </div>
         );
       },
     },
+  
     { key: "time", title: "เวลาที่แจ้ง", className: "text-sm text-gray-400" },
   ];
 
@@ -167,51 +147,61 @@ function Dashboard() {
         const formatted = cases.map((c) => {
           const date = new Date(c.created_at!);
           /*
-                      return {
-                        id: `REQ-${String(c.id).padStart(2, "0")}/${String(
-                          date.getFullYear() + 543
-                        ).slice(-2)}`,
-                        problems: c.description,
-                        area: c.location,
-                        status: c.status,
-                        time: date
-                          .toLocaleString("th-TH", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hourCycle: "h12",
-                          })
-                          .replace("ก่อนเที่ยง", "AM")
-                          .replace("หลังเที่ยง", "PM"),
-                      };
-                    });
+                    return {
+                      id: `REQ-${String(c.id).padStart(2, "0")}/${String(
+                        date.getFullYear() + 543
+                      ).slice(-2)}`,
+                      problems: c.description,
+                      area: c.location,
+                      status: c.status,
+                      time: date
+                        .toLocaleString("th-TH", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hourCycle: "h12",
+                        })
+                        .replace("ก่อนเที่ยง", "AM")
+                        .replace("หลังเที่ยง", "PM"),
+                    };
+                  });
           
-                    setTableData(formatted);
-                  })
-                  .catch((err) => console.error("Fetch error:", err));
-              }, []);
+                  setTableData(formatted);
+                })
+                .catch((err) => console.error("Fetch error:", err));
+            }, []);
           */
+         
           return {
             id: c.complaint_no ?? "-",
-            problems: c.title || c.detail?.slice(0, 50) || "-",
-            area: [c.district, c.province].filter(Boolean).join(", ") || "-",
-            status: (c.status_code ?? "").toLowerCase(),
+            problems:
+              c.title ||
+              c.detail?.slice(0, 50) ||
+              c.description ||
+              "-",
+            area:
+              [c.district, c.province, c.location]
+                .filter(Boolean)
+                .join(", ") || "-",
+            status: (c.status_code ?? c.status ?? "")
+              .toLowerCase(),
             time: date
-              .toLocaleString("th-TH", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hourCycle: "h12",
-              })
-              .replace("ก่อนเที่ยง", "AM")
-              .replace("หลังเที่ยง", "PM"),
+              ? date
+                .toLocaleString("th-TH", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hourCycle: "h12",
+                })
+                .replace("ก่อนเที่ยง", "AM")
+                .replace("หลังเที่ยง", "PM")
+              : "-",
           };
         });
-
         setTableData(formatted);
       })
       .catch((err) => console.error("Fetch error:", err));
@@ -264,15 +254,16 @@ function Dashboard() {
       color: "#5c5c5c"
     }
   }
-
-  {/*รับค่าidของ ploblems มาแมพกับ icon*/ }
-  /** const getConfigRanking: Record<number, ComponentType<SVGProps<SVGSVGElement>> | string> = {
+/** 
+  {/*รับค่าidของ ploblems มาแมพกับ icon }
+  const getConfigRanking: Record<number, ComponentType<SVGProps<SVGSVGElement>> | string> = {
     1: LightBulbIcon, //ไฟฟ้า
     2: FaTools, //ถนน
     3: IoWaterOutline, //น้ำประปา
     4: TrashIcon, //ขยะ
     5: BsTree, //ต้นไม้
     6: FunnelIcon  //ท่อระบายน้ำ
+
   }
   */
   const getConfigRanking: Record<string, ComponentType<SVGProps<SVGSVGElement>> | string> = {
@@ -340,7 +331,7 @@ function Dashboard() {
         </div>
 
         {/* table */}
-        <div className=" rounded-xl border border-[#F2F3FF] border-t-surface overflow-hidden mx-12 ">
+        <div className="rounded-xl border border-[#F2F3FF] border-t-surface overflow-visible mx-12">
           {/* header */}
           <div
             className={`flex items-center justify-between px-6 py-6 border-b ${showAll
@@ -377,50 +368,74 @@ function Dashboard() {
                 </button>
 
                 {showFilter && (
-                  <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl border border-gray-200 shadow-xl p-2 z-50">
+                <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl border border-gray-200 shadow-xl p-2 z-50">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("pending");
+                      setShowFilter(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
+                  >
+                    รอดำเนินการ
+                  </button>
 
-                    <button
-                      onClick={() => {
-                        setStatusFilter("pending");
-                        setShowFilter(false);
-                      }}
-                      className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
-                    >
-                      ยังไม่ได้รับเรื่อง
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("in_progress");
+                      setShowFilter(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
+                  >
+                    กำลังดำเนินการ
+                  </button>
 
-                    <button
-                      onClick={() => {
-                        setStatusFilter("in_progress");
-                        setShowFilter(false);
-                      }}
-                      className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
-                    >
-                      กำลังดำเนินการ
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("resolved");
+                      setShowFilter(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
+                  >
+                    เสร็จสิ้น
+                  </button>
 
-                    <button
-                      onClick={() => {
-                        setStatusFilter("resolved");
-                        setShowFilter(false);
-                      }}
-                      className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
-                    >
-                      แก้ไขเสร็จสิ้น
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("paused");
+                      setShowFilter(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
+                  >
+                    พักงาน
+                  </button>
 
-                    <button
-                      onClick={() => {
-                        setStatusFilter("all");
-                        setShowFilter(false);
-                      }}
-                      className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
-                    >
-                      ทั้งหมด
-                    </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("rejected");
+                      setShowFilter(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
+                  >
+                    ถูกปฏิเสธ
+                  </button>
 
-                  </div>
-                )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("all");
+                      setShowFilter(false);
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
+                  >
+                    ทั้งหมด
+                  </button>
+                </div>
+              )}
               </div>
 
             </div>
@@ -446,3 +461,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+

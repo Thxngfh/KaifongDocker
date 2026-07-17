@@ -183,54 +183,29 @@ const card_form2 = () => {
                 district,
                 locationAccuracy: accuracy,
             };
-            // อัพเดต sessionStorage ด้วยข้อมูลตำแหน่งที่ได้รับ
-            sessionStorage.setItem("complaintFormDraft", JSON.stringify(draftBase));
+
           const latLngText = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
 
-          // ใช้ Google Geocoding API เพื่อแปลงพิกัดเป็นที่อยู่
-          if (typeof window !== 'undefined' && window.google && window.google.maps && window.google.maps.Geocoder) {
-            const geocoder = new window.google.maps.Geocoder();
-            const latlng = { lat, lng };
+            const locationText =
+            `ตำแหน่งปัจจุบัน (${latLngText})`;
 
-            // ดึงข้อมูลจังหวัดและอำเภอจากผลลัพธ์ของ Geocoding API เพื่อเก็บไว้ใน state และ sessionStorage
-            geocoder.geocode({ location: latlng }, (results, status) => {
-              if (status === window.google.maps.GeocoderStatus.OK && results && results[0]) {
-                                const components = results[0].address_components ?? [];
-                                let geocodeProvince = "";
-                                let geocodeDistrict = "";
-                                for (const component of components) {
-                                    const types = component.types ?? [];
-                                    // ตรวจสอบประเภทของแต่ละ component เพื่อดึงข้อมูลจังหวัดและอำเภอ
-                                    if (types.includes("administrative_area_level_1")) geocodeProvince = component.long_name;
-                                    if (types.includes("administrative_area_level_2")) geocodeDistrict = component.long_name;
-                                    if (!geocodeDistrict && types.includes("sublocality_level_1")) geocodeDistrict = component.long_name;
-                                    if (!geocodeDistrict && types.includes("locality")) geocodeDistrict = component.long_name;
-                                }
-                                setProvince(geocodeProvince);
-                                setDistrict(geocodeDistrict);
-                // ถ้าได้ผลลัพธ์จาก Geocoding API ให้ใช้ที่อยู่ที่ได้มาแสดงในฟิลด์ตำแหน่งและเก็บข้อมูลจังหวัดและอำเภอไว้ใน state และ sessionStorage เพื่อใช้ในการส่งข้อมูลไปยัง backend และแสดงให้ผู้ใช้เห็น
-                setLocation(results[0].formatted_address || latLngText);
-                console.log("พิกัด: "+lat+" "+lng);
+            setLocation(locationText);
 
-                // อัพเดต sessionStorage ด้วยข้อมูลตำแหน่งที่ได้รับจาก Geocoding API
-                sessionStorage.setItem(
-                    "complaintFormDraft",
-                    JSON.stringify({
-                        ...draftBase,
-                        province: geocodeProvince,
-                        district: geocodeDistrict,
-                    })
-                );
-              }else {
-                setLocation(`ตำแหน่งปัจจุบัน (${latLngText})`);
-                                sessionStorage.setItem("complaintFormDraft", JSON.stringify(draftBase));
-              }
-              setLocationLoading(false)
-            });
-          } else {
-            setLocation(`ตำแหน่งปัจจุบัน (${latLngText})`);
-            setLocationLoading(false)
-          }
+            // ยังไม่มี Google Geocoding จึงไม่มีชื่อจังหวัดและอำเภอ
+            setProvince("");
+            setDistrict("");
+
+            sessionStorage.setItem(
+            "complaintFormDraft",
+            JSON.stringify({
+                ...draftBase,
+                location: locationText,
+                province: "",
+                district: "",
+            })
+            );
+
+            setLocationLoading(false); 
         },
         (error) => {
           console.error(error);
