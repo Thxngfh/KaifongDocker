@@ -216,3 +216,10 @@ git pull
 git lfs pull
 docker compose up --build -d
 ```
+```bash
+Get-Content db/migrations/member_approval_status.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content db/migrations/unique_line_user_id.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content db/migrations/user_departments.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content db/migrations/complaint_title.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content .\db\migrations\unique_summary_table.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+```
