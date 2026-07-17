@@ -235,4 +235,15 @@ Get-Content .\db\seed\complaints_bkk.csv | docker exec -i kaifong_db psql -U kai
 Get-Content .\db\seed\complaint_files.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_files FROM STDIN WITH (FORMAT csv, HEADER true)"
 Get-Content .\db\seed\complaint_feedback.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_feedback FROM STDIN WITH (FORMAT csv, HEADER true)"
 Get-Content .\db\seed\workflow_logs_new.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy workflow_logs FROM STDIN WITH (FORMAT csv, HEADER true)"
+
+docker cp db\seed kaifong_db:/tmp/seed
+docker exec -i kaifong_db psql -U kaifong -d kaifongdb -f /tmp/seed/insert_part1_base.sql
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb
+\copy users FROM '/tmp/seed/users.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
+\copy complaints(complaint_id, complaint_no, tenant_id, channel_id, user_id, category_id, subcategory_id, priority_id, latitude, longitude, district, province, detail, additional_detail, location_text, geocoded_at, location_accuracy, current_status_id, assigned_team_id, assigned_user_id, is_public_view, due_date, resolved_at, closed_at, created_at, updated_at)
+FROM '/tmp/seed/complaints_bkk.csv' WITH (FORMAT csv, HEADER true, NULL 'NULL', ENCODING 'UTF8');
+\copy complaint_files FROM '/tmp/seed/complaint_files.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
+\copy complaint_feedback FROM '/tmp/seed/complaint_feedback.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
+\copy workflow_logs FROM '/tmp/seed/workflow_logs_new.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
+docker exec -i kaifong_db psql -U kaifong -d kaifongdb -f /tmp/seed/insert_part2_summary.sql
 ```
