@@ -142,10 +142,7 @@ export async function getData(): Promise<DashboardData> {
       problem_id: c.problem_id,
       // ✅ แก้ตรงนี้
       datetime: new Date(c.datetime).toISOString(),
-      status:
-        c.status === "pending" || c.status === "in_progress" || c.status === "resolved"
-          ? c.status
-          : "pending",
+      status: c.status ?? "pending",
       description: c.description,
       location: c.location,
       location_detail: c.location_detail,

@@ -162,7 +162,7 @@ export async function GET(
 
   const { rows } = await pool.query(
     `SELECT
-       c.complaint_id, c.complaint_no, c.title, c.detail, c.additional_detail,
+       c.complaint_id, c.complaint_no, c.detail, c.additional_detail,
        c.location_text, c.created_at, c.resolved_at, c.user_id,
        cat.category_name,
        sub.subcategory_name,
@@ -202,7 +202,7 @@ export async function GET(
   const result: Partial<ServiceRequest> & Partial<UserPayload> = {
     id: item.complaint_id,
     complaintNo: getComplaintNumber(item.complaint_no),
-    title: item.title ?? "",
+    title: item.category_name ?? "",
 
     title_name: item.title_name ?? "",
     first_name: item.first_name ?? "",

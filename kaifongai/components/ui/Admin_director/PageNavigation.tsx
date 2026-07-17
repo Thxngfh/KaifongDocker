@@ -14,6 +14,10 @@ export default function ComplaintPagination({
   onPageChange,
 }: ComplaintPaginationProps) {
   if (totalPages <= 1) return null
+  const startPage = Math.min(
+  Math.max(1, currentPage - 1),
+  Math.max(1, totalPages - 2)
+)
 
   return (
     <div className="flex justify-center items-center mt-6 mr-12 text-gray-500 gap-2">
@@ -30,8 +34,10 @@ export default function ComplaintPagination({
         <IoIosArrowBack />
       </button>
 
-      {Array.from({ length: totalPages }, (_, index) => {
-        const page = index + 1
+      {Array.from(
+        { length: Math.min(3, totalPages) },
+        (_, index) => {
+          const page = startPage + index
 
         return (
           <button
@@ -48,6 +54,26 @@ export default function ComplaintPagination({
           </button>
         )
       })}
+
+          {startPage + 2 < totalPages && (
+      <>
+        <span className="mx-1 px-2 py-1 text-gray-500">
+          ...
+        </span>
+
+        <button
+          type="button"
+          onClick={() => onPageChange(totalPages)}
+          className={`mx-1 px-3 py-1 rounded-md font-medium ${
+            currentPage === totalPages
+              ? "bg-accent text-[#333847]"
+              : "text-gray-500 hover:bg-gray-100"
+          }`}
+        >
+          {totalPages}
+        </button>
+      </>
+    )}
 
       <button
         type="button"

@@ -118,6 +118,7 @@ export default function Details() {
 
             district: detail.district,
             province: detail.province,
+            location: detail.location,
 
             is_public_view: true,
 

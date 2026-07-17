@@ -21,9 +21,26 @@ function mapChannel(code: string): ComplaintChannel {
 }
 
 function mapStatus(code: string): ComplaintStatus {
-  if (code === "IN_PROGRESS") return "กำลังดำเนินการ"
-  if (code === "RESOLVED" || code === "CLOSED") return "ประเมินผลเสร็จสิ้น"
-  return "ไม่รับเรื่อง"
+  switch (code) {
+    case "PENDING":
+      return "รอดำเนินการ"
+
+    case "IN_PROGRESS":
+      return "กำลังดำเนินการ"
+
+    case "RESOLVED":
+    case "CLOSED":
+      return "เสร็จสิ้น"
+
+    case "PAUSED":
+      return "พักงาน"
+
+    case "REJECTED":
+      return "ถูกปฏิเสธ"
+
+    default:
+      return "รอดำเนินการ"
+  }
 }
 
 export default function DetailPage() {

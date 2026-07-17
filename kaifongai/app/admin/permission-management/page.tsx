@@ -92,7 +92,7 @@ function PermissionManagement() {
     const columns = [
         { key: "row", title: "บทบาท" },
         { key: "name", title: "ชื่อ-นามสกุล" },
-        { key: "email", title: "อีเมลล์" },
+        { key: "email", title: "อีเมล" },
         { key: "department", title: "หน่วยงาน" },
         { key: "type", title: "ประเภทช่าง" },
     ];

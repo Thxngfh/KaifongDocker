@@ -1,12 +1,10 @@
 "use client";
-import React, { useState, useEffect } from 'react'
+import { useState } from "react";
 import { useRouter } from 'next/navigation'
 import Navbar from '../../../../components/navbar'
 import { Sarabun } from 'next/font/google';
 import StepProgressMap from '@/components/userform/step_progressmap';
 import { RiMapPin2Fill } from 'react-icons/ri';
-import SearchBar from '../../../../components/userform/serchbar'
-import { FaCircleCheck } from 'react-icons/fa6';
 import Map from '../../../../components/Map'
 
 //font sarabun
@@ -27,7 +25,6 @@ const page = () => {
 */
 
 const page = () => {
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{
     name: string;
     address: string;
@@ -50,22 +47,6 @@ const page = () => {
   
   // รับค่าจาก SearchBar
   const router = useRouter()
-
-  // SearchBar เลือก → แค่ panTo map (Map จะ reverse geocode เองแล้ว callback กลับมา)
-  const handlePlaceSelect = (place: {
-    name: string; address: string; lat: number; lng: number;
-    province?: string; district?: string;
-  }) => {
-    setMapCenter({ lat: place.lat, lng: place.lng });
-  };
-
-  // Map reverse geocode เสร็จ → update location card
-  const handleLocationChange = (place: {
-    name: string; address: string; lat: number; lng: number;
-    province?: string; district?: string;
-  }) => {
-    setSelectedLocation(place);
-  };
 
   const SendtoForm = async () => {
     if (!selectedLocation) {
@@ -121,14 +102,11 @@ const page = () => {
       
       
     {/* search bar */}
-      <SearchBar onPlaceSelect={handlePlaceSelect}/>
+      {/*<SearchBar onPlaceSelect={handlePlaceSelect}/>*/}
 
     {/* map */}
       <div className='flex flex-col items-start px-8 mt-8'>
-        <Map
-          center={mapCenter}
-          onMarkerSelect={handleLocationChange}
-        />
+        <Map/>
 
       {/* Location Card */}
         <div className='bg-white shadow-lg shadow-gray-100 rounded-3xl p-6 w-full mt-6 flex gap-5'>

@@ -25,9 +25,10 @@ type FileItem = {
 
 type FileCardProps = {
   item: FileItem
+  onEdit?: (item: FileItem) => void
 }
 
-const FileCard = ({ item }: FileCardProps) => {
+const FileCard = ({ item, onEdit }: FileCardProps) => {
   const isImage = item.filetype === "IMAGE";
 
   return (
@@ -103,7 +104,12 @@ const FileCard = ({ item }: FileCardProps) => {
           {/* actions */}
           <div className="flex items-center gap-3 text-lg text-[#161B29]">
             {/* <MdOutlineRemoveRedEye className="cursor-pointer hover:text-black" /> */}
-            <RiPencilLine className="cursor-pointer hover:text-black hover:text-gray-500" />
+            <RiPencilLine
+              onClick={() => {
+                if (onEdit) onEdit(item);
+              }}
+              className="cursor-pointer hover:text-black hover:text-gray-500"
+            />
             <FaRegTrashAlt className="cursor-pointer text-gray-400 hover:text-red-500" />
           </div>
         </div>

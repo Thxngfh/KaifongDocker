@@ -1,9 +1,8 @@
 // app/api/form/complaint/route.ts
 import { NextRequest, NextResponse } from "next/server"
-import data from '@/data/mock_data_may2026.json'
 import { cookies } from "next/headers" 
+import pool from "@/lib/db";
 
-const { categories, subcategories } = data.meta.reference_ids
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json()
@@ -33,25 +32,70 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-    const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
-    const categoryId    = cookieStore.get("category_id")?.value    ?? ""
-    const subcategoryId = cookieStore.get("subcategory_id")?.value ?? ""
+  const categoryId = cookieStore.get("category_id")?.value ?? "";
+  const subcategoryId = cookieStore.get("subcategory_id")?.value ?? "";
+
+  try {
+    let categoryName = "";
+    let subcategoryName = "";
+
+    if (categoryId) {
+      const categoryResult = await pool.query(
+        `
+        SELECT category_name
+        FROM categories
+        WHERE category_id = $1
+        LIMIT 1
+        `,
+        [categoryId]
+      );
+
+      categoryName = categoryResult.rows[0]?.category_name ?? "";
+    }
+
+    if (subcategoryId) {
+      const subcategoryResult = await pool.query(
+        `
+        SELECT subcategory_name
+        FROM subcategories
+        WHERE subcategory_id = $1
+        LIMIT 1
+        `,
+        [subcategoryId]
+      );
+
+      subcategoryName = subcategoryResult.rows[0]?.subcategory_name ?? "";
+    }
+
     return NextResponse.json({
-        title:        cookieStore.get("title")?.value       ?? "",
-        category:     categories.find(c => c.category_id === categoryId)?.name,
-        subcategory:  subcategories.find(c => c.subcategory_id === subcategoryId)?.name,
-        categoryId: categoryId,
-        subcategoryId: subcategoryId,
-        detail:       cookieStore.get("detail")?.value      ?? "",
-        location:     cookieStore.get("location")?.value    ?? "",
-        latitude:     cookieStore.get("latitude")?.value    ?? "",
-        longitude:    cookieStore.get("longitude")?.value   ?? "",
-        geocoded_at:    cookieStore.get("geocoded_at")?.value   ?? "",
-        location_accuracy:    cookieStore.get("location_accuracy")?.value   ?? "",
-        province:     cookieStore.get("province")?.value    ?? "",
-        district:     cookieStore.get("district")?.value    ?? "",
-        additional:   cookieStore.get("additional")?.value  ?? "",
-        photoCount:   Number(cookieStore.get("photoCount")?.value ?? "0"),
-    })
+      title: cookieStore.get("title")?.value ?? "",
+      category: categoryName,
+      subcategory: subcategoryName,
+      categoryId: categoryId,
+      subcategoryId: subcategoryId,
+      detail: cookieStore.get("detail")?.value ?? "",
+      location: cookieStore.get("location")?.value ?? "",
+      latitude: cookieStore.get("latitude")?.value ?? "",
+      longitude: cookieStore.get("longitude")?.value ?? "",
+      geocoded_at: cookieStore.get("geocoded_at")?.value ?? "",
+      location_accuracy: cookieStore.get("location_accuracy")?.value ?? "",
+      province: cookieStore.get("province")?.value ?? "",
+      district: cookieStore.get("district")?.value ?? "",
+      additional: cookieStore.get("additional")?.value ?? "",
+      photoCount: Number(cookieStore.get("photoCount")?.value ?? "0"),
+    });
+  } catch (error) {
+    console.error("GET /api/form/complaint error:", error);
+
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : String(error),
+      },
+      {
+        status: 500,
+      }
+    );
+  }
 }

@@ -51,14 +51,14 @@ function MemberApproval() {
     statusFilter === "pending"
       ? [
         { key: "id", title: "ลำดับ" },
-        { key: "name", title: "ชื่อ-นามสกุล / อีเมลล์" },
+        { key: "name", title: "ชื่อ-นามสกุล / อีเมล" },
         { key: "department", title: "หน่วยงาน" },
         { key: "time", title: "วันที่สมัคร" },
         { key: "status", title: "สถานะ" },
       ]
       : [
         { key: "id", title: "ลำดับ" },
-        { key: "name", title: "ชื่อ-นามสกุล / อีเมลล์" },
+        { key: "name", title: "ชื่อ-นามสกุล / อีเมล" },
         { key: "department", title: "หน่วยงาน" },
         { key: "time", title: "วันที่สมัคร" },
         { key: "status", title: "สถานะ" },
@@ -183,7 +183,7 @@ function MemberApproval() {
                   }}
                   className="w-full text-left px-4 py-3 rounded-xl text-sm font-medium hover:bg-gray-100"
                 >
-                  ปฏิเสธ
+                  ถูกปฏิเสธ
                 </button>
 
 
@@ -250,7 +250,7 @@ function MemberApproval() {
                       {row.status === "approved"
                         ? "อนุมัติแล้ว"
                         : row.status === "rejected"
-                          ? "ปฏิเสธ"
+                          ? "ถูกปฏิเสธ"
                           : "รอดำเนินการ"}
                     </div>
                   </td>

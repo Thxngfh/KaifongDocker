@@ -176,7 +176,14 @@ const UserManualPage = () => {
 
             <div className='flex flex-row gap-10 mt-10'>
                 {paginatedData.map((item, index) => (
-                    <FileCard key={index} item={item} />
+                    <FileCard
+                      key={index}
+                      item={item}
+                      onEdit={(item) => {
+                        setEditingItem(item);
+                        setOpenModal(true);
+                      }}
+                    />
                 ))}
             </div>
 
