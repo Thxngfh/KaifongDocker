@@ -425,7 +425,7 @@ function MiniMap({ lat, lng }: { lat: number; lng: number }) {
   );
 }
 
-// ── Date range bar ──────────────────────────────────────────
+// ── Date range bar (เพิ่ม input type="date" ให้เลือกวันที่เองได้ นอกจากปุ่มลัด) ──
 function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string; end_date: string }; setDates: (d: any) => void; today: string }) {
   const presets = useMemo(() => buildDatePresets(today), [today]);
   return (
@@ -434,24 +434,50 @@ function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string;
       {presets.map((d) => {
         const active = dates.start_date === d.s && dates.end_date === d.e;
         return (
-          <button key={d.l} onClick={() => setDates({ start_date: d.s, end_date: d.e })}
+          <button
+            key={d.l}
+            onClick={() => setDates({ start_date: d.s, end_date: d.e })}
             className="rounded-full border px-3 py-1 text-xs font-semibold"
-            style={active ? { background: COLOR.primary + "30", borderColor: COLOR.primary, color: "#8a6d00" } : { borderColor: COLOR.border, color: COLOR.muted }}>
+            style={active ? { background: "#FFD10030", borderColor: "#FFD100", color: "#8a6d00" } : { borderColor: "#E8EAEC", color: "#6B6E72" }}
+          >
             {d.l}
           </button>
         );
       })}
-      <span className="ml-2 text-xs text-gray-400">{dates.start_date} – {dates.end_date}</span>
+
+      {/* เลือกวันที่เอง (วัน/เดือน/ปี) — ถ้าใส่แล้วไม่ตรงปุ่มลัดไหนเลย ปุ่มลัดด้านบนจะไม่ active ให้อัตโนมัติ */}
+      <span className="ml-2 flex items-center gap-1.5 text-xs text-gray-500">
+        ตั้งแต่
+        <input
+          type="date"
+          value={dates.start_date}
+          max={dates.end_date}
+          onChange={(e) => setDates((d: any) => ({ ...d, start_date: e.target.value }))}
+          className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-[#FFD100] focus:outline-none"
+        />
+        ถึง
+        <input
+          type="date"
+          value={dates.end_date}
+          min={dates.start_date}
+          max={today}
+          onChange={(e) => setDates((d: any) => ({ ...d, end_date: e.target.value }))}
+          className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-[#FFD100] focus:outline-none"
+        />
+      </span>
     </div>
   );
 }
 
 // ── หน้าหลัก ─────────────────────────────────────────────────
 export default function SlaDashboardPage() {
-  const { data: latestDateData, loading: todayLoading } = useApi<any>("/api/system-latest-date");
-  const today = latestDateData?.latest_date || null;
-  const [dates, setDates] = useState<{ start_date: string; end_date: string } | null>(null);
-  useEffect(() => { if (today && !dates) setDates({ start_date: "2024-01-01", end_date: today }); }, [today, dates]);
+  // ใช้วันเวลาปัจจุบันจริงของเครื่องผู้ใช้เสมอ (ไม่ล็อกตามวันที่ล่าสุดใน DB อีกต่อไป —
+  // เหมาะกับการใช้งานจริง ต่อให้ไม่มี complaint ใหม่เข้ามาหลายวัน ช่วง "วันนี้/เดือนนี้" ก็ยังขยับตามเวลาจริง)
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const [dates, setDates] = useState<{ start_date: string; end_date: string }>(() => ({
+    start_date: daysAgo(today, 6), // ค่าเริ่มต้น = 7 วันล่าสุดนับจากวันนี้จริง
+    end_date: today,
+  }));
 
   const { data: cats, loading: cl } = useApi<any[]>(dates ? "/api/by-category" : null, dates || {});
   const { data: areas, loading: al } = useApi<any[]>(dates ? "/api/by-area" : null, dates || {});
@@ -482,10 +508,6 @@ export default function SlaDashboardPage() {
   const safeSubSLA = sla && Array.isArray(sla.by_subcategory) ? sla.by_subcategory : [];
   const slaSummary = sla?.summary;
   const wfColors = [COLOR.primary, COLOR.dark, COLOR.green, COLOR.amber, COLOR.mid, COLOR.purple, COLOR.red];
-
-  if (todayLoading || !dates) {
-    return <div className="flex h-64 items-center justify-center text-sm text-gray-400">กำลังโหลดข้อมูลระบบ...</div>;
-  }
 
   return (
     <div className="flex flex-col gap-5 p-6">

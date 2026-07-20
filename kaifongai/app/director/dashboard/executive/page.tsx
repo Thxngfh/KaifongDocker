@@ -1,6 +1,9 @@
 "use client";
 
 // app/director/dashboard/executive/page.tsx
+// พอร์ตมาจาก complaint_frontend/src/App.js → ExecutivePage (บรรทัด 620-882)
+// + Sidebar date-range logic (บรรทัด 2805-2971) ย่อมาเป็น date picker ในตัวหน้านี้เอง
+// เปลี่ยนจาก axios+FastAPI แยกพอร์ต → fetch() เรียก API ในโปรเจกต์เดียวกัน
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -261,7 +264,7 @@ function AIAlertsModal({ alerts, onClose }: { alerts: any[]; onClose: () => void
   );
 }
 
-// ── Date range bar ──────────────────────────────────────────
+// ── Date range bar (เพิ่ม input type="date" ให้เลือกวันที่เองได้ นอกจากปุ่มลัด) ──
 function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string; end_date: string }; setDates: (d: any) => void; today: string }) {
   const presets = useMemo(() => buildDatePresets(today), [today]);
   return (
@@ -274,26 +277,43 @@ function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string;
             key={d.l}
             onClick={() => setDates({ start_date: d.s, end_date: d.e })}
             className="rounded-full border px-3 py-1 text-xs font-semibold"
-            style={active ? { background: COLOR.primary + "30", borderColor: COLOR.primary, color: "#8a6d00" } : { borderColor: COLOR.border, color: COLOR.muted }}
+            style={active ? { background: "#FFD10030", borderColor: "#FFD100", color: "#8a6d00" } : { borderColor: "#E8EAEC", color: "#6B6E72" }}
           >
             {d.l}
           </button>
         );
       })}
-      <span className="ml-2 text-xs text-gray-400">{dates.start_date} – {dates.end_date}</span>
+
+      {/* เลือกวันที่เอง (วัน/เดือน/ปี) — ถ้าใส่แล้วไม่ตรงปุ่มลัดไหนเลย ปุ่มลัดด้านบนจะไม่ active ให้อัตโนมัติ */}
+      <span className="ml-2 flex items-center gap-1.5 text-xs text-gray-500">
+        ตั้งแต่
+        <input
+          type="date"
+          value={dates.start_date}
+          max={dates.end_date}
+          onChange={(e) => setDates((d: any) => ({ ...d, start_date: e.target.value }))}
+          className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-[#FFD100] focus:outline-none"
+        />
+        ถึง
+        <input
+          type="date"
+          value={dates.end_date}
+          min={dates.start_date}
+          max={today}
+          onChange={(e) => setDates((d: any) => ({ ...d, end_date: e.target.value }))}
+          className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-[#FFD100] focus:outline-none"
+        />
+      </span>
     </div>
   );
 }
 
 // ── หน้าหลัก ─────────────────────────────────────────────────
 export default function ExecutivePage() {
-  const { data: latestDateData, loading: todayLoading, error: todayError } = useApi<any>("/api/system-latest-date");
-  const today = latestDateData?.latest_date || null;
+  // ใช้วันที่จริงของเครื่อง (ไม่ล็อกตามข้อมูลล่าสุดใน DB อีกต่อไป — เหมาะกับการใช้งานจริง)
+  const today = new Date().toISOString().slice(0, 10);
 
-  const [dates, setDates] = useState<{ start_date: string; end_date: string } | null>(null);
-  useEffect(() => {
-    if (today && !dates) setDates({ start_date: "2024-01-01", end_date: today });
-  }, [today, dates]);
+  const [dates, setDates] = useState<{ start_date: string; end_date: string }>({ start_date: "2024-01-01", end_date: today });
 
   const { data: kpi, loading: kl, error: ke, refetch: refetchKpi } = useApi<any>(dates ? "/api/kpi" : null, dates || {});
   const { data: trend, loading: tl } = useApi<any[]>(dates ? "/api/trend" : null, dates || {});
@@ -343,13 +363,6 @@ export default function ExecutivePage() {
       sub: slaPct != null ? (slaPct >= 90 ? "บรรลุเป้าหมาย ≥ 90%" : `เป้า 90% · ต่ำกว่าเป้า ${slaGap}%`) : "เป้าหมาย ≥ 90%",
     },
   ] : [];
-
-  if (todayLoading || !dates) {
-    return <div className="flex h-64 items-center justify-center text-sm text-gray-400">กำลังโหลดข้อมูลระบบ...</div>;
-  }
-  if (todayError) {
-    return <div className="flex h-64 items-center justify-center text-sm text-red-500">⚠️ โหลดวันที่ล่าสุดของระบบไม่สำเร็จ กรุณารีเฟรชหน้านี้</div>;
-  }
 
   return (
     <div className="flex flex-col gap-5 p-6">

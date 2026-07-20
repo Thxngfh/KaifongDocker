@@ -179,6 +179,7 @@ function StaffWorkloadTableRow({ s, maxActive, avgActive, deptLabel, onClick }: 
   );
 }
 
+// ── Date range bar (เพิ่ม input type="date" ให้เลือกวันที่เองได้ นอกจากปุ่มลัด) ──
 function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string; end_date: string }; setDates: (d: any) => void; today: string }) {
   const presets = useMemo(() => buildDatePresets(today), [today]);
   return (
@@ -187,22 +188,46 @@ function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string;
       {presets.map((d) => {
         const active = dates.start_date === d.s && dates.end_date === d.e;
         return (
-          <button key={d.l} onClick={() => setDates({ start_date: d.s, end_date: d.e })} className="rounded-full border px-3 py-1 text-xs font-semibold"
-            style={active ? { background: "#FFD10030", borderColor: "#FFD100", color: "#8a6d00" } : { borderColor: COLOR.border, color: COLOR.muted }}>{d.l}</button>
+          <button
+            key={d.l}
+            onClick={() => setDates({ start_date: d.s, end_date: d.e })}
+            className="rounded-full border px-3 py-1 text-xs font-semibold"
+            style={active ? { background: "#FFD10030", borderColor: "#FFD100", color: "#8a6d00" } : { borderColor: "#E8EAEC", color: "#6B6E72" }}
+          >
+            {d.l}
+          </button>
         );
       })}
-      <span className="ml-2 text-xs text-gray-400">{dates.start_date} – {dates.end_date}</span>
-      <select className="ml-auto rounded-lg border border-gray-200 px-2 py-1 text-xs" disabled><option>ใช้ dropdown ฝ่ายด้านล่างแทน</option></select>
+
+      {/* เลือกวันที่เอง (วัน/เดือน/ปี) — ถ้าใส่แล้วไม่ตรงปุ่มลัดไหนเลย ปุ่มลัดด้านบนจะไม่ active ให้อัตโนมัติ */}
+      <span className="ml-2 flex items-center gap-1.5 text-xs text-gray-500">
+        ตั้งแต่
+        <input
+          type="date"
+          value={dates.start_date}
+          max={dates.end_date}
+          onChange={(e) => setDates((d: any) => ({ ...d, start_date: e.target.value }))}
+          className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-[#FFD100] focus:outline-none"
+        />
+        ถึง
+        <input
+          type="date"
+          value={dates.end_date}
+          min={dates.start_date}
+          max={today}
+          onChange={(e) => setDates((d: any) => ({ ...d, end_date: e.target.value }))}
+          className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:border-[#FFD100] focus:outline-none"
+        />
+      </span>
     </div>
   );
 }
 
 // ── หน้าหลัก ─────────────────────────────────────────────────
 export default function StaffPerformancePage() {
-  const { data: latestDateData, loading: todayLoading } = useApi<any>("/api/system-latest-date");
-  const today = latestDateData?.latest_date || null;
-  const [dates, setDates] = useState<{ start_date: string; end_date: string } | null>(null);
-  useEffect(() => { if (today && !dates) setDates({ start_date: "2024-01-01", end_date: today }); }, [today, dates]);
+  // ใช้วันที่จริงของเครื่อง (ไม่ล็อกตามข้อมูลล่าสุดใน DB อีกต่อไป — เหมาะกับการใช้งานจริง)
+  const today = new Date().toISOString().slice(0, 10);
+  const [dates, setDates] = useState<{ start_date: string; end_date: string }>({ start_date: "2024-01-01", end_date: today });
 
   const [teamCode, setTeamCode] = useState(DEPARTMENT_NAV[0].teamCode);
   const deptEntry = DEPARTMENT_NAV.find((d) => d.teamCode === teamCode);
@@ -240,10 +265,6 @@ export default function StaffPerformancePage() {
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const { data: staffCases, loading: scLoading } = useApi<any[]>(selectedStaff ? "/api/staff/cases" : null, selectedStaff ? { user_id: selectedStaff.user_id } : {});
   const safeStaffCases = Array.isArray(staffCases) ? staffCases : [];
-
-  if (todayLoading || !dates) {
-    return <div className="flex h-64 items-center justify-center text-sm text-gray-400">กำลังโหลดข้อมูลระบบ...</div>;
-  }
 
   return (
     <div className="flex flex-col gap-5 p-6">
