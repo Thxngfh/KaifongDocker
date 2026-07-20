@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import {
-  LineChart, Line, BarChart, Bar, Cell,
+  LineChart, Line, BarChart, Bar, Cell, ComposedChart,
   ScatterChart, Scatter, ZAxis,
   ResponsiveContainer, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine,
@@ -340,23 +340,43 @@ function ExplainPanel({ c }: { c: any }) {
   );
 }
 
-// ── กราฟแนวโน้ม SLA (on-time vs breach) ────────────────────────
+// ── กราฟแนวโน้ม SLA: ปริมาณเคสรวม (แท่ง) + %SLA (เส้น) ───────────
+const SLA_TARGET_PCT = 90;
+const SlaTrendTip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  const total = payload.find((p: any) => p.dataKey === "total")?.value;
+  const pct = payload.find((p: any) => p.dataKey === "sla_pct")?.value;
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-lg">
+      <div className="mb-1 font-semibold">{label || "—"}</div>
+      {total != null && <div style={{ color: COLOR.gray }}>เคสทั้งหมด: <b>{total.toLocaleString()}</b></div>}
+      {pct != null && <div style={{ color: riskColor(100 - pct) }}>%SLA: <b>{pct}%</b></div>}
+    </div>
+  );
+};
 function SlaTrendChart({ today }: { today: string | null }) {
   const { data, loading } = useApi<any[]>(
     today ? "/api/machine-learning_prediction/risk/sla-trend" : null,
     { start_date: today ? monthsAgoStart(today, 12) : undefined, end_date: today || undefined }
   );
-  const rows = Array.isArray(data) ? data : [];
+  const rawRows = Array.isArray(data) ? data : [];
+  const rows = rawRows.map((r) => {
+    const onTime = Number(r.on_time) || 0;
+    const breached = Number(r.breached) || 0;
+    const total = onTime + breached;
+    return { ...r, total, sla_pct: total > 0 ? Math.round((onTime / total) * 1000) / 10 : null };
+  });
   const isLoading = !today || loading;
 
   return (
     <Card>
-      <CardTitle sub="เทียบจำนวนเคสที่จบตรง SLA กับเคสที่เกิน SLA ย้อนหลัง 12 เดือนล่าสุด">
-        แนวโน้ม SLA: On-time vs Breach
+      <CardTitle sub="ปริมาณเคสรวมรายเดือน เทียบกับสัดส่วนที่จบตรง SLA (%) ย้อนหลัง 12 เดือนล่าสุด">
+        แนวโน้ม SLA: %SLA เทียบปริมาณเคส
       </CardTitle>
       <div className="mb-2 flex gap-4 text-xs text-gray-500">
-        <span><span style={{ color: COLOR.green }}>●</span> ตรงตาม SLA</span>
-        <span><span style={{ color: COLOR.red }}>●</span> เกิน SLA</span>
+        <span><span style={{ color: COLOR.gray }}>■</span> เคสทั้งหมด/เดือน</span>
+        <span><span style={{ color: COLOR.green }}>●</span> %SLA</span>
+        <span><span style={{ color: COLOR.red }}>┄</span> เป้าหมาย {SLA_TARGET_PCT}%</span>
       </div>
       <div style={{ height: 240 }}>
         {isLoading ? (
@@ -365,14 +385,16 @@ function SlaTrendChart({ today }: { today: string | null }) {
           <Empty>ไม่มีข้อมูลแนวโน้ม SLA</Empty>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={rows}>
-              <CartesianGrid strokeDasharray="3 3" stroke={COLOR.border} />
+            <ComposedChart data={rows}>
+              <CartesianGrid strokeDasharray="3 3" stroke={COLOR.border} vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip content={<ChartTip />} />
-              <Line type="monotone" dataKey="on_time" name="ตรงตาม SLA" stroke={COLOR.green} strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="breached" name="เกิน SLA" stroke={COLOR.red} strokeWidth={2.5} dot={false} strokeDasharray="5 3" />
-            </LineChart>
+              <YAxis yAxisId="left" tick={{ fontSize: 10 }} stroke={COLOR.gray} />
+              <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tick={{ fontSize: 10 }} stroke={COLOR.green} unit="%" />
+              <Tooltip content={<SlaTrendTip />} />
+              <Bar yAxisId="left" dataKey="total" name="เคสทั้งหมด" fill={COLOR.border} radius={[4, 4, 0, 0]} barSize={28} />
+              <Line yAxisId="right" type="monotone" dataKey="sla_pct" name="%SLA" stroke={COLOR.green} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
+              <ReferenceLine yAxisId="right" y={SLA_TARGET_PCT} stroke={COLOR.red} strokeDasharray="5 3" strokeWidth={1.5} />
+            </ComposedChart>
           </ResponsiveContainer>
         )}
       </div>
