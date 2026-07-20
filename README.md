@@ -223,27 +223,27 @@ Get-Content db/migrations/user_departments.sql | docker exec -i kaifong_db psql 
 Get-Content db/migrations/complaint_title.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 Get-Content .\db\migrations\unique_summary_table.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 
-Get-Content .\db\seed\users.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy users (user_id, tenant_id, title_name, first_name, last_name, display_name, line_user_id, email, phone_number, citizen_type, role_id, is_active, last_login_at, created_at, updated_at) FROM STDIN WITH (FORMAT csv, HEADER true)"
+docker cp .\db\seed\insert_part1_base.sql kaifong_db:/tmp/insert_part1_base.sql
+docker cp .\db\seed\insert_part2_summary.sql kaifong_db:/tmp/insert_part2_summary.sql
+docker cp .\db\seed\users.csv kaifong_db:/tmp/users.csv
+docker cp .\db\seed\complaints_bkk.csv kaifong_db:/tmp/complaints_bkk.csv
+docker cp .\db\seed\complaint_files.csv kaifong_db:/tmp/complaint_files.csv
+docker cp .\db\seed\complaint_feedback.csv kaifong_db:/tmp/complaint_feedback.csv
+docker cp .\db\seed\workflow_logs_new.csv kaifong_db:/tmp/workflow_logs_new.csv
 
-Get-Content .\db\seed\insert_part1_base.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -f /tmp/insert_part1_base.sql
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -f /tmp/insert_part2_summary.sql
 
-Get-Content .\db\seed\insert_part2_summary.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "\copy users (user_id, tenant_id, title_name, first_name, last_name, display_name, line_user_id, email, phone_number, citizen_type, role_id, is_active, last_login_at, created_at, updated_at) FROM '/tmp/users.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')"
 
-Get-Content .\db\seed\insert_part1_base.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
-Get-Content .\db\seed\insert_part2_summary.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
-Get-Content .\db\seed\complaints_bkk.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaints (complaint_id, complaint_no, tenant_id, channel_id, user_id, category_id, subcategory_id, priority_id, latitude, longitude, district, province, detail, additional_detail, location_text, geocoded_at, location_accuracy, current_status_id, assigned_team_id, assigned_user_id, is_public_view, due_date, resolved_at, closed_at, created_at, updated_at) FROM STDIN WITH (FORMAT csv, HEADER true)"
-Get-Content .\db\seed\complaint_files.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_files FROM STDIN WITH (FORMAT csv, HEADER true)"
-Get-Content .\db\seed\complaint_feedback.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_feedback FROM STDIN WITH (FORMAT csv, HEADER true)"
-Get-Content .\db\seed\workflow_logs_new.csv | docker exec -i kaifong_db psql -U kaifong -d kaifongdb -c "\copy workflow_logs FROM STDIN WITH (FORMAT csv, HEADER true)"
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaints (complaint_id, complaint_no, tenant_id, channel_id, user_id, category_id, subcategory_id, priority_id, latitude, longitude, district, province, detail, additional_detail, location_text, geocoded_at, location_accuracy, current_status_id, assigned_team_id, assigned_user_id, is_public_view, due_date, resolved_at, closed_at, created_at, updated_at) FROM '/tmp/complaints_bkk.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')"
 
-docker cp db\seed kaifong_db:/tmp/seed
-docker exec -i kaifong_db psql -U kaifong -d kaifongdb -f /tmp/seed/insert_part1_base.sql
-docker exec -it kaifong_db psql -U kaifong -d kaifongdb
-\copy users FROM '/tmp/seed/users.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
-\copy complaints(complaint_id, complaint_no, tenant_id, channel_id, user_id, category_id, subcategory_id, priority_id, latitude, longitude, district, province, detail, additional_detail, location_text, geocoded_at, location_accuracy, current_status_id, assigned_team_id, assigned_user_id, is_public_view, due_date, resolved_at, closed_at, created_at, updated_at)
-FROM '/tmp/seed/complaints_bkk.csv' WITH (FORMAT csv, HEADER true, NULL 'NULL', ENCODING 'UTF8');
-\copy complaint_files FROM '/tmp/seed/complaint_files.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
-\copy complaint_feedback FROM '/tmp/seed/complaint_feedback.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
-\copy workflow_logs FROM '/tmp/seed/workflow_logs_new.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8');
-docker exec -i kaifong_db psql -U kaifong -d kaifongdb -f /tmp/seed/insert_part2_summary.sql
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_files FROM '/tmp/complaint_files.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')"
+
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "\copy complaint_feedback FROM '/tmp/complaint_feedback.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')"
+
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "\copy workflow_logs FROM '/tmp/workflow_logs_new.csv' WITH (FORMAT csv, HEADER true, ENCODING 'UTF8')"
+
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "SELECT role_name FROM roles LIMIT 3;"
+docker exec -it kaifong_db psql -U kaifong -d kaifongdb -c "SELECT category_name FROM categories LIMIT 3;"
 ```
