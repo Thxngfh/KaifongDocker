@@ -253,15 +253,20 @@ function ProblemTypeDetail() {
                 json.category?.name ?? ""
             );
 
-            setTableData(mappedData);
+            // เรียงตาม subcategory_id ก่อนแสดง
+            const sortedData = [...mappedData].sort((a, b) =>
+                a.subcategory_id.localeCompare(b.subcategory_id)
+            );
+
+            setTableData(sortedData);
 
             setSummary({
-                total: mappedData.length,
-                active: mappedData.filter(
-                (item) => item.is_active
+                total: sortedData.length,
+                active: sortedData.filter(
+                    (item) => item.is_active
                 ).length,
-                inactive: mappedData.filter(
-                (item) => !item.is_active
+                inactive: sortedData.filter(
+                    (item) => !item.is_active
                 ).length,
             });
             })
@@ -351,7 +356,9 @@ function ProblemTypeDetail() {
                                 >
                                     <td className="px-8 py-4">
                                         <div className="flex justify-between gap-3">
-                                        <span className={`${monoFont.className}`}>{row.id}</span>
+                                        <span className={`${monoFont.className}`}>
+                                            {row.subcategory_id.split("-").slice(0, 2).join("-")}
+                                        </span>
 
                                         </div>
 

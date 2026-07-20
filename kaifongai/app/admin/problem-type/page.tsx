@@ -188,7 +188,9 @@ function ProblemType() {
                                 >
                                     <td className="px-8 py-4">
                                         <div className="flex justify-between gap-3">
-                                        <span className={`${monoFont.className}`}>{row.id}</span>
+                                        <span className={`${monoFont.className}`}>
+                                            {row.id.split("-").slice(0, 2).join("-")}
+                                         </span>
                                         <span className="text-2xl">{problemImageMap[row.name]}</span>
                                         </div>
 
