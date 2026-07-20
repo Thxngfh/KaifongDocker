@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Inter} from "next/font/google";
 import { Noto_Sans_Thai} from "next/font/google";
+import "leaflet/dist/leaflet.css";
 
 //import font
 const inter = Inter({

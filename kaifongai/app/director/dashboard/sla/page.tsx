@@ -2,15 +2,32 @@
 
 // app/director/dashboard/sla/page.tsx
 // พอร์ตมาจาก complaint_frontend/src/App.js → AnalyticsPage (บรรทัด 1320-1642)
-// หมายเหตุ: แผนที่ OpenStreetMap (react-leaflet) ในต้นฉบับถูกแทนที่ด้วย Heatmap
-// แบบตาราง (ไม่ต้องพึ่ง react-leaflet ซึ่งต้องตั้งค่า SSR พิเศษใน Next.js) —
-// ถ้าอยากได้แผนที่จริงทีหลัง บอกได้ จะเพิ่ม dynamic import ให้
+// แผนที่ OpenStreetMap (react-leaflet) รวมอยู่ในไฟล์นี้ไฟล์เดียว —
+// โหลด react-leaflet ผ่าน runtime import() ภายใน useEffect (useReactLeaflet hook ด้านล่าง)
+// แทนการ import ปกติที่หัวไฟล์ เพราะ react-leaflet แตะ window/document ตอน import
+// ถ้า import ตรง ๆ ในไฟล์ "use client" จะพัง SSR ทันที (Next.js ยัง server-render
+// client component รอบแรกอยู่ดี) การใช้ import() ใน useEffect ทำให้โค้ดนี้รันเฉพาะ
+// ฝั่ง browser เท่านั้น ผลลัพธ์เทียบเท่า next/dynamic({ ssr: false }) แต่ไม่ต้องแยกไฟล์
+//
+// ต้องติดตั้ง: npm install react-leaflet leaflet && npm install -D @types/leaflet
+// และต้อง import "leaflet/dist/leaflet.css" ใน app/layout.tsx (root layout)
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   LineChart, Line, BarChart, Bar,
   ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
+
+// โหลด react-leaflet เฉพาะฝั่ง client เท่านั้น (module นี้แตะ window ตอน import)
+function useReactLeaflet() {
+  const [RL, setRL] = useState<any>(null);
+  useEffect(() => {
+    let mounted = true;
+    import("react-leaflet").then((mod) => { if (mounted) setRL(mod); });
+    return () => { mounted = false; };
+  }, []);
+  return RL;
+}
 
 const COLOR = {
   primary: "#FFD100", dark: "#3F4444", green: "#00875A", amber: "#E67E00",
@@ -148,12 +165,22 @@ function SLABar({ name, pct, estimate = false }: { name: string; pct: number; es
   );
 }
 
-// ── Heatmap รายพื้นที่ (ทดแทนแผนที่ OSM เพื่อความง่ายในการวางบน Next.js) ────
-const HEATMAP_METRICS = [
+// ── แผนที่รายพื้นที่ (react-leaflet, โหลดผ่าน useReactLeaflet) ────────────
+type Area = {
+  district: string;
+  total: number;
+  open: number;
+  done: number;
+  sla_breach: number;
+  closure_rate: number;
+  lat: number | null;
+  lng: number | null;
+};
+const AREA_METRICS = [
   { id: "closure_rate", label: "อัตราการปิดงาน", direction: "good" as const, fmt: (v: number) => v + "%" },
-  { id: "sla_breach", label: "งานเกินกำหนด SLA", direction: "bad" as const, fmt: (v: number) => v?.toLocaleString() },
-  { id: "open", label: "ค้างดำเนินการ", direction: "bad" as const, fmt: (v: number) => v?.toLocaleString() },
-  { id: "total", label: "ปริมาณรวม", direction: "neutral" as const, fmt: (v: number) => v?.toLocaleString() },
+  { id: "sla_breach", label: "งานเกินกำหนด SLA", direction: "bad" as const, fmt: (v: number) => (v || 0).toLocaleString() },
+  { id: "open", label: "ค้างดำเนินการ", direction: "bad" as const, fmt: (v: number) => (v || 0).toLocaleString() },
+  { id: "total", label: "ปริมาณรวม", direction: "neutral" as const, fmt: (v: number) => (v || 0).toLocaleString() },
 ];
 function lerpHex(hex1: string, hex2: string, t: number) {
   const p = (s: string) => parseInt(s, 16);
@@ -162,61 +189,238 @@ function lerpHex(hex1: string, hex2: string, t: number) {
   return `rgb(${Math.round(r1 + (r2 - r1) * t)},${Math.round(g1 + (g2 - g1) * t)},${Math.round(b1 + (b2 - b1) * t)})`;
 }
 function heatColor(val: number, min: number, max: number, direction: string) {
-  if (max === min) return "#E8EAEC";
+  if (max === min) return COLOR.green;
   const t = (val - min) / (max - min);
   if (direction === "good") return lerpHex("#FDECEA", "#00875A", t);
   if (direction === "bad") return lerpHex("#E8F5E9", "#D32F2F", t);
   return lerpHex("#EFF1F3", "#3F4444", t);
 }
-function textOnHeat(val: number, min: number, max: number, direction: string) {
-  const t = (val - min) / (max - min || 1);
-  const dark = direction === "good" ? t > 0.55 : direction === "bad" ? t > 0.55 : t > 0.6;
-  return dark ? "#FFFFFF" : "#1A1C1E";
+function ratingLabel(pct: number) {
+  if (pct >= 90) return "ดีเยี่ยม";
+  if (pct >= 75) return "ดี";
+  return "ควรปรับปรุง";
 }
-function AreaHeatmap({ areas, loading }: { areas: any[]; loading: boolean }) {
-  const [metric, setMetric] = useState("closure_rate");
-  const [tooltip, setTooltip] = useState<any>(null);
-  if (loading) return <Skeleton height={260} />;
-  if (!areas?.length) return <Empty>ไม่มีข้อมูลรายพื้นที่</Empty>;
-  const m = HEATMAP_METRICS.find((x) => x.id === metric)!;
-  const vals = areas.map((a) => Number(a[metric]) || 0);
+
+function AreaMap({ areas }: { areas: Area[] }) {
+  const RL = useReactLeaflet();
+  const [metric, setMetric] = useState<string>("closure_rate");
+  const [selected, setSelected] = useState<string>("");
+
+  const geoAreas = useMemo(() => areas.filter((a) => a.lat != null && a.lng != null), [areas]);
+  const m = AREA_METRICS.find((x) => x.id === metric)!;
+  const vals = areas.map((a) => Number((a as any)[metric]) || 0);
   const minV = Math.min(...vals), maxV = Math.max(...vals);
+
+  const center: [number, number] = geoAreas.length
+    ? [
+        geoAreas.reduce((s, a) => s + a.lat!, 0) / geoAreas.length,
+        geoAreas.reduce((s, a) => s + a.lng!, 0) / geoAreas.length,
+      ]
+    : [13.7563, 100.5018];
+
+  const totals = areas.reduce(
+    (acc, a) => ({
+      total: acc.total + (Number(a.total) || 0),
+      open: acc.open + (Number(a.open) || 0),
+      done: acc.done + (Number(a.done) || 0),
+      sla_breach: acc.sla_breach + (Number(a.sla_breach) || 0),
+    }),
+    { total: 0, open: 0, done: 0, sla_breach: 0 }
+  );
+  const overviewClosure = totals.total > 0 ? Math.round((totals.done / totals.total) * 1000) / 10 : 0;
+  const overviewOpenPct = totals.total > 0 ? Math.round((totals.open / totals.total) * 100) : 0;
+  const overviewBreachPct = totals.total > 0 ? Math.round((totals.sla_breach / totals.total) * 100) : 0;
+
+  const selectedArea = selected ? areas.find((a) => a.district === selected) : null;
+
+  const radiusFor = (val: number) => {
+    if (maxV === minV) return 14;
+    const t = (val - minV) / (maxV - minV);
+    return 10 + t * 18;
+  };
+
+  const panelDistrict = selectedArea?.district || "ทุกพื้นที่ (ภาพรวม)";
+  const panelClosure = selectedArea ? selectedArea.closure_rate : overviewClosure;
+  const panelTotal = selectedArea ? selectedArea.total : totals.total;
+  const panelOpen = selectedArea ? selectedArea.open : totals.open;
+  const panelBreach = selectedArea ? selectedArea.sla_breach : totals.sla_breach;
+  const panelDone = selectedArea ? selectedArea.done : totals.done;
+  const panelOpenPct = selectedArea && selectedArea.total > 0 ? Math.round((selectedArea.open / selectedArea.total) * 100) : overviewOpenPct;
+  const panelBreachPct = selectedArea && selectedArea.total > 0 ? Math.round((selectedArea.sla_breach / selectedArea.total) * 100) : overviewBreachPct;
+  const doneShare = panelTotal > 0 ? (panelDone / panelTotal) * 100 : 0;
+  const openShare = panelTotal > 0 ? (panelOpen / panelTotal) * 100 : 0;
+  const breachShare = panelTotal > 0 ? (panelBreach / panelTotal) * 100 : 0;
+
+  if (!RL) return <Skeleton height={420} />;
+  const { MapContainer, TileLayer, CircleMarker, Tooltip: LeafletTooltip } = RL;
+
   return (
     <div>
-      <div className="mb-3 flex flex-wrap gap-1.5">
-        {HEATMAP_METRICS.map((mx) => (
-          <button key={mx.id} onClick={() => setMetric(mx.id)}
-            className="rounded-full border px-3 py-1 text-xs font-semibold"
-            style={metric === mx.id ? { background: COLOR.primary + "30", borderColor: COLOR.primary } : { borderColor: COLOR.border, color: COLOR.muted }}>
-            {mx.label}
-          </button>
-        ))}
-      </div>
-      <div className="relative grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5" onMouseLeave={() => setTooltip(null)}>
-        {areas.map((a, i) => {
-          const val = Number(a[metric]) || 0;
-          const bg = heatColor(val, minV, maxV, m.direction);
-          const fg = textOnHeat(val, minV, maxV, m.direction);
-          return (
-            <div key={i} className="cursor-default rounded-xl p-3 text-center transition-transform hover:scale-[1.03]"
-              style={{ background: bg, color: fg }} onMouseEnter={() => setTooltip(a)}>
-              <div className="truncate text-xs font-semibold">{a.district}</div>
-              <div className="text-sm font-bold">{m.fmt(val)}</div>
-            </div>
-          );
-        })}
-      </div>
-      {tooltip && (
-        <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs">
-          <div className="mb-1 font-bold">{tooltip.district}</div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4">
-            <div>ปริมาณรวม: <b>{tooltip.total?.toLocaleString()}</b></div>
-            <div style={{ color: COLOR.amber }}>ค้างดำเนินการ: <b>{tooltip.open?.toLocaleString()}</b></div>
-            <div style={{ color: COLOR.red }}>เกิน SLA: <b>{tooltip.sla_breach?.toLocaleString()}</b></div>
-            <div style={{ color: slaColor(tooltip.closure_rate || 0) }}>ปิดงาน: <b>{tooltip.closure_rate}%</b></div>
-          </div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-1.5">
+          {AREA_METRICS.map((mx) => (
+            <button
+              key={mx.id}
+              onClick={() => setMetric(mx.id)}
+              className="rounded-full border px-3 py-1 text-xs font-semibold"
+              style={
+                metric === mx.id
+                  ? { background: COLOR.primary + "30", borderColor: COLOR.primary }
+                  : { borderColor: COLOR.border, color: COLOR.muted }
+              }
+            >
+              {mx.label}
+            </button>
+          ))}
         </div>
-      )}
+        <select
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-600 focus:border-[#FFD100] focus:outline-none"
+        >
+          <option value="">📍 ทุกพื้นที่ (ภาพรวม)</option>
+          {areas.map((a) => (
+            <option key={a.district} value={a.district}>
+              {a.district}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
+        <div className="overflow-hidden rounded-xl border border-gray-200" style={{ height: 420 }}>
+          <MapContainer center={center} zoom={11} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            {geoAreas.map((a) => {
+              const val = Number((a as any)[metric]) || 0;
+              const col = heatColor(val, minV, maxV, m.direction);
+              const isSelected = selected === a.district;
+              return (
+                <CircleMarker
+                  key={a.district}
+                  center={[a.lat!, a.lng!]}
+                  radius={radiusFor(val)}
+                  pathOptions={{
+                    fillColor: col,
+                    color: isSelected ? COLOR.primary : "#fff",
+                    weight: isSelected ? 3 : 2,
+                    fillOpacity: 0.85,
+                  }}
+                  eventHandlers={{ click: () => setSelected(a.district === selected ? "" : a.district) }}
+                >
+                  <LeafletTooltip direction="top">
+                    <div className="text-xs font-semibold">
+                      {a.district}: {m.fmt(val)}
+                    </div>
+                  </LeafletTooltip>
+                </CircleMarker>
+              );
+            })}
+          </MapContainer>
+        </div>
+
+        {/* Panel สรุปด้านขวา */}
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
+            🗺️ {selectedArea ? "ภาพรวมเขต" : "ภาพรวมทุกพื้นที่"}
+          </div>
+          <div className="mb-3 text-base font-bold text-[#1A1C1E]">{panelDistrict}</div>
+
+          <div className="mb-4">
+            <div className="text-3xl font-extrabold" style={{ color: slaColor(panelClosure) }}>
+              {panelClosure}%
+            </div>
+            <div className="text-sm font-semibold" style={{ color: slaColor(panelClosure) }}>
+              {ratingLabel(panelClosure)}
+            </div>
+            <div className="text-xs text-gray-400">อัตราการปิดงาน เฉลี่ย</div>
+          </div>
+
+          <div className="mb-4 grid grid-cols-2 gap-2 text-xs">
+            <div className="rounded-lg bg-white p-2.5">
+              <div className="font-bold text-[#1A1C1E]">{panelTotal.toLocaleString()}</div>
+              <div className="text-gray-400">ปริมาณรวม</div>
+            </div>
+            <div className="rounded-lg bg-white p-2.5">
+              <div className="font-bold" style={{ color: COLOR.amber }}>
+                {panelOpen.toLocaleString()}
+              </div>
+              <div className="text-gray-400">ค้างดำเนินการ ({panelOpenPct}%)</div>
+            </div>
+            <div className="rounded-lg bg-white p-2.5">
+              <div className="font-bold" style={{ color: COLOR.red }}>
+                {panelBreach.toLocaleString()}
+              </div>
+              <div className="text-gray-400">งานเกินกำหนด SLA ({panelBreachPct}%)</div>
+            </div>
+            <div className="rounded-lg bg-white p-2.5">
+              <div className="font-bold" style={{ color: COLOR.green }}>
+                {panelDone.toLocaleString()}
+              </div>
+              <div className="text-gray-400">ดำเนินการเสร็จสิ้น</div>
+            </div>
+          </div>
+
+          <div className="mb-1.5 flex h-2.5 overflow-hidden rounded-full">
+            <div style={{ width: `${doneShare}%`, background: COLOR.green }} />
+            <div style={{ width: `${openShare}%`, background: COLOR.amber }} />
+            <div style={{ width: `${breachShare}%`, background: COLOR.red }} />
+          </div>
+          <div className="flex flex-wrap gap-3 text-[11px] text-gray-500">
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: COLOR.green }} />เสร็จสิ้น</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: COLOR.amber }} />ค้างดำเนินการ</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full" style={{ background: COLOR.red }} />งานเกินกำหนด SLA</span>
+          </div>
+
+          {!selectedArea && (
+            <div className="mt-3 text-[11px] text-gray-400">ⓘ เลือกเขตจากเมนูด้านบน หรือคลิกจุดบนแผนที่เพื่อดูรายละเอียดเฉพาะพื้นที่</div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-2 text-xs text-gray-400">
+        <span>น้อย</span>
+        <div
+          className="h-2 flex-1 rounded-full"
+          style={{
+            background:
+              m.direction === "good"
+                ? `linear-gradient(to right, #FDECEA, ${COLOR.green})`
+                : m.direction === "bad"
+                ? `linear-gradient(to right, #E8F5E9, ${COLOR.red})`
+                : `linear-gradient(to right, #EFF1F3, #3F4444)`,
+          }}
+        />
+        <span>มาก</span>
+        <span className="ml-2 whitespace-nowrap">
+          {minV.toLocaleString()} – {maxV.toLocaleString()}
+          {metric === "closure_rate" ? "%" : ""}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MiniMap({ lat, lng }: { lat: number; lng: number }) {
+  const RL = useReactLeaflet();
+  if (!RL) return <Skeleton height={200} />;
+  const { MapContainer, TileLayer, CircleMarker } = RL;
+  return (
+    <div className="mt-1 overflow-hidden rounded-xl border border-gray-200" style={{ height: 200 }}>
+      <MapContainer center={[lat, lng]} zoom={15} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <CircleMarker
+          center={[lat, lng]}
+          radius={9}
+          pathOptions={{ fillColor: "#FFD100", color: "#fff", weight: 2, fillOpacity: 1 }}
+        />
+      </MapContainer>
     </div>
   );
 }
@@ -378,10 +582,16 @@ export default function SlaDashboardPage() {
         </Card>
       </div>
 
-      {/* Row 3: Heatmap รายพื้นที่ */}
+      {/* Row 3: แผนที่รายพื้นที่ */}
       <Card>
-        <CardTitle sub="เลือกตัวชี้วัดเพื่อดูรายเขต · hover เพื่อดูรายละเอียด">SLA และสถานะรายพื้นที่</CardTitle>
-        <AreaHeatmap areas={safeAreas} loading={al} />
+        <CardTitle sub="เลือกตัวชี้วัดหรือเขตเพื่อดูรายละเอียด · คลิกจุดบนแผนที่ได้เช่นกัน">SLA และสถานะรายพื้นที่</CardTitle>
+        {al ? (
+          <Skeleton height={420} />
+        ) : safeAreas.length === 0 ? (
+          <Empty>ไม่มีข้อมูลรายพื้นที่</Empty>
+        ) : (
+          <AreaMap areas={safeAreas} />
+        )}
       </Card>
 
       {/* Row 4: รายการเรื่องร้องเรียนล่าสุด */}
@@ -455,10 +665,14 @@ export default function SlaDashboardPage() {
             )}
             <div className="mt-3.5"><span className="text-xs text-gray-400">รายละเอียด</span><div className="mt-1 text-sm leading-relaxed">{recentDetail.detail || "ไม่มีรายละเอียดเพิ่มเติม"}</div></div>
             {recentDetail.lat != null && recentDetail.lng != null && (
-              <a href={`https://www.google.com/maps?q=${recentDetail.lat},${recentDetail.lng}`} target="_blank" rel="noreferrer"
-                className="mt-3.5 inline-block text-sm font-semibold text-blue-600 hover:underline">
-                📍 เปิดตำแหน่งใน Google Maps
-              </a>
+              <div className="mt-3.5">
+                <span className="text-xs text-gray-400">ตำแหน่งบนแผนที่</span>
+                <MiniMap lat={Number(recentDetail.lat)} lng={Number(recentDetail.lng)} />
+                <a href={`https://www.google.com/maps?q=${recentDetail.lat},${recentDetail.lng}`} target="_blank" rel="noreferrer"
+                  className="mt-2 inline-block text-sm font-semibold text-blue-600 hover:underline">
+                  เปิดใน Google Maps ↗
+                </a>
+              </div>
             )}
           </div>
         </Modal>

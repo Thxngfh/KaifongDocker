@@ -1,93 +1,27 @@
-/**
- * API: /api/summary
- * ทำหน้าที่: ดึงข้อมูลและประมวลผลสรุปแดชบอร์ดหลักของระบบ (Main Dashboard Summary)
- * ความสัมพันธ์:
- *   - ทำงานร่วมกับแดชบอร์ดหลัก (Dashboard Overview Page) เพื่อแสดงตัวเลขสถิติ กราฟ และแนวโน้มข้อมูล
- *   - เรียกใช้โมดูล `@/lib/summaryDashboard` (ฟังก์ชัน `getSummaryDataDashboard`) เพื่อคำนวณข้อมูลแดชบอร์ด
- *   - อ่านข้อมูลหลักจาก `@/data/alternative/data2.json` เพื่อทำโครงสร้างข้อมูลแบบ DashboardData
- *   - สัมพันธ์กับ `/api/table` ที่ดึงข้อมูลเคสในตารางแดชบอร์ดหลักเช่นเดียวกัน
- 
-
 // app/api/summary/route.ts
-import { NextResponse } from "next/server";
-import { getSummaryDataDashboard } from "@/lib/summaryDashboard";
-import rawData from "@/data/alternative/data2.json";
-import type {DashboardData} from "@/services/DataProvider";
+//
+// เดิม: ดึง complaints/workflow_logs "ทุกแถว" ออกมาทั้งหมด แล้วมานับด้วย
+// JavaScript ผ่าน summaryDashboard.ts (.filter()) — พอข้อมูลมี 30,000+ แถว
+// จะช้ามาก (เจอจริงตอนวัด 30-58 วินาที)
+//
+// ใหม่: ให้ PostgreSQL นับสรุปให้โดยตรง (COUNT/AVG/GROUP BY) เร็วกว่ามาก
+// รูปแบบ JSON ที่ส่งออกไปยังคงเหมือนเดิมทุกฟิลด์ (topCards, bottomCards,
+// RankingCards) เพื่อไม่ให้หน้า Admin dashboard เดิมพัง — ไม่ต้องแก้ฝั่ง
+// frontend เลย
 
-/**
- * GET Handler
- * ทำหน้าที่: รับ Request แบบ GET เพื่อจัดเตรียมข้อมูล ดำเนินการวิเคราะห์/สรุป แล้วส่งผลสรุปของแดชบอร์ดกลับไปในรูปแบบ JSON
- * ความสัมพันธ์: ถูกเรียกโดยหน้าแรกของระบบแดชบอร์ดเพื่อเรนเดอร์กราฟ วิดเจ็ต และข้อมูลสรุป
- 
-export async function GET() {
-  const data = await getData();
-  const summary = await getSummaryDataDashboard(data);
-  return NextResponse.json(summary);
-}
-
-/**
- * getData
- * ทำหน้าที่: โหลดและกรอง/แมปข้อมูลดิบ (Raw JSON) ให้อยู่ในโครงสร้าง `DashboardData`
- *   - ทำการทำความสะอาดสถานะของเคสให้รองรับเฉพาะ pending, in_progress, resolved เท่านั้น (นอกเหนือจากนี้ให้เป็น pending)
- *   - แมปโครงสร้างของข้อมูล Users, Technicians, Problems, และ Case Status Logs เพื่อพร้อมนำไปใช้ในการคำนวณสถิติ
- * ความสัมพันธ์: อ่านและจัดระเบียบข้อมูลจาก `rawData` ในไฟล์ JSON
- 
-export async function getData(): Promise<DashboardData> {
- // const now = new Date();
-
-  return {
-    cases: rawData.cases
-      //.filter((c: any) => new Date(c.datetime) <= now) // กรอง datetime ไม่เกินวันนี้
-      .map((c: any) => ({
-        id: c.id,
-        user_id: c.user_id,
-        problem_id: c.problem_id,
-        datetime: c.datetime,
-        status:
-          c.status === "pending" || c.status === "in_progress" || c.status === "resolved"
-            ? c.status
-            : "pending",
-        description: c.description,
-        location: c.location,
-        location_detail: c.location_detail,
-        location_lat: c.location_lat,
-        location_lng: c.location_lng,
-        location_url: c.location_url,
-        picture_url: c.picture_url,
-      })),
-
-    users: rawData.users.map((u: any) => ({
-      id: u.id,
-      created_at: u.datetime, // map datetime -> created_at
-    })),
-
-    technicians: rawData.technicians.map((t: any) => ({
-      id: t.id,
-      status: t.status === "approved" ? "approved" : "offline",
-    })),
-
-    problems: rawData.problems,
-
-    case_status_logs: rawData.case_status_logs
-      //.filter((cl: any) => new Date(cl.changed_at) <= now) // กรองอนาคต
-      .map((cl: any) => ({
-        id: cl.id,
-        case_id: cl.case_id,
-        status: cl.status,
-        changed_at: cl.changed_at,
-      })),
-  };
-}
-*/
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { getSummaryDataDashboard } from "@/lib/summaryDashboard";
-import type { DashboardData } from "@/services/DataProvider";
+
+interface SummaryItem {
+  title: string;
+  value: number;
+  subvalue?: string | number;
+  color?: string;
+}
 
 export async function GET() {
   try {
-    const data = await getData();
-    const summary = await getSummaryDataDashboard(data);
+    const summary = await getSummaryFast();
     return NextResponse.json(summary);
   } catch (error: any) {
     console.error("DB ERROR (/api/summary):", error);
@@ -98,70 +32,78 @@ export async function GET() {
   }
 }
 
-export async function getData(): Promise<DashboardData> {
-  const casesResult = await pool.query(`
+async function getSummaryFast() {
+  // ── การ์ดตัวเลข (1 query เดียว นับทุกอย่างพร้อมกัน) ──────────────
+  const countsResult = await pool.query(`
     SELECT
-      c.complaint_id AS id,
-      c.user_id,
-      c.category_id AS problem_id,
-      c.created_at AS datetime,
-      LOWER(st.status_code) AS status,
-      c.detail AS description,
-      c.district AS location,
-      c.location_details AS location_detail,
-      c.latitude AS location_lat,
-      c.longitude AS location_lng,
-      c.location_text AS location_url
+      COUNT(*) FILTER (WHERE LOWER(st.status_code) = 'pending')                       AS pending,
+      COUNT(*) FILTER (WHERE LOWER(st.status_code) = 'resolved')                      AS resolved,
+      COUNT(*) FILTER (WHERE c.created_at::date = CURRENT_DATE)                       AS today,
+      COUNT(*) FILTER (WHERE c.created_at >= NOW() - INTERVAL '7 days')               AS week,
+      COUNT(*) FILTER (WHERE date_trunc('month', c.created_at) = date_trunc('month', NOW())) AS month,
+      COUNT(*)                                                                        AS total
     FROM complaints c
     LEFT JOIN status_master st ON c.current_status_id = st.status_id
   `);
+  const counts = countsResult.rows[0];
 
-  const problemsResult = await pool.query(`
-    SELECT
-      category_id AS id,
-      category_name AS name,
-      description,
-      is_active
-    FROM categories
+  // ── เวลาเฉลี่ยในการปิดงาน (เฉพาะเคสที่ resolved แล้ว) ──────────────
+  // หาเวลาที่เข้าสถานะ pending ครั้งแรก กับ resolved ครั้งล่าสุด จาก workflow_logs
+  // แล้วเฉลี่ยผลต่างเป็นวัน — เทียบเท่ากับ summaryAvgCloseTime() เดิมทุกประการ
+  const avgCloseResult = await pool.query(`
+    WITH first_pending AS (
+      SELECT wl.complaint_id, MIN(wl.action_datetime) AS pending_at
+      FROM workflow_logs wl
+      JOIN status_master st ON wl.to_status_id = st.status_id
+      WHERE LOWER(st.status_code) = 'pending'
+      GROUP BY wl.complaint_id
+    ),
+    last_resolved AS (
+      SELECT wl.complaint_id, MAX(wl.action_datetime) AS resolved_at
+      FROM workflow_logs wl
+      JOIN status_master st ON wl.to_status_id = st.status_id
+      WHERE LOWER(st.status_code) = 'resolved'
+      GROUP BY wl.complaint_id
+    )
+    SELECT AVG(EXTRACT(EPOCH FROM (lr.resolved_at - fp.pending_at)) / 86400.0) AS avg_days
+    FROM complaints c
+    LEFT JOIN status_master cs ON c.current_status_id = cs.status_id
+    JOIN first_pending fp ON fp.complaint_id = c.complaint_id
+    JOIN last_resolved lr ON lr.complaint_id = c.complaint_id
+    WHERE LOWER(cs.status_code) = 'resolved'
   `);
+  const avgCloseDays = Number(avgCloseResult.rows[0]?.avg_days || 0);
 
-  const logsResult = await pool.query(`
-    SELECT
-      wl.workflow_log_id AS id,
-      wl.complaint_id AS case_id,
-      LOWER(st.status_code) AS status,
-      wl.action_datetime AS changed_at
-    FROM workflow_logs wl
-    LEFT JOIN status_master st ON wl.to_status_id = st.status_id
+  // ── Top 3 ประเภทปัญหาที่มีเรื่องมากที่สุด (แทน getRanking เดิม) ──────
+  const rankingResult = await pool.query(`
+    SELECT cat.category_id, cat.category_name, cat.description, COUNT(*) AS cnt
+    FROM complaints c
+    JOIN categories cat ON c.category_id = cat.category_id
+    GROUP BY cat.category_id, cat.category_name, cat.description
+    ORDER BY cnt DESC
+    LIMIT 3
   `);
+  const totalCases = Number(counts.total || 0);
 
-  return {
-    cases: casesResult.rows.map((c: any) => ({
-      id: c.id,
-      user_id: c.user_id,
-      problem_id: c.problem_id,
-      // ✅ แก้ตรงนี้
-      datetime: new Date(c.datetime).toISOString(),
-      status: c.status ?? "pending",
-      description: c.description,
-      location: c.location,
-      location_detail: c.location_detail,
-      location_lat: c.location_lat,
-      location_lng: c.location_lng,
-      location_url: c.location_url,
-      picture_url: undefined,
-    })),
+  const topCards: SummaryItem[] = [
+    { title: "รอดำเนินการ", value: Number(counts.pending), color: "#BA1A1A" },
+    { title: "แก้ไขเสร็จสิ้นแล้ว", value: Number(counts.resolved), color: "#059669" },
+    { title: "เวลาเฉลี่ยในการปิดงาน", value: Number(avgCloseDays.toFixed(2)), subvalue: "วัน", color: "#FFD100" },
+  ];
 
-    users: [],
-    technicians: [],
+  const bottomCards: SummaryItem[] = [
+    { title: "เรื่องที่ร้องเรียนวันนี้", value: Number(counts.today), color: "#725C00" },
+    { title: "ร้องเรียนใหม่สัปดาห์นี้", value: Number(counts.week) },
+    { title: "เรื่องที่ร้องเรียนเดือนนี้", value: Number(counts.month), color: "#FFD100" },
+  ];
 
-    problems: problemsResult.rows,
+  const RankingCards = rankingResult.rows.map((p, idx) => ({
+    key: idx + 1,
+    id: p.category_id,
+    title: p.category_name,
+    value: p.description,
+    subvalue: totalCases > 0 ? Math.round((Number(p.cnt) / totalCases) * 100) : 0,
+  }));
 
-    case_status_logs: logsResult.rows.map((cl: any) => ({
-      id: cl.id,
-      case_id: cl.case_id,
-      status: cl.status,
-      changed_at: cl.changed_at, 
-    })),
-  };
+  return { topCards, bottomCards, RankingCards };
 }
