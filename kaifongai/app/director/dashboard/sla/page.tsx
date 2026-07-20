@@ -503,7 +503,7 @@ export default function SlaDashboardPage() {
   // เหมาะกับการใช้งานจริง ต่อให้ไม่มี complaint ใหม่เข้ามาหลายวัน ช่วง "วันนี้/เดือนนี้" ก็ยังขยับตามเวลาจริง)
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [dates, setDates] = useState<{ start_date: string; end_date: string }>(() => ({
-    start_date: "2024-01-01", // ค่าเริ่มต้น = 7 วันล่าสุดนับจากวันนี้จริง
+    start_date: "2024-01-01", // ค่าเริ่มต้น = ทั้งหมด (ให้ตรงกับหน้าอื่น ๆ ในระบบ)
     end_date: today,
   }));
 
