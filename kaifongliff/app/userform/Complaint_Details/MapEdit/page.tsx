@@ -105,8 +105,18 @@ const page = () => {
       {/*<SearchBar onPlaceSelect={handlePlaceSelect}/>*/}
 
     {/* map */}
-      <div className='flex flex-col items-start px-8 mt-8'>
-        <Map/>
+<div className='flex flex-col items-start px-8 mt-8'>
+  <div className="relative w-full h-[320px] overflow-hidden rounded-2xl bg-gray-100">
+    <img
+      src="/map/nt.png"
+      alt="แผนที่ตำแหน่ง"
+      className="w-full h-full object-cover"
+    />
+
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <RiMapPin2Fill size={42} color="#ff5a5a" />
+    </div>
+  </div>
 
       {/* Location Card */}
         <div className='bg-white shadow-lg shadow-gray-100 rounded-3xl p-6 w-full mt-6 flex gap-5'>
