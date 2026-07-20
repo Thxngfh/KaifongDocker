@@ -425,6 +425,34 @@ function MiniMap({ lat, lng }: { lat: number; lng: number }) {
   );
 }
 
+// ── กราฟแนวโน้ม SLA: On-time vs Breach (ผูกกับตัวกรองวันที่หลักของหน้า) ──
+function SlaTrendChart({ dates }: { dates: { start_date: string; end_date: string } }) {
+  const { data, loading } = useApi<any[]>("/api/machine-learning_prediction/risk/sla-trend", dates);
+  const rows = Array.isArray(data) ? data : [];
+  return (
+    <Card>
+      <CardTitle sub="เทียบจำนวนเคสที่จบตรง SLA กับเคสที่เกิน SLA ตามช่วงวันที่ที่เลือกไว้ด้านบน">
+        แนวโน้ม SLA: On-time vs Breach
+      </CardTitle>
+      <ChartLegend items={[["ตรงตาม SLA", COLOR.green], ["เกิน SLA", COLOR.red]]} />
+      {loading ? <Skeleton height={200} /> : rows.length === 0 ? (
+        <Empty>ไม่มีข้อมูลแนวโน้ม SLA ในช่วงที่เลือก</Empty>
+      ) : (
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart data={rows}>
+            <CartesianGrid strokeDasharray="3 3" stroke={COLOR.border} vertical={false} />
+            <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+            <YAxis tick={{ fontSize: 10 }} />
+            <Tooltip content={<ChartTip />} />
+            <Line type="monotone" dataKey="on_time" name="ตรงตาม SLA" stroke={COLOR.green} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="breached" name="เกิน SLA" stroke={COLOR.red} strokeWidth={2.5} dot={false} strokeDasharray="5 3" />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
+    </Card>
+  );
+}
+
 // ── Date range bar (เพิ่ม input type="date" ให้เลือกวันที่เองได้ นอกจากปุ่มลัด) ──
 function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string; end_date: string }; setDates: (d: any) => void; today: string }) {
   const presets = useMemo(() => buildDatePresets(today), [today]);
@@ -503,10 +531,8 @@ export default function SlaDashboardPage() {
   const safeRecent = Array.isArray(recentRes?.items) ? recentRes.items : [];
   const recentTotal = recentRes?.total || 0;
   const recentPages = Math.max(Math.ceil(recentTotal / RECENT_PAGE_SIZE), 1);
-  const safePriority = sla && Array.isArray(sla.by_priority) ? sla.by_priority : [];
   const safeCatSLA = sla && Array.isArray(sla.by_category) ? sla.by_category : safeCats;
   const safeSubSLA = sla && Array.isArray(sla.by_subcategory) ? sla.by_subcategory : [];
-  const slaSummary = sla?.summary;
   const wfColors = [COLOR.primary, COLOR.dark, COLOR.green, COLOR.amber, COLOR.mid, COLOR.purple, COLOR.red];
 
   return (
@@ -549,39 +575,9 @@ export default function SlaDashboardPage() {
         </Card>
       </div>
 
-      {/* Row 2: SLA by Priority + SLA by Category */}
+      {/* Row 2: แนวโน้ม SLA (On-time vs Breach) + SLA by Category */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Card>
-          <CardTitle
-            sub={slaSummary?.prev_period && `% SLA รวม เทียบกับช่วงก่อน (${slaSummary.prev_period.start} – ${slaSummary.prev_period.end})`}
-            right={slaSummary && <DeltaPill delta={slaSummary.sla_pct_delta} />}
-          >
-            SLA ตาม Priority
-            <InfoTip text="Priority = ระดับความสำคัญ/ความเร่งด่วนของเรื่องร้องเรียน แต่ละระดับมีกำหนดเวลามาตรฐาน (SLA) ที่ต่างกัน" />
-          </CardTitle>
-          {sl ? <Skeleton height={180} /> : safePriority.length > 0 ? (
-            safePriority.map((p: any, i: number) => (
-              <div key={i} className="mb-2.5">
-                <div className="mb-1 flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
-                    {p.name}
-                    <span className="text-gray-400">(target: {p.avg_target_min < 60 ? p.avg_target_min + " นาที" : Math.round(p.avg_target_min / 60) + " ชม."})</span>
-                  </span>
-                  <span className="font-semibold" style={{ color: slaColor(p.sla_pct) }}>{p.sla_pct}%</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                    <div className="h-full rounded-full" style={{ width: `${p.sla_pct}%`, background: slaColor(p.sla_pct) }} />
-                  </div>
-                  <span className="text-[11px] text-gray-400">{p.on_time}/{p.total}</span>
-                </div>
-              </div>
-            ))
-          ) : safeCatSLA.map((c: any, i: number) => (
-            <SLABar key={i} name={c.name} pct={c.sla_pct ?? (c.total > 0 ? Math.round((c.done / c.total) * 100) : 0)} estimate={c.sla_pct == null} />
-          ))}
-        </Card>
+        <SlaTrendChart dates={dates} />
 
         <Card>
           <CardTitle sub="% SLA สำเร็จ แยกตามหมวดหมู่ · คลิกชื่อหมวดหมู่เพื่อดูประเภทย่อย">SLA ตามหมวดหมู่</CardTitle>
