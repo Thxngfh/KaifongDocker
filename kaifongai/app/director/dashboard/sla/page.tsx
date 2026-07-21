@@ -17,6 +17,7 @@ import {
   LineChart, Line, BarChart, Bar,
   ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip,
 } from "recharts";
+import { Map as MapIcon } from "lucide-react";
 
 // โหลด react-leaflet เฉพาะฝั่ง client เท่านั้น (module นี้แตะ window ตอน import)
 function useReactLeaflet() {
@@ -288,7 +289,7 @@ function AreaMap({ areas }: { areas: Area[] }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
-        <div className="overflow-hidden rounded-xl border border-gray-200" style={{ height: 420 }}>
+        <div className="relative isolate z-0 overflow-hidden rounded-xl border border-gray-200" style={{ height: 420 }}>
           <MapContainer center={center} zoom={11} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -325,11 +326,11 @@ function AreaMap({ areas }: { areas: Area[] }) {
         {/* Panel สรุปด้านขวา */}
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
           <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-            🗺️ {selectedArea ? "ภาพรวมเขต" : "ภาพรวมทุกพื้นที่"}
+            <MapIcon className="h-3.5 w-3.5" strokeWidth={2.5} /> {selectedArea ? "ภาพรวมเขต" : "ภาพรวมทุกพื้นที่"}
           </div>
           <div className="mb-3 text-base font-bold text-[#1A1C1E]">{panelDistrict}</div>
 
-          <div className="mb-4">
+          <div className="mb-4 text-center">
             <div className="text-3xl font-extrabold" style={{ color: slaColor(panelClosure) }}>
               {panelClosure}%
             </div>
@@ -503,7 +504,7 @@ export default function SlaDashboardPage() {
   // เหมาะกับการใช้งานจริง ต่อให้ไม่มี complaint ใหม่เข้ามาหลายวัน ช่วง "วันนี้/เดือนนี้" ก็ยังขยับตามเวลาจริง)
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const [dates, setDates] = useState<{ start_date: string; end_date: string }>(() => ({
-    start_date: "2024-01-01", // ค่าเริ่มต้น = ทั้งหมด (ให้ตรงกับหน้าอื่น ๆ ในระบบ)
+    start_date: "2024-01-01", // ค่าเริ่มต้น = 7 วันล่าสุดนับจากวันนี้จริง
     end_date: today,
   }));
 
@@ -628,8 +629,15 @@ export default function SlaDashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
-                    {["เลขที่", "วันที่", "เขต", "หมวด", "รายละเอียด", "สถานะ", "Priority"].map((h) => <th key={h} className="py-2">{h}</th>)}
+                  <tr
+                    className="border-b-2 text-left text-xs font-semibold text-white"
+                    style={{ background: COLOR.dark, borderBottomColor: COLOR.primary }}
+                  >
+                    {["เลขที่", "วันที่", "เขต", "หมวด", "รายละเอียด", "สถานะ", "Priority"].map((h) => (
+                      <th key={h} className="whitespace-nowrap px-4 py-3 first:rounded-tl-xl first:pl-5 last:rounded-tr-xl last:pr-5">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>

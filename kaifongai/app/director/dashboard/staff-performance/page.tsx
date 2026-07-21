@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { Calendar, Building2, AlertTriangle, X, Info } from "lucide-react";
 
 const COLOR = {
   primary: "#FFD100", dark: "#3F4444", green: "#00875A", amber: "#E67E00",
@@ -14,12 +15,12 @@ const COLOR = {
   border: "#E8EAEC", text: "#1A1C1E", muted: "#6B6E72",
 };
 const DEPARTMENT_NAV = [
-  { teamCode: "TEAM_INFRA", label: "โครงสร้างพื้นฐาน", icon: "🚧" },
-  { teamCode: "TEAM_ENV", label: "สิ่งแวดล้อม", icon: "🗑️" },
-  { teamCode: "TEAM_HEALTH", label: "สาธารณสุข", icon: "🩺" },
-  { teamCode: "TEAM_ORDER", label: "ความสงบเรียบร้อย", icon: "🚦" },
-  { teamCode: "TEAM_SOCIAL", label: "สวัสดิการสังคม", icon: "🤝" },
-  { teamCode: "TEAM_GOV", label: "บริการ/ธรรมาภิบาล", icon: "🏛️" },
+  { teamCode: "TEAM_INFRA", label: "โครงสร้างพื้นฐาน" },
+  { teamCode: "TEAM_ENV", label: "สิ่งแวดล้อม" },
+  { teamCode: "TEAM_HEALTH", label: "สาธารณสุข" },
+  { teamCode: "TEAM_ORDER", label: "ความสงบเรียบร้อย" },
+  { teamCode: "TEAM_SOCIAL", label: "สวัสดิการสังคม" },
+  { teamCode: "TEAM_GOV", label: "บริการ/ธรรมาภิบาล" },
 ];
 function slaColor(pct: number) {
   if (pct >= 90) return COLOR.green;
@@ -91,12 +92,13 @@ function CardTitle({ children, sub, right }: { children: React.ReactNode; sub?: 
 }
 function Skeleton({ height = 190 }: { height?: number }) { return <div className="animate-pulse rounded-xl bg-gray-100" style={{ height }} />; }
 function ErrorBanner({ message = "โหลดข้อมูลไม่สำเร็จ" }: { message?: string }) {
-  return <div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"><span>⚠️</span>{message}</div>;
+  return <div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"><AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2.5} />{message}</div>;
 }
 function InfoTip({ text }: { text: string }) {
   return (
-    <span className="group relative ml-1 inline-block cursor-help text-gray-400" tabIndex={0}>
-      ⓘ<span className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-64 -translate-x-1/2 rounded-lg bg-gray-900 p-2.5 text-xs leading-relaxed text-white group-hover:block group-focus:block">{text}</span>
+    <span className="group relative ml-1 inline-flex align-middle cursor-help text-gray-400" tabIndex={0}>
+      <Info className="h-3.5 w-3.5" strokeWidth={2.5} />
+      <span className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-64 -translate-x-1/2 rounded-lg bg-gray-900 p-2.5 text-xs leading-relaxed text-white group-hover:block group-focus:block">{text}</span>
     </span>
   );
 }
@@ -107,7 +109,7 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/55 p-5" onClick={onClose}>
       <div className="relative max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} aria-label="ปิด" className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200">✕</button>
+        <button onClick={onClose} aria-label="ปิด" className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"><X className="h-4 w-4" strokeWidth={2.5} /></button>
         {children}
       </div>
     </div>
@@ -127,8 +129,10 @@ function ChartLegend({ items }: { items: [string, string][] }) {
 }
 function KPICard({ label, value, accentColor, sub }: { label: React.ReactNode; value: React.ReactNode; accentColor: string; sub?: React.ReactNode }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4">
-      <span className="absolute left-0 top-0 h-full w-1" style={{ background: accentColor }} />
+    <div className="relative rounded-2xl border border-gray-200 bg-white p-4">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+        <span className="absolute left-0 top-0 h-full w-1" style={{ background: accentColor }} />
+      </div>
       <div className="pl-2 text-xs text-gray-500">{label}</div>
       <div className="pl-2 text-2xl font-extrabold" style={{ color: accentColor }}>{value ?? "—"}</div>
       {sub && <div className="pl-2 text-[11px] text-gray-400">{sub}</div>}
@@ -184,7 +188,7 @@ function DateRangeBar({ dates, setDates, today }: { dates: { start_date: string;
   const presets = useMemo(() => buildDatePresets(today), [today]);
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm">
-      <span className="text-xs font-semibold text-gray-500">📅 ช่วงเวลา:</span>
+      <span className="flex items-center gap-1 text-xs font-semibold text-gray-500"><Calendar className="h-3.5 w-3.5" strokeWidth={2.5} />ช่วงเวลา:</span>
       {presets.map((d) => {
         const active = dates.start_date === d.s && dates.end_date === d.e;
         return (
@@ -268,17 +272,19 @@ export default function StaffPerformancePage() {
 
   return (
     <div className="flex flex-col gap-5 p-6">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <DateRangeBar dates={dates} setDates={setDates} today={today} />
-        <div className="flex flex-wrap gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2">
-          <span className="mr-1 text-xs font-semibold text-gray-500">🏢 ฝ่าย:</span>
-          {DEPARTMENT_NAV.map((d) => (
-            <button key={d.teamCode} onClick={() => setTeamCode(d.teamCode)}
-              className="rounded-full border px-3 py-1 text-xs font-semibold"
-              style={teamCode === d.teamCode ? { background: "#FFD10030", borderColor: "#FFD100", color: "#8a6d00" } : { borderColor: COLOR.border, color: COLOR.muted }}>
-              {d.icon} {d.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+          <span className="flex items-center gap-1 text-xs font-semibold text-gray-500"><Building2 className="h-3.5 w-3.5" strokeWidth={2.5} />ฝ่าย:</span>
+          <select
+            value={teamCode}
+            onChange={(e) => setTeamCode(e.target.value)}
+            className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-semibold text-gray-700 focus:border-[#FFD100] focus:outline-none"
+          >
+            {DEPARTMENT_NAV.map((d) => (
+              <option key={d.teamCode} value={d.teamCode}>{d.label}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -400,16 +406,16 @@ export default function StaffPerformancePage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500">{["เลขที่", "พื้นที่", "ประเภทย่อย", "สถานะ", "Priority", "เปิดมาแล้ว"].map((h) => <th key={h} className="py-2">{h}</th>)}</tr></thead>
+                  <thead><tr className="border-b border-gray-200 text-left text-xs text-gray-500">{["เลขที่", "พื้นที่", "ประเภทย่อย", "สถานะ", "Priority", "เปิดมาแล้ว"].map((h) => <th key={h} className="py-2.5 pr-3">{h}</th>)}</tr></thead>
                   <tbody>
                     {safeStaffCases.map((c: any, i: number) => (
-                      <tr key={i} className="border-b border-gray-100 last:border-0">
-                        <td className="py-2 font-mono">{c.no}</td>
-                        <td className="py-2">{c.district}</td>
-                        <td className="py-2">{c.subcategory}</td>
-                        <td className="py-2"><Badge label={c.status} color={c.status_color} /></td>
-                        <td className="py-2"><Badge label={c.priority} color={c.priority_color} /></td>
-                        <td className="py-2" style={{ color: c.is_overdue ? COLOR.red : COLOR.text, fontWeight: c.is_overdue ? 700 : 400 }}>{c.days_open} วัน{c.is_overdue ? " (เกิน SLA)" : ""}</td>
+                      <tr key={i} className="border-b border-gray-100 align-top last:border-0">
+                        <td className="py-3.5 pr-3 font-mono">{c.no}</td>
+                        <td className="py-3.5 pr-3">{c.district}</td>
+                        <td className="py-3.5 pr-3">{c.subcategory}</td>
+                        <td className="py-3.5 pr-3"><Badge label={c.status} color={c.status_color} /></td>
+                        <td className="py-3.5 pr-3"><Badge label={c.priority} color={c.priority_color} /></td>
+                        <td className="py-3.5" style={{ color: c.is_overdue ? COLOR.red : COLOR.text, fontWeight: c.is_overdue ? 700 : 400 }}>{c.days_open} วัน{c.is_overdue ? " (เกิน SLA)" : ""}</td>
                       </tr>
                     ))}
                   </tbody>

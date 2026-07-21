@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import DirectorShell from "../directorshell";
 import {Sarabun} from "next/font/google";
+import { Map as MapIcon } from "lucide-react";
 
 const thaiFont = Sarabun({
   subsets: ["thai"],

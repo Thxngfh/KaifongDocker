@@ -12,6 +12,10 @@ import {
   ResponsiveContainer, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine,
 } from "recharts";
+import {
+  X, Filter, TriangleAlert, Eye, BarChart3, Tag, MapPin,
+  Lightbulb, PartyPopper, Info,
+} from "lucide-react";
 
 // ── สี (ตรงกับ COLOR object เดิมใน App.js) ─────────────────────
 const COLOR = {
@@ -124,8 +128,8 @@ function Badge({ label, color = COLOR.gray }: { label: string; color?: string })
 }
 function InfoTip({ text }: { text: string }) {
   return (
-    <span className="group relative ml-1 inline-block cursor-help text-gray-400" tabIndex={0}>
-      ⓘ
+    <span className="group relative ml-1 inline-flex align-middle cursor-help text-gray-400" tabIndex={0}>
+      <Info className="h-3.5 w-3.5" strokeWidth={2.5} />
       <span className="pointer-events-none absolute left-1/2 top-5 z-20 hidden w-64 -translate-x-1/2 rounded-lg bg-gray-900 p-2.5 text-xs leading-relaxed text-white group-hover:block group-focus:block">
         {text}
       </span>
@@ -147,7 +151,7 @@ function Modal({ children, onClose }: { children: React.ReactNode; onClose: () =
           aria-label="ปิด"
           className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200"
         >
-          ✕
+          <X className="h-4 w-4" strokeWidth={2.5} />
         </button>
         {children}
       </div>
@@ -227,7 +231,13 @@ function RiskCasesTable({
   cases, loading, onRowClick, urgentStyle = false,
 }: { cases: any[]; loading: boolean; onRowClick: (c: any) => void; urgentStyle?: boolean }) {
   if (loading) return <Skeleton height={260} />;
-  if (!cases?.length) return <Empty>{urgentStyle ? "ไม่มีเคสที่ SLA ใกล้ขาดหรือขาดแล้วตอนนี้ 🎉" : "ไม่พบเคสที่ตรงกับเงื่อนไข"}</Empty>;
+  if (!cases?.length) return (
+    <Empty>
+      {urgentStyle ? (
+        <span className="inline-flex items-center gap-1.5"><PartyPopper className="h-4 w-4 text-amber-500" strokeWidth={2.2} />ไม่มีเคสที่ SLA ใกล้ขาดหรือขาดแล้วตอนนี้</span>
+      ) : "ไม่พบเคสที่ตรงกับเงื่อนไข"}
+    </Empty>
+  );
   return (
     <div className="max-h-80 overflow-y-auto overflow-x-auto">
       <table className="w-full text-sm">
@@ -471,7 +481,7 @@ function RiskCasesSection() {
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
         {/* ตัวกรอง */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <span className="text-xs font-semibold text-gray-500">🔍 ตัวกรอง</span>
+          <span className="flex items-center gap-1 text-xs font-semibold text-gray-500"><Filter className="h-3.5 w-3.5" strokeWidth={2.5} />ตัวกรอง</span>
           <input
             type="text"
             placeholder="ค้นหาเลขเรื่อง / พื้นที่ / ประเภท"
@@ -523,15 +533,15 @@ function RiskCasesSection() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border-l-4 p-4" style={{ borderLeftColor: COLOR.red, background: "#fff" }}>
+          <div className="rounded-xl border border-gray-100 p-4">
             <CardTitle sub={ul ? "กำลังโหลด..." : `${urgentTotal.toLocaleString()} เคส${urgentTotal > urgentCases.length ? ` (แสดง ${urgentCases.length})` : ""}`}>
-              🔺 ต้องจัดการด่วน (SLA ใกล้ขาด/ขาดแล้ว)
+              <span className="inline-flex items-center gap-1.5"><TriangleAlert className="h-4 w-4" style={{ color: COLOR.red }} strokeWidth={2.3} />ต้องจัดการด่วน (SLA ใกล้ขาด/ขาดแล้ว)</span>
             </CardTitle>
             <RiskCasesTable cases={urgentCases} loading={ul} onRowClick={setExplainCase} urgentStyle />
           </div>
           <div className="rounded-xl border border-gray-100 p-4">
             <CardTitle sub={wl ? "กำลังโหลด..." : `${watchTotal.toLocaleString()} เคส${watchTotal > watchCases.length ? ` (แสดง ${watchCases.length})` : ""}`}>
-              👁️ เฝ้าระวัง (Risk สูง แต่ยังมีเวลา)
+              <span className="inline-flex items-center gap-1.5"><Eye className="h-4 w-4 text-gray-500" strokeWidth={2.3} />เฝ้าระวัง (Risk สูง แต่ยังมีเวลา)</span>
             </CardTitle>
             <RiskCasesTable cases={watchCases} loading={wl} onRowClick={setExplainCase} />
           </div>
@@ -650,23 +660,23 @@ export default function AIInsightPage() {
 
   const riskInsightDefs = [
     {
-      icon: "🔺", label: "เคสเสี่ยง SLA Breach สูง",
+      Icon: TriangleAlert, label: "เคสเสี่ยง SLA Breach สูง",
       value: rk ? "…" : (riskSummary.high ?? 0), accentColor: COLOR.red,
       sub: `จาก ${riskSummary.total?.toLocaleString() ?? "—"} เคสที่ประเมิน`,
     },
     {
-      icon: "📊", label: "Risk Score เฉลี่ย",
+      Icon: BarChart3, label: "Risk Score เฉลี่ย",
       tip: "Risk Score คือคะแนนที่ AI คำนวณให้แต่ละเคส บอกโอกาส (0-100%) ที่เคสนั้นจะแก้ไขไม่ทัน SLA ยิ่งคะแนนสูง ยิ่งควรรีบจัดการ",
       value: rk ? "…" : (riskSummary.avg_risk_pct !== undefined ? `${riskSummary.avg_risk_pct}%` : "—"),
       accentColor: COLOR.amber, sub: "เฉลี่ยทุกเคสที่ประเมิน",
     },
     {
-      icon: "🏷️", label: "หมวดหมู่เสี่ยงสูงสุด",
+      Icon: Tag, label: "หมวดหมู่เสี่ยงสูงสุด",
       value: rk ? "…" : (topCategory?.name || "—"), accentColor: topCategory?.color || COLOR.purple,
       sub: topCategory ? `Risk เฉลี่ย ${topCategory.avg_risk_pct}% · เสี่ยงสูง ${topCategory.high_count} เคส` : "ไม่มีข้อมูล",
     },
     {
-      icon: "📍", label: "เขตเสี่ยงสูงสุด",
+      Icon: MapPin, label: "เขตเสี่ยงสูงสุด",
       value: rk ? "…" : (topDistrict?.district || "—"), accentColor: COLOR.dark,
       sub: topDistrict ? `Risk เฉลี่ย ${topDistrict.avg_risk_pct}% · เสี่ยงสูง ${topDistrict.high_count} เคส` : "ไม่มีข้อมูล",
     },
@@ -674,31 +684,37 @@ export default function AIInsightPage() {
 
   return (
     <div className="flex flex-col gap-5 p-6">
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        💡 หน้านี้ใช้ <b>ประเมินความเสี่ยงล่วงหน้า</b> ว่าเคสไหนเสี่ยงจะแก้ไขไม่ทันตามเวลาที่กำหนด
-        และช่วยจัดกลุ่มพื้นที่ที่มีปัญหาคล้ายกัน เพื่อให้จัดลำดับความสำคัญได้ก่อนที่ปัญหาจะลุกลาม
+      <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <Lightbulb className="mt-0.5 h-4 w-4 flex-none" strokeWidth={2.2} />
+        <span>หน้านี้ใช้ <b>ประเมินความเสี่ยงล่วงหน้า</b> ว่าเคสไหนเสี่ยงจะแก้ไขไม่ทันตามเวลาที่กำหนด
+        และช่วยจัดกลุ่มพื้นที่ที่มีปัญหาคล้ายกัน เพื่อให้จัดลำดับความสำคัญได้ก่อนที่ปัญหาจะลุกลาม</span>
       </div>
 
       {/* สรุปแบบแถบเดียว */}
       <Card>
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-gray-100">
           {riskInsightDefs.map((k, i) => (
-            <div key={i} className="flex flex-1 min-w-[200px] items-start gap-3">
+            <div key={i} className={`flex min-w-0 items-start gap-3 ${i > 0 ? "lg:pl-5" : ""}`}>
               <span
-                className="flex h-10 w-10 flex-none items-center justify-center rounded-xl text-lg"
-                style={{ background: k.accentColor + "18" }}
+                className="flex h-10 w-10 flex-none items-center justify-center rounded-xl"
+                style={{ background: k.accentColor + "18", color: k.accentColor }}
               >
-                {k.icon}
+                <k.Icon className="h-5 w-5" strokeWidth={2.2} />
               </span>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center text-xs text-gray-500">
                   {k.label}
                   {"tip" in k && k.tip && <InfoTip text={k.tip} />}
                 </div>
-                <div className="text-xl font-bold" style={{ color: k.accentColor }}>{k.value}</div>
-                <div className="text-xs text-gray-400">{k.sub}</div>
+                <div
+                  className="truncate text-xl font-bold"
+                  style={{ color: k.accentColor }}
+                  title={typeof k.value === "string" ? k.value : undefined}
+                >
+                  {k.value}
+                </div>
+                <div className="truncate text-xs text-gray-400" title={k.sub}>{k.sub}</div>
               </div>
-              {i < riskInsightDefs.length - 1 && <span className="hidden h-12 w-px bg-gray-200 lg:block" />}
             </div>
           ))}
         </div>
@@ -771,7 +787,7 @@ export default function AIInsightPage() {
                 <Badge label={selectedCluster.category} color={selectedCluster.color || COLOR.purple} />
               </div>
             )}
-            {selectedCluster.insight && <div className="mb-3.5 text-xs text-gray-500">💡 {selectedCluster.insight}</div>}
+            {selectedCluster.insight && <div className="mb-3.5 flex items-start gap-1.5 text-xs text-gray-500"><Lightbulb className="mt-0.5 h-3.5 w-3.5 flex-none" strokeWidth={2.2} />{selectedCluster.insight}</div>}
             <div className="mb-2 text-xs font-bold">พื้นที่ในกลุ่มนี้ ({selectedCluster.districts?.length ?? 0} เขต)</div>
             <div className="flex flex-wrap gap-1.5">
               {(selectedCluster.districts || []).map((d: string, j: number) => (
