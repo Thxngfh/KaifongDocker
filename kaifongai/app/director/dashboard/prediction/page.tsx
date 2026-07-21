@@ -183,9 +183,9 @@ function RiskBreakdownList({ items, byCategory, loading }: { items: any[]; byCat
         <thead>
           <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
             <th className="py-2">{byCategory ? "หมวดหมู่" : "เขต/พื้นที่"}</th>
-            <th className="py-2">จำนวนเคส</th>
-            <th className="py-2">เคสเสี่ยงสูง</th>
-            <th className="py-2">Risk เฉลี่ย</th>
+            <th className="py-2">จำนวนเรื่อง</th>
+            <th className="py-2">เรื่องเสี่ยงสูง</th>
+            <th className="py-2">ระดับความเสี่ยงเฉลี่ย</th>
           </tr>
         </thead>
         <tbody>
@@ -220,7 +220,7 @@ function RiskBreakdownList({ items, byCategory, loading }: { items: any[]; byCat
   );
 }
 
-// ── ตารางเคส (ใช้ร่วมกันสำหรับ "ต้องจัดการด่วน" และ "เฝ้าระวัง") ──
+// ── ตารางเรื่อง (ใช้ร่วมกันสำหรับ "ต้องจัดการด่วน" และ "เฝ้าระวัง") ──
 function slaLabelFor(r: number | null, urgentStyle: boolean) {
   if (r == null) return { label: "ไม่มีข้อมูล SLA", color: COLOR.muted };
   if (r < 0) return { label: `เกิน SLA ${Math.abs(r)} วัน`, color: COLOR.red };
@@ -234,8 +234,8 @@ function RiskCasesTable({
   if (!cases?.length) return (
     <Empty>
       {urgentStyle ? (
-        <span className="inline-flex items-center gap-1.5"><PartyPopper className="h-4 w-4 text-amber-500" strokeWidth={2.2} />ไม่มีเคสที่ SLA ใกล้ขาดหรือขาดแล้วตอนนี้</span>
-      ) : "ไม่พบเคสที่ตรงกับเงื่อนไข"}
+        <span className="inline-flex items-center gap-1.5"><PartyPopper className="h-4 w-4 text-amber-500" strokeWidth={2.2} />ไม่มีเรื่องที่ SLA ใกล้ขาดหรือขาดแล้วตอนนี้</span>
+      ) : "ไม่พบเรื่องที่ตรงกับเงื่อนไข"}
     </Empty>
   );
   return (
@@ -247,7 +247,7 @@ function RiskCasesTable({
             <th className="py-2">พื้นที่</th>
             <th className="py-2">ประเภท</th>
             <th className="py-2">สถานะ SLA</th>
-            <th className="py-2">Risk Score</th>
+            <th className="py-2">ระดับความเสี่ยง</th>
             <th className="py-2">ระดับ</th>
           </tr>
         </thead>
@@ -308,18 +308,18 @@ function ExplainPanel({ c }: { c: any }) {
           <div className="text-2xl font-extrabold" style={{ color: col }}>
             {(c.risk_score * 100).toFixed(1)}%
           </div>
-          <div className="text-[11px] text-gray-500">Risk Score</div>
+          <div className="text-[11px] text-gray-500">ระดับความเสี่ยง</div>
         </div>
       </div>
 
       <div className="mb-1 flex items-center gap-1.5">
         <span className="inline-block h-4 w-[3px] rounded bg-[#E67E00]" />
-        <span className="text-sm font-bold">ทำไมเคสนี้ถึงได้คะแนนนี้</span>
+        <span className="text-sm font-bold">ทำไมเรื่องนี้ถึงได้คะแนนนี้</span>
       </div>
       <div className="mb-3 text-xs text-gray-500">ปัจจัยที่มีผลต่อคะแนนมากสุด เรียงจากบนลงล่าง</div>
 
       {!chartData.length ? (
-        <Empty>ยังไม่มีข้อมูลปัจจัยเสี่ยงสำหรับเคสนี้</Empty>
+        <Empty>ยังไม่มีข้อมูลปัจจัยเสี่ยงสำหรับเรื่องนี้</Empty>
       ) : (
         <ResponsiveContainer width="100%" height={chartData.length * 42 + 20}>
           <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }} barCategoryGap={14}>
@@ -350,7 +350,7 @@ function ExplainPanel({ c }: { c: any }) {
   );
 }
 
-// ── กราฟแนวโน้ม SLA: ปริมาณเคสรวม (แท่ง) + %SLA (เส้น) ───────────
+// ── กราฟแนวโน้ม SLA: ปริมาณเรื่องรวม (แท่ง) + %SLA (เส้น) ───────────
 const SLA_TARGET_PCT = 90;
 const SlaTrendTip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -359,7 +359,7 @@ const SlaTrendTip = ({ active, payload, label }: any) => {
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-lg">
       <div className="mb-1 font-semibold">{label || "—"}</div>
-      {total != null && <div style={{ color: COLOR.gray }}>เคสทั้งหมด: <b>{total.toLocaleString()}</b></div>}
+      {total != null && <div style={{ color: COLOR.gray }}>เรื่องทั้งหมด: <b>{total.toLocaleString()}</b></div>}
       {pct != null && <div style={{ color: riskColor(100 - pct) }}>%SLA: <b>{pct}%</b></div>}
     </div>
   );
@@ -380,11 +380,11 @@ function SlaTrendChart({ today }: { today: string | null }) {
 
   return (
     <Card>
-      <CardTitle sub="ปริมาณเคสรวมรายเดือน เทียบกับสัดส่วนที่จบตรง SLA (%) ย้อนหลัง 12 เดือนล่าสุด">
-        แนวโน้ม SLA: %SLA เทียบปริมาณเคส
+      <CardTitle sub="ปริมาณเรื่องร้องเรียนรวมรายเดือน เทียบกับสัดส่วนที่จบตรง SLA (%) ย้อนหลัง 12 เดือนล่าสุด">
+        แนวโน้มการปฏิบัติตาม SLA
       </CardTitle>
       <div className="mb-2 flex gap-4 text-xs text-gray-500">
-        <span><span style={{ color: COLOR.gray }}>■</span> เคสทั้งหมด/เดือน</span>
+        <span><span style={{ color: COLOR.gray }}>■</span> เรื่องร้องเรียนทั้งหมด/เดือน</span>
         <span><span style={{ color: COLOR.green }}>●</span> %SLA</span>
         <span><span style={{ color: COLOR.red }}>┄</span> เป้าหมาย {SLA_TARGET_PCT}%</span>
       </div>
@@ -401,7 +401,7 @@ function SlaTrendChart({ today }: { today: string | null }) {
               <YAxis yAxisId="left" tick={{ fontSize: 10 }} stroke={COLOR.gray} />
               <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tick={{ fontSize: 10 }} stroke={COLOR.green} unit="%" />
               <Tooltip content={<SlaTrendTip />} />
-              <Bar yAxisId="left" dataKey="total" name="เคสทั้งหมด" fill={COLOR.border} radius={[4, 4, 0, 0]} barSize={28} />
+              <Bar yAxisId="left" dataKey="total" name="เรื่องร้องเรียนทั้งหมด" fill={COLOR.border} radius={[4, 4, 0, 0]} barSize={28} />
               <Line yAxisId="right" type="monotone" dataKey="sla_pct" name="%SLA" stroke={COLOR.green} strokeWidth={2.5} dot={{ r: 3 }} connectNulls />
               <ReferenceLine yAxisId="right" y={SLA_TARGET_PCT} stroke={COLOR.red} strokeDasharray="5 3" strokeWidth={1.5} />
             </ComposedChart>
@@ -412,7 +412,7 @@ function SlaTrendChart({ today }: { today: string | null }) {
   );
 }
 
-// ── Top ประเภทปัญหาที่ Breach บ่อยสุด ───────────────────────────
+// ── ประเภทปัญหาที่เกิน SLA มากที่สุด ───────────────────────────
 function TopBreachCategories({ today }: { today: string | null }) {
   const { data, loading } = useApi<any[]>(
     today ? "/api/machine-learning_prediction/risk/top-breach-categories" : null,
@@ -424,13 +424,13 @@ function TopBreachCategories({ today }: { today: string | null }) {
 
   return (
     <Card>
-      <CardTitle sub="ประเภทปัญหาที่เกิดเคสเกิน SLA มากที่สุด ย้อนหลัง 12 เดือนล่าสุด">
-        Top ประเภทปัญหาที่ Breach บ่อยสุด
+      <CardTitle sub="ประเภทปัญหาที่เกิดเรื่องเกิน SLA มากที่สุด ย้อนหลัง 12 เดือนล่าสุด">
+        ประเภทปัญหาที่เกิน SLA มากที่สุด
       </CardTitle>
       {isLoading ? (
         <Skeleton height={220} />
       ) : rows.length === 0 ? (
-        <Empty>ไม่มีเคสที่เกิน SLA ในช่วงนี้</Empty>
+        <Empty>ไม่มีเรื่องที่เกิน SLA ในช่วงนี้</Empty>
       ) : (
         <div className="space-y-3">
           {rows.map((r, i) => (
@@ -441,7 +441,7 @@ function TopBreachCategories({ today }: { today: string | null }) {
                   {r.name}
                 </span>
                 <span className="text-gray-500">
-                  {r.breach_count} เคส <span className="text-gray-400">· Breach {r.breach_pct}%</span>
+                  {r.breach_count} เรื่อง <span className="text-gray-400">· เสี่ยง {r.breach_pct}%</span>
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-gray-100">
@@ -455,7 +455,7 @@ function TopBreachCategories({ today }: { today: string | null }) {
   );
 }
 
-// ── ส่วนรายเคส: ค้นหา + กรองระดับ + ตารางเร่งด่วน/เฝ้าระวัง ────────
+// ── ส่วนรายเรื่อง: ค้นหา + กรองระดับ + ตารางเร่งด่วน/เฝ้าระวัง ────────
 function RiskCasesSection() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -516,13 +516,13 @@ function RiskCasesSection() {
           <div>
             <div className="flex items-center gap-2 font-bold text-[15px]">
               <span className="inline-block h-4 w-1 rounded bg-[#FFD100]" />
-              รายเคสตามความเสี่ยงและความเร่งด่วน
+              รายการเรื่องร้องเรียนที่ต้องเร่งดำเนินการ
             </div>
             <div className="mt-1 text-xs text-gray-500">
               แยกตามความเร่งด่วนจริง (SLA คงเหลือ
               <InfoTip text="SLA (Service Level Agreement) คือระยะเวลามาตรฐานที่กำหนดให้แก้ไขเรื่องร้องเรียนแต่ละประเภทให้เสร็จ 'SLA คงเหลือ' คือเวลาที่เหลืออยู่ก่อนครบกำหนดนั้น" />
               ) ไม่ใช่แค่ Risk Score
-              <InfoTip text="Risk Score คือคะแนนที่ AI คำนวณให้แต่ละเคส บอกโอกาส (0-100%) ที่เคสนั้นจะแก้ไขไม่ทัน SLA — เคส Risk Score สูงบางเคสอาจยังมีเวลาเหลือ จึงต้องดูคู่กับ SLA คงเหลือด้วย" />
+              <InfoTip text="Risk Score คือคะแนนที่ AI คำนวณให้แต่ละเรื่อง บอกโอกาส (0-100%) ที่เรื่องนั้นจะแก้ไขไม่ทัน SLA — เรื่อง Risk Score สูงบางเรื่องอาจยังมีเวลาเหลือ จึงต้องดูคู่กับ SLA คงเหลือด้วย" />
             </div>
           </div>
           <div className="flex gap-3 text-xs text-gray-500">
@@ -534,14 +534,14 @@ function RiskCasesSection() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div className="rounded-xl border border-gray-100 p-4">
-            <CardTitle sub={ul ? "กำลังโหลด..." : `${urgentTotal.toLocaleString()} เคส${urgentTotal > urgentCases.length ? ` (แสดง ${urgentCases.length})` : ""}`}>
-              <span className="inline-flex items-center gap-1.5"><TriangleAlert className="h-4 w-4" style={{ color: COLOR.red }} strokeWidth={2.3} />ต้องจัดการด่วน (SLA ใกล้ขาด/ขาดแล้ว)</span>
+            <CardTitle sub={ul ? "กำลังโหลด..." : `${urgentTotal.toLocaleString()} เรื่อง${urgentTotal > urgentCases.length ? ` (แสดง ${urgentCases.length})` : ""}`}>
+              <span className="inline-flex items-center gap-1.5"><TriangleAlert className="h-4 w-4" style={{ color: COLOR.red }} strokeWidth={2.3} />เรื่องร้องเรียนที่ต้องดำเนินการเร่งด่วน (เกินกำหนด SLA)</span>
             </CardTitle>
             <RiskCasesTable cases={urgentCases} loading={ul} onRowClick={setExplainCase} urgentStyle />
           </div>
           <div className="rounded-xl border border-gray-100 p-4">
-            <CardTitle sub={wl ? "กำลังโหลด..." : `${watchTotal.toLocaleString()} เคส${watchTotal > watchCases.length ? ` (แสดง ${watchCases.length})` : ""}`}>
-              <span className="inline-flex items-center gap-1.5"><Eye className="h-4 w-4 text-gray-500" strokeWidth={2.3} />เฝ้าระวัง (Risk สูง แต่ยังมีเวลา)</span>
+            <CardTitle sub={wl ? "กำลังโหลด..." : `${watchTotal.toLocaleString()} เรื่อง${watchTotal > watchCases.length ? ` (แสดง ${watchCases.length})` : ""}`}>
+              <span className="inline-flex items-center gap-1.5"><Eye className="h-4 w-4 text-gray-500" strokeWidth={2.3} />เรื่องร้องเรียนที่เฝ้าระวัง (ความเสี่ยงสูง / ยังไม่เกิน SLA)</span>
             </CardTitle>
             <RiskCasesTable cases={watchCases} loading={wl} onRowClick={setExplainCase} />
           </div>
@@ -660,25 +660,25 @@ export default function AIInsightPage() {
 
   const riskInsightDefs = [
     {
-      Icon: TriangleAlert, label: "เคสเสี่ยง SLA Breach สูง",
+      Icon: TriangleAlert, label: "เรื่องร้องเรียนเสี่ยงเกิน SLA",
       value: rk ? "…" : (riskSummary.high ?? 0), accentColor: COLOR.red,
-      sub: `จาก ${riskSummary.total?.toLocaleString() ?? "—"} เคสที่ประเมิน`,
+      sub: `จาก ${riskSummary.total?.toLocaleString() ?? "—"} เรื่องที่ประเมิน`,
     },
     {
-      Icon: BarChart3, label: "Risk Score เฉลี่ย",
-      tip: "Risk Score คือคะแนนที่ AI คำนวณให้แต่ละเคส บอกโอกาส (0-100%) ที่เคสนั้นจะแก้ไขไม่ทัน SLA ยิ่งคะแนนสูง ยิ่งควรรีบจัดการ",
+      Icon: BarChart3, label: "ระดับความเสี่ยงเฉลี่ย",
+      tip: "Risk Score คือคะแนนที่ AI คำนวณให้แต่ละเรื่อง บอกโอกาส (0-100%) ที่เรื่องนั้นจะแก้ไขไม่ทัน SLA ยิ่งคะแนนสูง ยิ่งควรรีบจัดการ",
       value: rk ? "…" : (riskSummary.avg_risk_pct !== undefined ? `${riskSummary.avg_risk_pct}%` : "—"),
-      accentColor: COLOR.amber, sub: "เฉลี่ยทุกเคสที่ประเมิน",
+      accentColor: COLOR.amber, sub: "เฉลี่ยทุกเรื่องที่ประเมิน",
     },
     {
-      Icon: Tag, label: "หมวดหมู่เสี่ยงสูงสุด",
+      Icon: Tag, label: "หมวดหมู่งานเสี่ยงสูงสุด",
       value: rk ? "…" : (topCategory?.name || "—"), accentColor: topCategory?.color || COLOR.purple,
-      sub: topCategory ? `Risk เฉลี่ย ${topCategory.avg_risk_pct}% · เสี่ยงสูง ${topCategory.high_count} เคส` : "ไม่มีข้อมูล",
+      sub: topCategory ? `ระดับความเสี่ยงเฉลี่ย ${topCategory.avg_risk_pct}% · เสี่ยงสูง ${topCategory.high_count} เรื่อง` : "ไม่มีข้อมูล",
     },
     {
       Icon: MapPin, label: "เขตเสี่ยงสูงสุด",
       value: rk ? "…" : (topDistrict?.district || "—"), accentColor: COLOR.dark,
-      sub: topDistrict ? `Risk เฉลี่ย ${topDistrict.avg_risk_pct}% · เสี่ยงสูง ${topDistrict.high_count} เคส` : "ไม่มีข้อมูล",
+      sub: topDistrict ? `ระดับความเสี่ยงเฉลี่ย ${topDistrict.avg_risk_pct}% · เสี่ยงสูง ${topDistrict.high_count} เรื่อง` : "ไม่มีข้อมูล",
     },
   ];
 
@@ -686,7 +686,7 @@ export default function AIInsightPage() {
     <div className="flex flex-col gap-5 p-6">
       <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         <Lightbulb className="mt-0.5 h-4 w-4 flex-none" strokeWidth={2.2} />
-        <span>หน้านี้ใช้ <b>ประเมินความเสี่ยงล่วงหน้า</b> ว่าเคสไหนเสี่ยงจะแก้ไขไม่ทันตามเวลาที่กำหนด
+        <span>หน้านี้ใช้ <b>ประเมินความเสี่ยงล่วงหน้า</b> ว่าเรื่องไหนเสี่ยงจะแก้ไขไม่ทันตามเวลาที่กำหนด
         และช่วยจัดกลุ่มพื้นที่ที่มีปัญหาคล้ายกัน เพื่อให้จัดลำดับความสำคัญได้ก่อนที่ปัญหาจะลุกลาม</span>
       </div>
 
@@ -723,11 +723,11 @@ export default function AIInsightPage() {
       {/* ความเสี่ยงรายหมวดหมู่ / รายพื้นที่ */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card>
-          <CardTitle sub="Risk Score เฉลี่ย และจำนวนเคสเสี่ยงสูงต่อหมวดหมู่">ความเสี่ยง SLA Breach รายหมวดหมู่</CardTitle>
+          <CardTitle sub="ระดับความเสี่ยงเฉลี่ย และจำนวนเรื่องเสี่ยงสูงต่อหมวดหมู่">หมวดหมู่งานเสี่ยงเกิน SLA</CardTitle>
           <RiskBreakdownList items={safeByCategory} byCategory loading={rk} />
         </Card>
         <Card>
-          <CardTitle sub="Risk Score เฉลี่ย และจำนวนเคสเสี่ยงสูงต่อเขต">ความเสี่ยง SLA Breach รายพื้นที่</CardTitle>
+          <CardTitle sub="ระดับความเสี่ยงเฉลี่ย และจำนวนเรื่องเสี่ยงสูงต่อเขต">พื้นที่เสี่ยงเกิน SLA</CardTitle>
           <RiskBreakdownList items={safeByDistrict} loading={rk} />
         </Card>
       </div>
@@ -738,7 +738,7 @@ export default function AIInsightPage() {
         <TopBreachCategories today={today} />
       </div>
 
-      {/* รายเคส */}
+      {/* รายเรื่อง */}
       <RiskCasesSection />
 
       {!rk && riskData?.model && (
@@ -756,8 +756,8 @@ export default function AIInsightPage() {
 
       {/* Spatial Clustering */}
       <Card>
-        <CardTitle sub="จุดแต่ละจุด = 1 เขต, ขนาดจุด = ปริมาณเรื่องร้องเรียน, สีตามกลุ่ม — คลิกชื่อกลุ่มด้านล่างเพื่อดูรายชื่อพื้นที่ทั้งหมด">
-          การจัดกลุ่มพื้นที่เสี่ยงเชิงพื้นที่
+        <CardTitle sub="จุดแต่ละจุด = 1 เขต  ขนาดจุด = ปริมาณเรื่องร้องเรียน  สีตามกลุ่ม — คลิกชื่อกลุ่มด้านล่างเพื่อดูรายชื่อพื้นที่ทั้งหมด">
+          การจัดกลุ่มพื้นที่เสี่ยง
           <InfoTip text="AI ใช้เทคนิค K-means / DBSCAN ในการจัดกลุ่มพื้นที่ที่มีลักษณะปัญหาคล้ายกันโดยอัตโนมัติ ตำแหน่งจุดบนกราฟมาจากการย่อมิติข้อมูล (PCA) เครื่องหมาย X คือจุดศูนย์กลางของแต่ละกลุ่ม" />
         </CardTitle>
         <ClusterScatterChart clusters={safeClusters} loading={cl} />
@@ -766,7 +766,7 @@ export default function AIInsightPage() {
         {clusterData?.model && (
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
             <span>โมเดล: <b>{clusterData.model.name}</b></span>
-            {clusterData.model.k && <span>จำนวน Cluster: <b>{clusterData.model.k}</b></span>}
+            {clusterData.model.k && <span>จำนวนกลุ่ม: <b>{clusterData.model.k} กลุ่ม </b></span>}
             <span>เทรนล่าสุด: <b>{clusterData.model.trained_at || "—"}</b></span>
           </div>
         )}
