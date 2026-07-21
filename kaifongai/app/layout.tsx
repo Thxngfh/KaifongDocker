@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter} from "next/font/google";
-import { Noto_Sans_Thai} from "next/font/google";
+import { Sarabun } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 
 //import font
-const inter = Inter({
-  subsets: ["latin"],
-});
-
-const thaiFont = Noto_Sans_Thai({
-  subsets: ["thai"],
-  weight: ["400", "500", "600", "700"],
+const sarabun = Sarabun({
+  subsets: ["thai", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +22,7 @@ export default function RootLayout({
     return (
     <html
         lang="th"
-        className={`${inter.className} ${thaiFont.className} h-full antialiased`}
+        className={`${sarabun.className} h-full antialiased`}
     >
         <body className="min-h-screen">{children}</body>
     </html>

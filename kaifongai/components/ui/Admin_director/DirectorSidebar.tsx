@@ -6,11 +6,12 @@ import { MdOutlineDashboard, MdSettings, MdKeyboardArrowDown } from "react-icons
 import { TbBook2 } from "react-icons/tb"
 import { FaRegCheckSquare, FaRegUserCircle } from "react-icons/fa"
 import Link from 'next/link';
-import { Sarabun } from "next/font/google";
+import { Inter, Noto_Sans_Thai } from "next/font/google";
 
-const thaiFont = Sarabun({
+const inter = Inter({ subsets: ["latin"] });
+const thaiFont = Noto_Sans_Thai({
   subsets: ["thai"],
-  weight: ["400", "500", "700"],
+  weight: ["400", "500", "600", "700"],
 });
 
 type SidebarProps = {
@@ -24,12 +25,12 @@ export default function Sidebar({ isOpen }: SidebarProps) {
 
     return (
         <aside
-            className={`fixed top-0 left-0 z-40 h-screen w-[276px] bg-foreground3 shadow-lg transition-transform duration-300 ${
+            className={`${inter.className} ${thaiFont.className} fixed top-0 left-0 z-40 h-screen w-[276px] bg-foreground3 shadow-lg transition-transform duration-300 ${
                 isOpen ? "translate-x-0" : "-translate-x-full"
             }`}
         >
             <div className="flex flex-row px-6 py-2 mt-2">
-                <div className={`${thaiFont.className}flex flex-col items-start`}>
+                <div className="flex flex-col items-start">
                     <div className="h-10 flex items-start px-0 py-2 text-xl font-bold text-accent">
                         KAIFONG AI
                     </div>
