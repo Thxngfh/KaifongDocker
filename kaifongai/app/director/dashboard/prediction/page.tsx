@@ -686,8 +686,8 @@ export default function AIInsightPage() {
     <div className="flex flex-col gap-5 p-6">
       <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
         <Lightbulb className="mt-0.5 h-4 w-4 flex-none" strokeWidth={2.2} />
-        <span>หน้านี้ใช้ <b>ประเมินความเสี่ยงล่วงหน้า</b> ว่าเรื่องไหนเสี่ยงจะแก้ไขไม่ทันตามเวลาที่กำหนด
-        และช่วยจัดกลุ่มพื้นที่ที่มีปัญหาคล้ายกัน เพื่อให้จัดลำดับความสำคัญได้ก่อนที่ปัญหาจะลุกลาม</span>
+        <span>หน้านี้ใช้ <b>ประเมินความเสี่ยงล่วงหน้า</b> ว่าเรื่องร้องเรียนใดมีแนวโน้มดำเนินการไม่แล้วเสร็จภายในระยะเวลาที่กำหนด (SLA) พร้อมจัดกลุ่มพื้นที่ที่มีลักษณะปัญหาคล้ายกัน 
+        เพื่อช่วยจัดลำดับความสำคัญในการดำเนินงานและป้องกันไม่ให้ปัญหาลุกลาม</span>
       </div>
 
       {/* สรุปแบบแถบเดียว */}
@@ -750,7 +750,7 @@ export default function AIInsightPage() {
               <InfoTip text="ROC-AUC = ค่าความแม่นยำของโมเดล AI มีค่าตั้งแต่ 0-1 ยิ่งใกล้ 1 ยิ่งทำนายแม่นยำ (0.5 คือทำนายมั่วๆ)" />
             </span>
           )}
-          <span>เทรนล่าสุด: <b>{riskData.model.trained_at || "—"}</b></span>
+          <span>ฝึกโมเดลล่าสุด: <b>{riskData.model.trained_at || "—"}</b></span>
         </div>
       )}
 
@@ -767,7 +767,7 @@ export default function AIInsightPage() {
           <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-500">
             <span>โมเดล: <b>{clusterData.model.name}</b></span>
             {clusterData.model.k && <span>จำนวนกลุ่ม: <b>{clusterData.model.k} กลุ่ม </b></span>}
-            <span>เทรนล่าสุด: <b>{clusterData.model.trained_at || "—"}</b></span>
+            <span>ฝึกโมเดลล่าสุด: <b>{clusterData.model.trained_at || "—"}</b></span>
           </div>
         )}
       </Card>
