@@ -59,9 +59,17 @@ export default function Page() {
 
   const pageSize = 5
 
-  const statusOptions = Array.from(
-    new Set(complaints.map((item) => item.status))
-  )
+  const statusOrder = [
+  "รอดำเนินการ",
+  "กำลังดำเนินการ",
+  "เสร็จสิ้น",
+  "พักงาน",
+  "ถูกปฏิเสธ",
+]
+
+const statusOptions = statusOrder.filter((status) =>
+  complaints.some((item) => item.status === status)
+)
 
   const problemOptions = Object.keys(problemImageMap)
 
