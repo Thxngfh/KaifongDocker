@@ -83,14 +83,14 @@ export default function Navbar({ isOpen, onMenuClick }: NavbarProps) {
                         <>
                             <span className="text-gray-400">แดชบอร์ด</span>
                             <span className="mx-2 text-white">/</span>
-                            <span className="text-accent">SLA Dashboard</span>
+                            <span className="text-accent">ผลการดำเนินงาน SLA</span>
                         </>
                     )}
                     {pathname === Linknames[8] && (
                         <>
                             <span className="text-gray-400">แดชบอร์ด</span>
                             <span className="mx-2 text-white">/</span>
-                            <span className="text-accent">ผลปฏิบัติงานเจ้าหน้าที่</span>
+                            <span className="text-accent">ผลการปฏิบัติงานเจ้าหน้าที่</span>
                         </>
                     )}
                     {pathname === Linknames[9] && (

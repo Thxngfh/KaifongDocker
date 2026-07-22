@@ -96,14 +96,14 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                             href="/director/dashboard/sla"
                             className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
                         >
-                            SLA Dashboard
+                            ผลการดำเนินงาน SLA
                         </Link>
 
                         <Link
                             href="/director/dashboard/staff-performance"
                             className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
                         >
-                            ผลปฏิบัติงานเจ้าหน้าที่
+                            ผลการปฏิบัติงานเจ้าหน้าที่
                         </Link>
 
                         <Link
