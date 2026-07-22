@@ -97,7 +97,7 @@ export default function Navbar({ isOpen, onMenuClick }: NavbarProps) {
                         <>
                             <span className="text-gray-400">แดชบอร์ด</span>
                             <span className="mx-2 text-white">/</span>
-                            <span className="text-accent">AI พยากรณ์ความเสี่ยง</span>
+                            <span className="text-accent">ประเมินความเสี่ยงด้วย AI</span>
                         </>
                     )}
                 </div>

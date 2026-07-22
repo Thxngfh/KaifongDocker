@@ -110,7 +110,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
                             href="/director/dashboard/prediction"
                             className="block rounded-lg px-3 py-2 hover:bg-gray-100/10 transition-all duration-300"
                         >
-                            AI พยากรณ์ความเสี่ยง
+                            ประเมินความเสี่ยงด้วย AI
                         </Link>
                     </div>
                 </div>
