@@ -45,16 +45,8 @@ function aggregateTrend(rows: any[]) {
     (new Date(rows[rows.length - 1].date).getTime() - new Date(rows[0].date).getTime()) / 86400000
   ) + 1;
   if (spanDays <= 31) return { data: rows, granularity: "day" as const };
-  const granularity: "week" | "month" = spanDays <= 186 ? "week" : "month";
-  const bucketKey = granularity === "week"
-    ? (dateStr: string) => {
-        const d = new Date(dateStr);
-        const day = d.getDay();
-        const diff = (day === 0 ? -6 : 1) - day;
-        d.setDate(d.getDate() + diff);
-        return d.toISOString().slice(0, 10);
-      }
-    : (dateStr: string) => dateStr.slice(0, 7);
+  const granularity: "month" = "month";
+  const bucketKey = (dateStr: string) => dateStr.slice(0, 7);
   const map = new Map<string, any>();
   rows.forEach((r) => {
     const key = bucketKey(r.date);
@@ -66,7 +58,6 @@ function aggregateTrend(rows: any[]) {
   });
   return { data: Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date)), granularity };
 }
-const TREND_TITLE: Record<string, string> = { day: "แนวโน้มรายวัน", week: "แนวโน้มรายสัปดาห์", month: "แนวโน้มรายเดือน" };
 
 // ── Hook ดึงข้อมูลจาก API ในโปรเจกต์เดียวกัน ───────────────────
 function useApi<T = any>(endpoint: string | null, params: Record<string, any> = {}) {
@@ -215,7 +206,7 @@ function SLAGauge({ pct = 0, size = 200 }: { pct?: number; size?: number }) {
   const cx = size / 2;
   const cy = size / 2 + 10;
   const col = slaColor(pct);
-  const lbl = pct >= 90 ? "ดีเยี่ยม" : pct >= 75 ? "พอใช้" : "ต้องปรับปรุง";
+  const lbl = pct >= 90 ? "ดีเยี่ยม" : pct >= 75 ? "พอใช้" : "ปรับปรุง";
   return (
     <svg width={size} height={size * 0.62} role="img" aria-label={`SLA ${pct}%`}>
       <path d={`M${cx - r},${cy} A${r},${r} 0 0 1 ${cx + r},${cy}`} fill="none" stroke={COLOR.border} strokeWidth={13} strokeLinecap="round" />
@@ -359,11 +350,11 @@ export default function ExecutivePage() {
       accentColor: COLOR.purple, sub: `ปิดแล้ว ${kpi.closed?.toLocaleString() ?? "—"} เรื่อง`,
     },
     {
-      label: "ความพึงพอใจ", value: fb?.avg_score ? `${fb.avg_score}/5` : "—", accentColor: COLOR.blue,
-      sub: fb?.total_responses ? `จาก ${fb.total_responses.toLocaleString()} ผู้ตอบ` : "—",
+      label: "ระดับความพึงพอใจ", value: fb?.avg_score ? `${fb.avg_score}/5` : "—", accentColor: COLOR.blue,
+      sub: fb?.total_responses ? `ผู้ตอบแบบสอบถาม ${fb.total_responses.toLocaleString()} ราย` : "—",
     },
     {
-      label: <span>SLA สำเร็จ<InfoTip align="right" text="SLA คือระยะเวลามาตรฐานที่กำหนดไว้สำหรับแก้ไขเรื่องร้องเรียนแต่ละประเภทให้เสร็จ ถ้าทำไม่ทันเวลาที่กำหนดจะถือว่า 'เกิน SLA'" /></span>,
+      label: <span>อัตราปฏิบัติตาม SLA<InfoTip align="right" text="SLA (Service Level Agreement) คือระยะเวลามาตรฐานที่กำหนดไว้สำหรับแก้ไขเรื่องร้องเรียนแต่ละประเภทให้เสร็จ ถ้าทำไม่ทันเวลาที่กำหนดจะถือว่า 'เกิน SLA'" /></span>,
       value: slaPct != null ? `${slaPct}%` : "—",
       accentColor: slaPct != null ? (slaPct >= 90 ? COLOR.green : slaPct >= 75 ? COLOR.amber : COLOR.red) : COLOR.gray,
       sub: slaPct != null ? (slaPct >= 90 ? "บรรลุเป้าหมาย ≥ 90%" : `เป้า 90% · ต่ำกว่าเป้า ${slaGap}%`) : "เป้าหมาย ≥ 90%",
@@ -379,7 +370,7 @@ export default function ExecutivePage() {
         {kl
           ? Array(6).fill(0).map((_, i) => <Card key={i}><Skeleton height={78} /></Card>)
           : ke
-            ? <div className="col-span-full"><ErrorBanner message="โหลด KPI ไม่สำเร็จ" onRetry={refetchKpi} height={78} /></div>
+            ? <div className="col-span-full"><ErrorBanner message="โหลดข้อมูลไม่สำเร็จ" onRetry={refetchKpi} height={78} /></div>
             : kpiDefs.map((k, i) => <KPICard key={i} {...k} />)
         }
       </div>
@@ -389,11 +380,11 @@ export default function ExecutivePage() {
         <Card className="lg:col-span-2">
           <CardTitle sub={
             <span>
-              รับใหม่ vs แก้ไขแล้ว {trendGranularity === "day" ? "รายวัน" : trendGranularity === "week" ? "รายสัปดาห์" : "รายเดือน"} ตามช่วงเวลาที่เลือก
-              <InfoTip text="ถ้าเลือกช่วงเวลายาว ระบบจะรวมข้อมูลเป็นรายสัปดาห์/รายเดือนแทนรายวัน เพื่อให้กราฟอ่านง่ายขึ้น (ไม่ได้ตัดข้อมูลทิ้ง)" />
+              จำนวนเรื่องร้องเรียนที่รับใหม่และดำเนินการแล้ว {trendGranularity === "day" ? "รายวัน" : "รายเดือน"} ตามช่วงเวลาที่เลือก
+              <InfoTip text="ระบบจะปรับการแสดงผลเป็นรายเดือนโดยอัตโนมัติเมื่อเลือกช่วงเวลาที่ยาว เพื่อให้การแสดงแนวโน้มมีความชัดเจนมากขึ้น โดยไม่มีการตัดข้อมูล" />
             </span>
           }>
-            {TREND_TITLE[trendGranularity]}
+            แนวโน้มของเรื่องร้องเรียน
           </CardTitle>
           <ChartLegend items={[["รับใหม่", COLOR.primary], ["แก้ไขแล้ว", COLOR.green, true]]} />
           {tl ? <Skeleton height={190} /> : (
@@ -412,13 +403,13 @@ export default function ExecutivePage() {
         </Card>
 
         <Card className="flex flex-col items-center">
-          <CardTitle sub="ดัชนีวัดคุณภาพการบริการ (แก้ไขเรื่องได้ตามมาตรฐานเวลาที่กำหนดหรือไม่)">SLA Performance</CardTitle>
+          <CardTitle sub="ดัชนีวัดคุณภาพการบริการ (สัดส่วนเรื่องร้องเรียนที่ดำเนินการแล้วเสร็จภายในระยะเวลาที่กำหนด)">ผลการปฏิบัติตาม SLA</CardTitle>
           {sl ? <Skeleton height={130} /> : (
             <>
               <SLAGauge pct={sla?.summary?.sla_pct || 0} size={200} />
               <div className="mt-2 grid w-full grid-cols-2 gap-2">
                 {[
-                  { l: "ตามกำหนด", v: sla?.summary?.on_time?.toLocaleString(), col: COLOR.green },
+                  { l: "ดำเนินการภายใน SLA", v: sla?.summary?.on_time?.toLocaleString(), col: COLOR.green },
                   { l: "เกิน SLA", v: sla?.summary?.breached?.toLocaleString(), col: COLOR.red },
                 ].map((s, i) => (
                   <div key={i} className="rounded-xl px-3 py-2 text-center" style={{ background: s.col + "12" }}>
@@ -435,7 +426,7 @@ export default function ExecutivePage() {
       {/* Category Pie + Satisfaction + Top area + Alerts */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card>
-          <CardTitle sub="สัดส่วน 6 หมวดหมู่หลัก">ประเภทปัญหา</CardTitle>
+          <CardTitle sub="แสดงสัดส่วนเรื่องร้องเรียนใน 6 หมวดหมู่ปัญหาหลัก">สัดส่วนเรื่องร้องเรียนตามหมวดหมู่ปัญหา</CardTitle>
           {cl ? <Skeleton height={180} /> : (
             <>
               <ResponsiveContainer width="100%" height={160}>
@@ -443,7 +434,11 @@ export default function ExecutivePage() {
                   <Pie data={safeCats} dataKey="total" nameKey="name" cx="50%" cy="50%" outerRadius={65} innerRadius={36}>
                     {safeCats.map((c, i) => <Cell key={i} fill={c.color || PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
-                  <Tooltip formatter={(v: any, n: any) => [`${Number(v).toLocaleString()} เรื่อง`, n]} />
+                  <Tooltip formatter={(v: any, n: any) => {
+                    const catTotal = safeCats.reduce((s, c) => s + (Number(c.total) || 0), 0);
+                    const pct = catTotal > 0 ? Math.round((Number(v) / catTotal) * 1000) / 10 : 0;
+                    return [`${pct}%`, n];
+                  }} />
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-2 space-y-1">
@@ -460,7 +455,7 @@ export default function ExecutivePage() {
         </Card>
 
         <Card>
-          <CardTitle sub="คะแนนเฉลี่ยจากผู้ร้องเรียน">ความพึงพอใจ</CardTitle>
+          <CardTitle sub="คะแนนความพึงพอใจเฉลี่ยจากผู้ร้องเรียน">ระดับความพึงพอใจของประชาชน</CardTitle>
           {fl ? <Skeleton height={220} /> : (
             <div>
               <div className="flex items-end justify-center gap-1">
@@ -495,7 +490,7 @@ export default function ExecutivePage() {
         </Card>
 
         <Card>
-          <CardTitle sub="5 เขตที่มีเรื่องมากที่สุด">เขตปัญหาสูงสุด</CardTitle>
+          <CardTitle sub="แสดง 5 เขตที่มีจำนวนเรื่องร้องเรียนสูงสุด">พื้นที่ที่มีเรื่องร้องเรียนสูงสุด</CardTitle>
           {al ? <Skeleton height={180} /> : (
             <div>
               {safeAreas.slice(0, 5).map((a, i) => {
