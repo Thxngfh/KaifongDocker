@@ -337,7 +337,7 @@ function AreaMap({ areas }: { areas: Area[] }) {
             <div className="text-sm font-semibold" style={{ color: slaColor(panelClosure) }}>
               {ratingLabel(panelClosure)}
             </div>
-            <div className="text-xs text-gray-400">อัตราการปิดงาน เฉลี่ย</div>
+            <div className="text-xs text-gray-400">อัตราการปิดงานเฉลี่ย</div>
           </div>
 
           <div className="mb-4 grid grid-cols-2 gap-2 text-xs">
@@ -581,7 +581,7 @@ export default function SlaDashboardPage() {
         <SlaTrendChart dates={dates} />
 
         <Card>
-          <CardTitle sub="แสดงร้อยละการปฏิบัติตาม SLA ในแต่ละหมวดหมู่ · คลิกชื่อหมวดหมู่เพื่อดูประเภทย่อย">ผลการปฏิบัติตาม SLA แยกตามหมวดหมู่ปัญหา</CardTitle>
+          <CardTitle sub="แสดงร้อยละการปฏิบัติตาม SLA ในแต่ละหมวดหมู่ · คลิกชื่อหมวดหมู่เพื่อดูประเภทย่อย">อัตราความสำเร็จตาม SLA แยกตามหมวดหมู่ปัญหา</CardTitle>
           {cl || sl ? <Skeleton height={180} /> : safeCatSLA.map((c: any, i: number) => {
             const isOpen = expandedCat === c.name;
             const subs = safeSubSLA.filter((s: any) => s.category === c.name);

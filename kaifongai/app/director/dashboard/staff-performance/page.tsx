@@ -20,7 +20,7 @@ const DEPARTMENT_NAV = [
   { teamCode: "TEAM_HEALTH", label: "สาธารณสุข" },
   { teamCode: "TEAM_ORDER", label: "ความสงบเรียบร้อย" },
   { teamCode: "TEAM_SOCIAL", label: "สวัสดิการสังคม" },
-  { teamCode: "TEAM_GOV", label: "บริการ/ธรรมาภิบาล" },
+  { teamCode: "TEAM_GOV", label: "การบริการและธรรมาภิบาล" },
 ];
 function slaColor(pct: number) {
   if (pct >= 90) return COLOR.green;
@@ -139,7 +139,7 @@ function KPICard({ label, value, accentColor, sub }: { label: React.ReactNode; v
     </div>
   );
 }
-function RankedStatRow({ rank, name, total, pct, metricLabel = "SLA", countLabel = "เคส" }: { rank: number; name: string; total: number; pct: number | null; metricLabel?: string; countLabel?: string }) {
+function RankedStatRow({ rank, name, total, pct, metricLabel = "SLA", countLabel = "เรื่อง" }: { rank: number; name: string; total: number; pct: number | null; metricLabel?: string; countLabel?: string }) {
   const col = pct == null ? COLOR.mid : slaColor(pct);
   return (
     <div className="flex items-center gap-2.5 border-b border-gray-100 py-2 text-sm last:border-0">
@@ -150,7 +150,7 @@ function RankedStatRow({ rank, name, total, pct, metricLabel = "SLA", countLabel
     </div>
   );
 }
-function StaffWorkloadTableRow({ s, maxActive, avgActive, deptLabel, onClick }: { s: any; maxActive: number; avgActive: number; deptLabel: string; onClick: () => void }) {
+function StaffWorkloadTableRow({ s, maxActive, avgActive, deptLabel, isTop, onClick }: { s: any; maxActive: number; avgActive: number; deptLabel: string; isTop?: boolean; onClick: () => void }) {
   const pctOfMax = maxActive > 0 ? Math.min(100, Math.round((s.active_count / maxActive) * 100)) : 0;
   const hasOverdue = s.overdue_count > 0;
   const highWorkload = !hasOverdue && avgActive > 0 && s.active_count > avgActive * 1.4;
@@ -158,19 +158,25 @@ function StaffWorkloadTableRow({ s, maxActive, avgActive, deptLabel, onClick }: 
   const initials = (s.name || "").trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w: string) => w[0]).join("").toUpperCase();
   const barColor = hasOverdue ? COLOR.red : highWorkload ? COLOR.amber : pctOfMax >= 60 ? COLOR.amber : COLOR.green;
   return (
-    <tr onClick={onClick} className="cursor-pointer border-b border-gray-100 last:border-0 hover:bg-gray-50">
-      <td className="py-2.5">
+    <tr onClick={onClick} className={`cursor-pointer border-b border-gray-100 last:border-0 hover:bg-gray-100 ${isTop ? "bg-green-50" : ""}`}>
+      <td className="py-2.5 pr-4">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold" style={hasOverdue ? { background: "#FDECEA", color: COLOR.red } : highWorkload ? { background: "#FFF3E0", color: COLOR.amber } : { background: "#F0F1F2", color: COLOR.dark }}>{initials || "?"}</span>
-          <div><div className="font-medium">{s.name}</div><div className="text-[11px] text-gray-400">{s.role}</div></div>
+          <div>
+            <div className="flex items-center gap-1.5 font-medium">
+              {s.name}
+              {isTop && <span className="whitespace-nowrap rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">🏆 ดีที่สุด</span>}
+            </div>
+            <div className="text-[11px] text-gray-400">{s.role}</div>
+          </div>
         </div>
       </td>
-      <td className="whitespace-nowrap py-2.5 text-gray-500">{deptLabel}</td>
-      <td className="py-2.5 text-right font-mono">{s.assigned_count?.toLocaleString() ?? 0}</td>
-      <td className="py-2.5 text-right font-mono">{s.done_count?.toLocaleString() ?? 0}</td>
-      <td className="py-2.5 text-right font-mono" style={{ color: overloaded ? barColor : COLOR.text, fontWeight: overloaded ? 700 : 400 }}>{s.active_count?.toLocaleString() ?? 0}</td>
-      <td className="py-2.5 text-right font-mono">{s.avg_resolution_hours == null ? "—" : s.avg_resolution_hours.toLocaleString(undefined, { maximumFractionDigits: 1 })}</td>
-      <td className="py-2.5 text-right" style={{ color: s.sla_pct == null ? COLOR.muted : slaColor(s.sla_pct) }}>{s.sla_pct == null ? "ไม่มีข้อมูล" : `${s.sla_pct}%`}</td>
+      <td className="whitespace-nowrap py-2.5 pr-4 text-gray-500">{deptLabel}</td>
+      <td className="py-2.5 pr-4 text-right font-mono">{s.assigned_count?.toLocaleString() ?? 0}</td>
+      <td className="py-2.5 pr-4 text-right font-mono">{s.done_count?.toLocaleString() ?? 0}</td>
+      <td className="py-2.5 pr-4 text-right font-mono" style={{ color: overloaded ? barColor : COLOR.text, fontWeight: overloaded ? 700 : 400 }}>{s.active_count?.toLocaleString() ?? 0}</td>
+      <td className="py-2.5 pr-4 text-right font-mono">{s.avg_resolution_hours == null ? "—" : s.avg_resolution_hours.toLocaleString(undefined, { maximumFractionDigits: 1 })}</td>
+      <td className="py-2.5 pr-6 text-right whitespace-nowrap font-semibold" style={{ color: s.sla_pct == null ? COLOR.muted : slaColor(s.sla_pct) }}>{s.sla_pct == null ? "ไม่มีข้อมูล" : `${s.sla_pct}%`}</td>
       <td className="py-2.5">
         <div className="flex min-w-[130px] items-center gap-2">
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100"><div className="h-full rounded-full" style={{ width: `${pctOfMax}%`, background: barColor }} /></div>
@@ -261,10 +267,19 @@ export default function StaffPerformancePage() {
   const wfColors = [COLOR.primary, COLOR.dark, COLOR.green, COLOR.amber, COLOR.mid, COLOR.purple, COLOR.red];
   const topSubcatsByVolume = [...subcats].sort((a, b) => b.total - a.total).slice(0, 8);
 
-  const [sortBy, setSortBy] = useState<"workload" | "sla">("workload");
+  const [sortBy, setSortBy] = useState<"workload" | "sla" | "sla_top">("workload");
   const sortedStaff = sortBy === "workload" ? staff : [...staff].sort((a, b) => {
-    if (a.sla_pct == null) return 1; if (b.sla_pct == null) return -1; return a.sla_pct - b.sla_pct;
+    if (a.sla_pct == null) return 1; if (b.sla_pct == null) return -1;
+    return sortBy === "sla" ? a.sla_pct - b.sla_pct : b.sla_pct - a.sla_pct;
   });
+
+  // หาผู้ที่ทำ SLA ได้ดีที่สุดในฝ่าย (ต้องมีข้อมูล sla_pct จริง ไม่ใช่ "ไม่มีข้อมูล") เพื่อไฮไลต์เป็นตัวอย่างที่ดี
+  const topPerformerId = staff.reduce((bestId: string | null, s: any) => {
+    if (s.sla_pct == null) return bestId;
+    if (bestId == null) return s.user_id;
+    const best = staff.find((x: any) => x.user_id === bestId);
+    return s.sla_pct > (best?.sla_pct ?? -1) ? s.user_id : bestId;
+  }, null);
 
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const { data: staffCases, loading: scLoading } = useApi<any[]>(selectedStaff ? "/api/staff/cases" : null, selectedStaff ? { user_id: selectedStaff.user_id } : {});
@@ -291,31 +306,33 @@ export default function StaffPerformancePage() {
       {error ? <ErrorBanner message="โหลดข้อมูลฝ่ายนี้ไม่สำเร็จ" /> : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <KPICard label="เจ้าหน้าที่ทั้งหมด" value={loading ? "…" : `${summary?.staff_count ?? 0} คน`} accentColor={COLOR.primary} />
+            <KPICard label="จำนวนเจ้าหน้าที่" value={loading ? "…" : `${summary?.staff_count ?? 0} คน`} accentColor={COLOR.primary} />
             <KPICard
-              label={<span>เคสค้างทั้งหมด<InfoTip text="เป็นยอดค้าง (pending/in-progress) ณ ตอนนี้เสมอ ไม่ผูกกับช่วงวันที่ที่เลือกด้านบน" /></span>}
+              label={<span>เรื่องค้างดำเนินการ<InfoTip text="เป็นยอดค้าง (pending/in-progress) ณ ตอนนี้เสมอ ไม่ผูกกับช่วงวันที่ที่เลือกด้านบน" /></span>}
               value={loading ? "…" : (summary?.active_cases ?? 0).toLocaleString()} sub="ยอดปัจจุบัน" accentColor={COLOR.dark}
             />
             <KPICard
-              label={<span>Workload เฉลี่ย/คน<InfoTip text="คำนวณจากเคสค้างปัจจุบัน (snapshot) เหมือน 'เคสค้างทั้งหมด' จึงไม่ผูกกับช่วงวันที่" /></span>}
-              value={loading ? "…" : staff.length > 0 ? avgActive.toFixed(1) : "0"} sub="เคสค้าง ÷ จำนวนเจ้าหน้าที่ ยิ่งสูงยิ่งควรเพิ่มกำลังคน" accentColor={COLOR.purple}
+              label={<span>ภาระงานเฉลี่ยต่อคน<InfoTip text="คำนวณจากเคสค้างปัจจุบัน (snapshot) เหมือน 'เคสค้างทั้งหมด' จึงไม่ผูกกับช่วงวันที่" /></span>}
+              value={loading ? "…" : staff.length > 0 ? avgActive.toFixed(1) : "0"} sub="ภาระงานเฉลี่ยต่อเจ้าหน้าที่ ยิ่งค่าสูงยิ่งสะท้อนภาระงานที่มากขึ้น" accentColor={COLOR.purple}
             />
-            <KPICard label="% SLA สำเร็จ" value={loading ? "…" : `${summary?.sla_pct ?? 0}%`} sub="ในช่วงวันที่ที่เลือกไว้" accentColor={loading ? COLOR.mid : slaColor(summary?.sla_pct ?? 0)} />
+            <KPICard label="อัตราความสำเร็จตาม SLA" value={loading ? "…" : `${summary?.sla_pct ?? 0}%`} sub="ตามช่วงเวลาที่เลือก" accentColor={loading ? COLOR.mid : slaColor(summary?.sla_pct ?? 0)} />
           </div>
 
           <Card>
             <CardTitle
-              sub="รายละเอียดครบทุกคน · คลิกแถวเพื่อดูรายเคสที่ถืออยู่ · แดง = มีเคสเกิน SLA · ส้ม = งานเยอะกว่าเฉลี่ยทีมมาก"
+              sub="คลิกตัวเลขเพื่อดูรายละเอียดเรื่องที่รับผิดชอบ · สีแดง = มีเรื่องเกิน SLA · สีเข้ม = มีภาระงานสูงกว่าค่าเฉลี่ยของทีม · แถวสีเขียวจาง = ผู้ทำ SLA ได้ดีที่สุดในฝ่าย"
               right={
                 <div className="flex gap-1.5">
                   <button onClick={() => setSortBy("workload")} className="rounded-full border px-3 py-1 text-xs font-semibold"
                     style={sortBy === "workload" ? { background: COLOR.dark, color: "#fff", borderColor: COLOR.dark } : { borderColor: COLOR.border, color: COLOR.muted }}>ภาระงานสูงสุด</button>
+                  <button onClick={() => setSortBy("sla_top")} className="rounded-full border px-3 py-1 text-xs font-semibold"
+                    style={sortBy === "sla_top" ? { background: COLOR.green, color: "#fff", borderColor: COLOR.green } : { borderColor: COLOR.border, color: COLOR.muted }}>SLA สูงสุด</button>
                   <button onClick={() => setSortBy("sla")} className="rounded-full border px-3 py-1 text-xs font-semibold"
                     style={sortBy === "sla" ? { background: COLOR.red, color: "#fff", borderColor: COLOR.red } : { borderColor: COLOR.border, color: COLOR.muted }}>SLA ต่ำสุด</button>
                 </div>
               }
             >
-              ตารางประสิทธิภาพรายเจ้าหน้าที่
+              ผลการปฏิบัติงานของเจ้าหน้าที่
             </CardTitle>
             {loading ? <Skeleton height={240} /> : staff.length === 0 ? (
               <div className="py-6 text-center text-gray-400">ยังไม่มีเจ้าหน้าที่ในฝ่ายนี้</div>
@@ -324,15 +341,15 @@ export default function StaffPerformancePage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200 text-left text-xs text-gray-500">
-                      <th className="py-2">เจ้าหน้าที่</th><th className="py-2">ฝ่าย</th>
-                      <th className="py-2 text-right">รับผิดชอบ</th><th className="py-2 text-right">เสร็จแล้ว</th>
-                      <th className="py-2 text-right">ค้างอยู่</th><th className="py-2 text-right">เวลาเฉลี่ย (ชม.)</th>
-                      <th className="py-2 text-right">SLA %</th><th className="py-2">ภาระงาน</th>
+                      <th className="py-2 pr-4">เจ้าหน้าที่</th><th className="py-2 pr-4">ฝ่าย</th>
+                      <th className="py-2 pr-4 text-right">รับผิดชอบ</th><th className="py-2 pr-4 text-right">เสร็จสิ้น</th>
+                      <th className="py-2 pr-4 text-right">ค้างดำเนินการ</th><th className="py-2 pr-4 text-right">เวลาเฉลี่ย (ชม.)</th>
+                      <th className="py-2 pr-6 text-right">อัตราความสำเร็จตาม SLA</th><th className="py-2">ภาระงาน</th>
                     </tr>
                   </thead>
                   <tbody>
                     {sortedStaff.map((s: any) => (
-                      <StaffWorkloadTableRow key={s.user_id} s={s} maxActive={maxActive} avgActive={avgActive} deptLabel={realDeptName} onClick={() => setSelectedStaff(s)} />
+                      <StaffWorkloadTableRow key={s.user_id} s={s} maxActive={maxActive} avgActive={avgActive} deptLabel={realDeptName} isTop={s.user_id === topPerformerId} onClick={() => setSelectedStaff(s)} />
                     ))}
                   </tbody>
                 </table>
@@ -342,13 +359,13 @@ export default function StaffPerformancePage() {
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <Card>
-              <CardTitle sub="ปริมาณ + % SLA สำเร็จ (เรียงมากไปน้อย)">งานแยกตามประเภทย่อย (Subcategory)</CardTitle>
+              <CardTitle sub="จำนวนเรื่องร้องเรียนและอัตราความสำเร็จตาม SLA (เรียงจากมากไปน้อย)">ผลงานตามประเภทย่อย</CardTitle>
               {loading ? <Skeleton height={180} /> : topSubcatsByVolume.length === 0 ? (
                 <div className="py-6 text-center text-gray-400">ไม่มีข้อมูลในช่วงเวลานี้</div>
               ) : topSubcatsByVolume.map((s: any, i: number) => <RankedStatRow key={i} rank={i + 1} name={s.subcategory} total={s.total} pct={s.sla_pct} />)}
             </Card>
             <Card>
-              <CardTitle sub="5 เขตที่มีงานของฝ่ายนี้มากที่สุด">พื้นที่ที่มีงานมากสุด</CardTitle>
+              <CardTitle sub="แสดง 5 เขตที่มีจำนวนงานในความรับผิดชอบมากที่สุด">พื้นที่ที่ดำเนินงานมากที่สุด</CardTitle>
               {al ? <Skeleton height={180} /> : topAreas.length === 0 ? (
                 <div className="py-6 text-center text-gray-400">ไม่มีข้อมูลในช่วงเวลานี้</div>
               ) : topAreas.map((a: any, i: number) => <RankedStatRow key={i} rank={i + 1} name={a.district} total={a.total} pct={a.closure_rate} metricLabel="ปิดแล้ว" />)}
@@ -357,7 +374,7 @@ export default function StaffPerformancePage() {
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <Card>
-              <CardTitle sub="จำนวน action ต่อขั้นตอนของฝ่ายนี้">กระบวนการทำงานตามลำดับขั้น</CardTitle>
+              <CardTitle sub="จำนวนรายการในแต่ละขั้นตอนการดำเนินงานของฝ่ายนี้">ขั้นตอนการดำเนินงาน</CardTitle>
               {wfl ? <Skeleton height={200} /> : safeWf.length === 0 ? (
                 <div className="py-6 text-center text-gray-400">ไม่มีข้อมูลในช่วงเวลานี้</div>
               ) : (
@@ -372,10 +389,10 @@ export default function StaffPerformancePage() {
               )}
             </Card>
             <Card>
-              <CardTitle sub={`รับใหม่ vs แก้ไขแล้ว ${trendGranularity === "day" ? "รายวัน" : trendGranularity === "week" ? "รายสัปดาห์" : "รายเดือน"} ของฝ่ายนี้`}>
+              <CardTitle sub={`จำนวนเรื่องร้องเรียนที่รับใหม่และดำเนินการแล้ว ${trendGranularity === "day" ? "รายวัน" : trendGranularity === "week" ? "รายสัปดาห์" : "รายเดือน"} ของฝ่ายนี้`}>
                 {TREND_TITLE[trendGranularity]}
               </CardTitle>
-              <ChartLegend items={[["รับใหม่", COLOR.primary], ["แก้ไขแล้ว", COLOR.green]]} />
+              <ChartLegend items={[["รับเรื่องใหม่", COLOR.primary], ["ดำเนินการแก้ไขแล้ว", COLOR.green]]} />
               {tl ? <Skeleton height={190} /> : (
                 <ResponsiveContainer width="100%" height={190}>
                   <LineChart data={safeTrend}>

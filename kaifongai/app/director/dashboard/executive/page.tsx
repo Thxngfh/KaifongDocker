@@ -354,7 +354,7 @@ export default function ExecutivePage() {
       sub: fb?.total_responses ? `ผู้ตอบแบบสอบถาม ${fb.total_responses.toLocaleString()} ราย` : "—",
     },
     {
-      label: <span>อัตราปฏิบัติตาม SLA<InfoTip align="right" text="SLA (Service Level Agreement) คือระยะเวลามาตรฐานที่กำหนดไว้สำหรับแก้ไขเรื่องร้องเรียนแต่ละประเภทให้เสร็จ ถ้าทำไม่ทันเวลาที่กำหนดจะถือว่า 'เกิน SLA'" /></span>,
+      label: <span>อัตราความสำเร็จตาม SLA<InfoTip align="right" text="SLA (Service Level Agreement) คือระยะเวลามาตรฐานที่กำหนดไว้สำหรับแก้ไขเรื่องร้องเรียนแต่ละประเภทให้เสร็จ ถ้าทำไม่ทันเวลาที่กำหนดจะถือว่า 'เกิน SLA'" /></span>,
       value: slaPct != null ? `${slaPct}%` : "—",
       accentColor: slaPct != null ? (slaPct >= 90 ? COLOR.green : slaPct >= 75 ? COLOR.amber : COLOR.red) : COLOR.gray,
       sub: slaPct != null ? (slaPct >= 90 ? "บรรลุเป้าหมาย ≥ 90%" : `เป้า 90% · ต่ำกว่าเป้า ${slaGap}%`) : "เป้าหมาย ≥ 90%",
@@ -386,7 +386,7 @@ export default function ExecutivePage() {
           }>
             แนวโน้มของเรื่องร้องเรียน
           </CardTitle>
-          <ChartLegend items={[["รับใหม่", COLOR.primary], ["แก้ไขแล้ว", COLOR.green, true]]} />
+          <ChartLegend items={[["รับเรื่องใหม่", COLOR.primary], ["ดำเนินการแล้ว", COLOR.green, true]]} />
           {tl ? <Skeleton height={190} /> : (
             <ResponsiveContainer width="100%" height={190}>
               <LineChart data={safeTrend}>
@@ -403,7 +403,7 @@ export default function ExecutivePage() {
         </Card>
 
         <Card className="flex flex-col items-center">
-          <CardTitle sub="ดัชนีวัดคุณภาพการบริการ (สัดส่วนเรื่องร้องเรียนที่ดำเนินการแล้วเสร็จภายในระยะเวลาที่กำหนด)">ผลการปฏิบัติตาม SLA</CardTitle>
+          <CardTitle sub="ดัชนีวัดคุณภาพการบริการ (สัดส่วนเรื่องร้องเรียนที่ดำเนินการแล้วเสร็จภายในระยะเวลาที่กำหนด)">อัตราความสำเร็จตาม SLA</CardTitle>
           {sl ? <Skeleton height={130} /> : (
             <>
               <SLAGauge pct={sla?.summary?.sla_pct || 0} size={200} />
