@@ -180,8 +180,8 @@ type Area = {
 const AREA_METRICS = [
   { id: "closure_rate", label: "อัตราการปิดงาน", direction: "good" as const, fmt: (v: number) => v + "%" },
   { id: "sla_breach", label: "งานเกินกำหนด SLA", direction: "bad" as const, fmt: (v: number) => (v || 0).toLocaleString() },
-  { id: "open", label: "ค้างดำเนินการ", direction: "bad" as const, fmt: (v: number) => (v || 0).toLocaleString() },
-  { id: "total", label: "ปริมาณรวม", direction: "neutral" as const, fmt: (v: number) => (v || 0).toLocaleString() },
+  { id: "open", label: "งานค้างดำเนินการ", direction: "bad" as const, fmt: (v: number) => (v || 0).toLocaleString() },
+  { id: "total", label: "จำนวนเรื่องร้องเรียน", direction: "neutral" as const, fmt: (v: number) => (v || 0).toLocaleString() },
 ];
 function lerpHex(hex1: string, hex2: string, t: number) {
   const p = (s: string) => parseInt(s, 16);
@@ -343,13 +343,13 @@ function AreaMap({ areas }: { areas: Area[] }) {
           <div className="mb-4 grid grid-cols-2 gap-2 text-xs">
             <div className="rounded-lg bg-white p-2.5">
               <div className="font-bold text-[#1A1C1E]">{panelTotal.toLocaleString()}</div>
-              <div className="text-gray-400">ปริมาณรวม</div>
+              <div className="text-gray-400">จำนวนเรื่องร้องเรียน</div>
             </div>
             <div className="rounded-lg bg-white p-2.5">
               <div className="font-bold" style={{ color: COLOR.amber }}>
                 {panelOpen.toLocaleString()}
               </div>
-              <div className="text-gray-400">ค้างดำเนินการ ({panelOpenPct}%)</div>
+              <div className="text-gray-400">งานค้างดำเนินการ ({panelOpenPct}%)</div>
             </div>
             <div className="rounded-lg bg-white p-2.5">
               <div className="font-bold" style={{ color: COLOR.red }}>
@@ -432,10 +432,10 @@ function SlaTrendChart({ dates }: { dates: { start_date: string; end_date: strin
   const rows = Array.isArray(data) ? data : [];
   return (
     <Card>
-      <CardTitle sub="เทียบจำนวนเคสที่จบตรง SLA กับเคสที่เกิน SLA ตามช่วงวันที่ที่เลือกไว้ด้านบน">
-        แนวโน้ม SLA: On-time vs Breach
+      <CardTitle sub="เปรียบเทียบจำนวนเรื่องร้องเรียนที่ดำเนินการภายใน SLA และเกิน SLA ตามช่วงเวลาที่เลือก">
+        แนวโน้มการปฏิบัติตาม SLA
       </CardTitle>
-      <ChartLegend items={[["ตรงตาม SLA", COLOR.green], ["เกิน SLA", COLOR.red]]} />
+      <ChartLegend items={[["ดำเนินการภายใน SLA", COLOR.green], ["เกิน SLA", COLOR.red]]} />
       {loading ? <Skeleton height={200} /> : rows.length === 0 ? (
         <Empty>ไม่มีข้อมูลแนวโน้ม SLA ในช่วงที่เลือก</Empty>
       ) : (
@@ -445,7 +445,7 @@ function SlaTrendChart({ dates }: { dates: { start_date: string; end_date: strin
             <XAxis dataKey="month" tick={{ fontSize: 10 }} />
             <YAxis tick={{ fontSize: 10 }} />
             <Tooltip content={<ChartTip />} />
-            <Line type="monotone" dataKey="on_time" name="ตรงตาม SLA" stroke={COLOR.green} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="on_time" name="ดำเนินการภายใน SLA" stroke={COLOR.green} strokeWidth={2.5} dot={false} />
             <Line type="monotone" dataKey="breached" name="เกิน SLA" stroke={COLOR.red} strokeWidth={2.5} dot={false} strokeDasharray="5 3" />
           </LineChart>
         </ResponsiveContainer>
@@ -543,7 +543,7 @@ export default function SlaDashboardPage() {
       {/* Row 1: Workflow Funnel + Stacked Bar */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <Card>
-          <CardTitle sub="จำนวน action ต่อขั้นตอน">กระบวนการทำงานตามลำดับขั้น</CardTitle>
+          <CardTitle sub="จำนวนรายการในแต่ละขั้นตอนการดำเนินงาน">ขั้นตอนการดำเนินงาน</CardTitle>
           {wl ? <Skeleton height={200} /> : (
             <div className="space-y-2.5">
               {safeWf.map((w, i) => (
@@ -559,8 +559,8 @@ export default function SlaDashboardPage() {
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardTitle sub="แก้ไขแล้ว vs ค้างอยู่ แยกตามหมวดหมู่">ปริมาณเรื่องตามหมวดหมู่</CardTitle>
-          <ChartLegend items={[["แก้ไขแล้ว", COLOR.green], ["ค้างอยู่", COLOR.amber]]} />
+          <CardTitle sub="เปรียบเทียบจำนวนเรื่องร้องเรียนที่แก้ไขแล้วและค้างดำเนินการในแต่ละหมวดหมู่ปัญหา">จำนวนเรื่องร้องเรียนตามหมวดหมู่ปัญหา</CardTitle>
+          <ChartLegend items={[["ดำเนินการแก้ไขแล้ว", COLOR.green], ["ค้างดำเนินการ", COLOR.amber]]} />
           {cl ? <Skeleton height={210} /> : (
             <ResponsiveContainer width="100%" height={210}>
               <BarChart data={safeCats}>
@@ -581,7 +581,7 @@ export default function SlaDashboardPage() {
         <SlaTrendChart dates={dates} />
 
         <Card>
-          <CardTitle sub="% SLA สำเร็จ แยกตามหมวดหมู่ · คลิกชื่อหมวดหมู่เพื่อดูประเภทย่อย">SLA ตามหมวดหมู่</CardTitle>
+          <CardTitle sub="แสดงร้อยละการปฏิบัติตาม SLA ในแต่ละหมวดหมู่ · คลิกชื่อหมวดหมู่เพื่อดูประเภทย่อย">ผลการปฏิบัติตาม SLA แยกตามหมวดหมู่ปัญหา</CardTitle>
           {cl || sl ? <Skeleton height={180} /> : safeCatSLA.map((c: any, i: number) => {
             const isOpen = expandedCat === c.name;
             const subs = safeSubSLA.filter((s: any) => s.category === c.name);
@@ -603,7 +603,7 @@ export default function SlaDashboardPage() {
 
       {/* Row 3: แผนที่รายพื้นที่ */}
       <Card>
-        <CardTitle sub="เลือกตัวชี้วัดหรือเขตเพื่อดูรายละเอียด · คลิกจุดบนแผนที่ได้เช่นกัน">SLA และสถานะรายพื้นที่</CardTitle>
+        <CardTitle sub="เลือกตัวชี้วัดหรือพื้นที่เพื่อดูรายละเอียด และคลิกจุดบนแผนที่เพื่อดูข้อมูลของแต่ละพื้นที่">ผลการดำเนินงานรายพื้นที่</CardTitle>
         {al ? (
           <Skeleton height={420} />
         ) : safeAreas.length === 0 ? (
@@ -616,7 +616,7 @@ export default function SlaDashboardPage() {
       {/* Row 4: รายการเรื่องร้องเรียนล่าสุด */}
       <Card>
         <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-          <CardTitle sub={`ทั้งหมด ${recentTotal.toLocaleString()} เรื่อง (ตามช่วงวันที่ที่เลือกไว้) · คลิกแถวเพื่อดูรายละเอียด`}>รายการเรื่องร้องเรียน</CardTitle>
+          <CardTitle sub={`ทั้งหมด ${recentTotal.toLocaleString()} เรื่อง ตามช่วงเวลาที่เลือกไว้ · คลิกแถวเพื่อดูรายละเอียด`}>รายการเรื่องร้องเรียนล่าสุด</CardTitle>
           <input
             type="text" placeholder="ค้นหาเลขที่ / เขต / รายละเอียด" value={recentSearchInput}
             onChange={(e) => setRecentSearchInput(e.target.value)}
@@ -633,7 +633,7 @@ export default function SlaDashboardPage() {
                     className="border-b-2 text-left text-xs font-semibold text-white"
                     style={{ background: COLOR.dark, borderBottomColor: COLOR.primary }}
                   >
-                    {["เลขที่", "วันที่", "เขต", "หมวด", "รายละเอียด", "สถานะ", "Priority"].map((h) => (
+                    {["เลขที่", "วันที่", "เขต", "หมวดหมู่ปัญหา", "รายละเอียด", "สถานะ", "ระดับความสำคัญ"].map((h) => (
                       <th key={h} className="whitespace-nowrap px-4 py-3 first:rounded-tl-xl first:pl-5 last:rounded-tr-xl last:pr-5">
                         {h}
                       </th>
