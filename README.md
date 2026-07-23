@@ -222,6 +222,7 @@ Get-Content db/migrations/unique_line_user_id.sql | docker exec -i kaifong_db ps
 Get-Content db/migrations/user_departments.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 Get-Content db/migrations/complaint_title.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 Get-Content .\db\migrations\unique_summary_table.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
+Get-Content db/migrations/add_tenant_id.sql | docker exec -i kaifong_db psql -U kaifong -d kaifongdb
 
 docker cp .\db\seed\insert_part1_base.sql kaifong_db:/tmp/insert_part1_base.sql
 docker cp .\db\seed\insert_part2_summary.sql kaifong_db:/tmp/insert_part2_summary.sql
