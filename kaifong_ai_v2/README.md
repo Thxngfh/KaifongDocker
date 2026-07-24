@@ -28,10 +28,9 @@ git --version
 
 ## ขั้นตอนติดตั้ง
 
-### 1) Clone โปรเจกต์
+### 1) เข้าไฟล์
 
 ```bash
-git clone https://github.com/lukpear05/kaifong-ai-system.git
 cd kaifong_ai
 ```
 
@@ -88,8 +87,8 @@ cp .env.example .env
 จากนั้นเปิดไฟล์ `.env` แล้วกรอกค่าจริง:
 
 ```env
-DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
-LINE_CHANNEL_ACCESS_TOKEN=<token จริงจาก LINE Developers Console>
+DATABASE_URL=postgresql://kaifong:kaifong1234@localhost:5433/kaifongdb
+LINE_CHANNEL_ACCESS_TOKEN=2009976440-qF0Wpy5x
 ALLOWED_ORIGINS=http://localhost:8000,https://your-liff-domain.com
 ```
 
