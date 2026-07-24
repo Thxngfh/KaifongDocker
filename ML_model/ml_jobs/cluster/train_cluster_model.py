@@ -35,7 +35,7 @@ import psycopg2.extras
 # ============================================================
 # Config — env-driven so the same image works across environments
 # ============================================================
-DATABASE_URL = "" # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
+DATABASE_URL = "postgresql://kaifong:kaifong1234@localhost:5433/kaifongdb" # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
 
 MAX_K = int(os.environ.get("CLUSTER_MAX_K", 6))
 PCA_COMPONENTS = int(os.environ.get("CLUSTER_PCA_COMPONENTS", 2))
