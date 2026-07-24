@@ -52,6 +52,18 @@ services:
       postgres:
         condition: service_healthy
 
+  kaifong_ai_v2:
+    build: ./kaifong_ai_v2
+    container_name: kaifong_ai_v2
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://kaifong:kaifong1234@postgres:5432/kaifongdb
+      LINE_CHANNEL_ACCESS_TOKEN: 2009976440-qF0Wpy5x
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   kaifong_db:
       
