@@ -86,12 +86,10 @@ KaifongAI/
 ├── lib/                          # 📚 Utilities & Helper Functions
 │   └── summaryDashboard.ts       #   → คำนวณสรุปสถิติตัวเลข Dashboard
 │
-├── data/                         # 📊 ข้อมูลจำลอง (Mock Data JSON)
-   ├── member.json                # → ไฟล์ข้อมูลสมาชิกในระบบ
-   ├── mock_data_may2026.json     # → ข้อมูลคำร้องและข้อมูลหลักของระบบ (Mock Data)
-   ├── data.tsx                   # → Shared Data กลางสำหรับจัดรูปแบบและเรียกใช้ข้อมูลร่วมกัน
-   └── alternative/               # → โฟลเดอร์เก็บข้อมูลจำลองชุดใช้งานจริง
-      └── data2.json              # ข้อมูลหลัก (cases, users, technicians, problems, logs)
+└── data/                         # 📊 ข้อมูลจำลอง (Mock Data JSON)
+    ├── member.json               #   → ไฟล์ข้อมูลสมาชิกในระบบ
+    └── alternative/              #   → โฟลเดอร์เก็บข้อมูลจำลองชุดใช้งานจริง
+        └── data2.json            #     ข้อมูลหลัก (cases, users, technicians, problems, logs)
 ```
 
 ---
@@ -183,8 +181,7 @@ npm start
                           ▼
 ┌──────────────────────────────────────────────────────────┐
 │                   Data Layer (JSON Files)                │
-│  data/mock_data_may2026.json   ← ข้อมูลหลัก (Mock Data)    |
-|  data/data.tsx                 ← Shared Data             |                                         
+│                                                          |                                         
 │  data/alternative/data2.json  ← cases, users, techs,     │
 │                                  problems, logs          │
 │  data/member.json             ← ข้อมูลสมาชิก                │
@@ -412,8 +409,7 @@ npm start
 ระบบยังไม่ได้ทำการเชื่อมต่อฐานข้อมูลหลัก โดยดึงและเก็บข้อมูลผ่านโครงสร้างจำลองดังนี้:
 * `data/alternative/data2.json` — เก็บอาร์เรย์ข้อมูลหลักของเคสคำร้องเรียน ช่างเทคนิค ผู้ใช้ทั่วไป และประเภทปัญหารวมถึงประวัติล็อกการเปลี่ยนแปลง
 * `data/member.json` — ดึงรายชื่อกลุ่มพนักงานที่สมัครเข้ามาในระบบ เพื่อทำแบบฟอร์มการกำหนดสิทธิ์
-* ` mock_data_may2026.json : Mock Data หลักของระบบ
-* ` data.tsx : Shared Data สำหรับจัดรูปแบบและเรียกใช้ข้อมูลร่วมกัน
+
 
 ---
 
