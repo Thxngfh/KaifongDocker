@@ -21,3 +21,9 @@ kaifong_ai_v2/audit.log
 kaifong_ai_v2/kaifong_debug.log
 
 **/*.safetensors
+
+# Python virtual environments
+venv/
+.venv/
+**/venv/
+**/.venv/

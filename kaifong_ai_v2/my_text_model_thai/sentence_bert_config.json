@@ -2,13 +2,9 @@
     "transformer_task": "feature-extraction",
     "modality_config": {
         "text": {
-            "method": "get_text_features",
-            "method_output_name": "pooler_output"
-        },
-        "image": {
-            "method": "get_image_features",
-            "method_output_name": "pooler_output"
+            "method": "forward",
+            "method_output_name": "last_hidden_state"
         }
     },
-    "module_output_name": "sentence_embedding"
+    "module_output_name": "token_embeddings"
 }

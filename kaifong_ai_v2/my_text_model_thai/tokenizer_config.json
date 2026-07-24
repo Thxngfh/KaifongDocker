@@ -1,15 +1,17 @@
 {
-  "add_prefix_space": false,
   "backend": "tokenizers",
-  "bos_token": "<|startoftext|>",
-  "do_lower_case": true,
-  "eos_token": "<|endoftext|>",
-  "errors": "replace",
-  "is_local": true,
+  "cls_token": "[CLS]",
+  "do_basic_tokenize": true,
+  "do_lower_case": false,
+  "is_local": false,
   "local_files_only": false,
-  "model_max_length": 77,
-  "pad_token": "<|endoftext|>",
-  "processor_class": "CLIPProcessor",
-  "tokenizer_class": "CLIPTokenizer",
-  "unk_token": "<|endoftext|>"
+  "mask_token": "[MASK]",
+  "model_max_length": 128,
+  "never_split": null,
+  "pad_token": "[PAD]",
+  "sep_token": "[SEP]",
+  "strip_accents": null,
+  "tokenize_chinese_chars": true,
+  "tokenizer_class": "BertTokenizer",
+  "unk_token": "[UNK]"
 }
