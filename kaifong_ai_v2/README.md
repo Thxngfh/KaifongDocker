@@ -31,7 +31,7 @@ git --version
 ### 1) เข้าไฟล์
 
 ```bash
-cd kaifong_ai
+cd kaifong_ai_v2
 ```
 
 ### 2) สร้าง Virtual Environment (venv)
