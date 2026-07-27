@@ -31,7 +31,7 @@ git --version
 ### 1) เข้าไฟล์
 
 ```bash
-cd kaifong_ai
+cd kaifong_ai_v2
 ```
 
 ### 2) สร้าง Virtual Environment (venv)
@@ -88,7 +88,7 @@ cp .env.example .env
 
 ```env
 DATABASE_URL=postgresql://kaifong:kaifong1234@localhost:5433/kaifongdb
-LINE_CHANNEL_ACCESS_TOKEN=2009976440-qF0Wpy5x
+LINE_CHANNEL_ACCESS_TOKEN=<ขอค่าจริงจากหัวหน้าโปรเจกต์>
 ALLOWED_ORIGINS=http://localhost:8000,https://your-liff-domain.com
 ```
 
@@ -146,11 +146,86 @@ uvicorn main:app --reload
 
 **ทดสอบผ่าน Swagger UI** (`/docs`) — เหมาะกับเช็คเร็วๆ ไม่ต้องติดตั้งอะไรเพิ่ม
 
-**ทดสอบผ่าน Postman** — เหมาะกับทดสอบที่ต้องอัปโหลดรูปภาพ + เก็บ request ไว้ใช้ซ้ำ:
+### ทดสอบผ่าน Postman
+
+เหมาะกับทดสอบที่ต้องอัปโหลดรูปภาพ + เก็บ request ไว้ใช้ซ้ำ:
+
 1. สร้าง request แบบ `POST` ไปที่ `http://127.0.0.1:8000/test-score`
-2. แท็บ Headers เพิ่ม `X-API-Key` = ค่าที่ได้จากเทอร์มินัล
-3. แท็บ Body เลือก `form-data` ใส่ฟิลด์: `category`, `subcategory`, `description`, `image` (type: File)
-4. กด Send
+2. แท็บ **Headers** เพิ่ม:
+   - Key: `X-API-Key`
+   - Value: ค่า key ที่ได้จากเทอร์มินัลตอนรันครั้งแรก
+3. แท็บ **Body** เลือก `form-data` ใส่ฟิลด์:
+   - `category` (Text)
+   - `subcategory` (Text)
+   - `description` (Text)
+   - `image` (type: **File**)
+4. กด **Send**
+
+ถ้าอยากทดสอบซ้ำบ่อยๆ แนะนำบันทึก request นี้ไว้ใน Collection ของ Postman แล้ว export/share ให้ทีมใช้ต่อได้เลย
+
+---
+
+## ตัวอย่างผลลัพธ์ตอนรัน (Example Output)
+
+### ตัวอย่าง output ตอนรันเซิร์ฟเวอร์ครั้งแรก
+
+```bash
+$ uvicorn main:app --reload
+INFO:     Will watch for changes in these directories: ['/kaifong_ai']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12345] using StatReload
+⚠️  ยังไม่มีไฟล์ api_keys.json — สร้าง API Key เริ่มต้นให้แล้ว
+    API KEY (เก็บไว้ให้ดี ไม่แสดงซ้ำอีก): a1b2c3d4e5f67890abcd1234ef567890
+INFO:     Started server process [12347]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+```
+
+> บรรทัด `API KEY` จะโผล่แค่ครั้งเดียวตอนยังไม่มี `api_keys.json` เท่านั้น รันครั้งถัดไปจะไม่มีบรรทัดนี้อีก (เพราะมีไฟล์อยู่แล้ว)
+
+### ตัวอย่างผลลัพธ์จาก Postman (`POST /test-score`)
+
+**กรณี Header/Key ถูกต้อง แนบรูป+ข้อความครบ** — ได้ status `200 OK`:
+
+```json
+{
+  "decision": "ACCEPT",
+  "score": 0.87,
+  "category": "ถนนและทางเท้า",
+  "subcategory": "ถนนชำรุด",
+  "reason": "รูปภาพและคำอธิบายสอดคล้องกัน ความมั่นใจสูง"
+}
+```
+
+ตัวอย่างกรณีข้อมูลไม่ค่อยตรงกัน ระบบจะส่งไปให้เจ้าหน้าที่ตรวจสอบแทนที่จะตัดสินเอง:
+
+```json
+{
+  "decision": "REVIEW",
+  "score": 0.52,
+  "category": "ความสะอาด",
+  "subcategory": "ขยะตกค้าง",
+  "reason": "ความสอดคล้องอยู่ในเกณฑ์กลางๆ ส่งให้เจ้าหน้าที่ตรวจสอบเพิ่มเติม"
+}
+```
+
+**กรณี header `X-API-Key` ไม่ถูกต้องหรือไม่ได้แนบมา** — ได้ status `401 Unauthorized`:
+
+```json
+{
+  "detail": "Missing or invalid API key"
+}
+```
+
+**กรณีแนบ key มาแล้วแต่ค่าไม่ตรง** — ได้ status `403 Forbidden`:
+
+```json
+{
+  "detail": "Invalid API key"
+}
+```
+
+> ⚠️ ตัวเลข `score`, ข้อความใน `reason`, และรูปแบบ field ในตัวอย่างข้างต้นเป็นตัวอย่างประกอบเพื่อให้เห็นภาพเท่านั้น รูปแบบ response จริงขึ้นอยู่กับโค้ดใน `main.py` และ `clip_engine.py` ของโปรเจกต์ — แนะนำให้ยิงทดสอบจริงผ่าน `/docs` (Swagger UI) หรือ Postman เพื่อดู field ที่ถูกต้องตรงกับเวอร์ชันปัจจุบัน
 
 ---
 
