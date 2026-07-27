@@ -33,7 +33,19 @@ git lfs pull
 
 ---
 
-## 2. Start Docker
+## 2. ตั้งค่า Environment Variables
+
+สร้างไฟล์ `.env` ที่ root ของโปรเจกต์ (ระดับเดียวกับ `docker-compose.yml`) แล้วใส่ค่า:
+
+```
+LINE_CHANNEL_ACCESS_TOKEN=ใส่ token จริงตรงนี้
+```
+
+ค่านี้จำเป็นสำหรับ service `kaifong_ai_v2` — ถ้าไม่ตั้งค่า container จะ start ไม่ติด
+
+---
+
+## 3. Start Docker
 
 ```bash
 docker compose down -v
@@ -45,6 +57,8 @@ docker compose up --build -d
 ```bash
 docker ps
 ```
+
+Container ที่ควรเห็น: `kaifong_db`, `kaifongai`, `kaifongliff`, `kaifong_ai_v2`
 
 ---
 
@@ -96,6 +110,17 @@ http://localhost:3000
 
 ```
 http://localhost:3001
+```
+
+---
+
+### AI Service (kaifong_ai_v2)
+
+วิเคราะห์คำร้องเรียนด้วย NLP + CLIP (คัดกรองสแปม, จำแนกประเภท, ตรวจ PII, มอบหมายงานอัตโนมัติ) รับข้อมูลจาก kaifongliff แล้วบันทึกผลลง kaifongdb
+
+```
+http://localhost:8000        # หน้าแรก เช็คว่า server ทำงาน
+http://localhost:8000/docs   # Swagger UI ทดสอบ API
 ```
 
 ---
@@ -157,11 +182,21 @@ KaifongDocker
 │   ├── migrations
 │   └── seed
 │
-├── kaifongai
+├── kaifongai        # Dashboard (Next.js) - port 3001
 │
-├── kaifongliff
+├── kaifongliff      # LIFF Frontend (Next.js) - port 3000
+│
+├── kaifong_ai_v2    # AI Service (FastAPI: NLP + CLIP) - port 8000
+│   ├── main.py
+│   ├── config.py
+│   ├── db.py
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── .dockerignore
 │
 ├── docker-compose.yml
+│
+├── .env             # ไม่ commit เข้า git (LINE_CHANNEL_ACCESS_TOKEN ฯลฯ)
 │
 └── README.md
 ```
@@ -187,6 +222,8 @@ git lfs install
 
 git clone https://github.com/Thxngfh/KaifongDocker.git
 cd KaifongDocker
+
+# สร้างไฟล์ .env ที่ root แล้วใส่ LINE_CHANNEL_ACCESS_TOKEN ก่อน
 
 docker compose down -v
 docker compose up --build -d
