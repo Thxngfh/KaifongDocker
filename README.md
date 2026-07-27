@@ -243,6 +243,7 @@ GROUP BY table_type;
 
 - LIFF : http://localhost:3000
 - AI : http://localhost:3001
+- AI Service (CLIP) : http://localhost:8000/docs
 
 ## การอัปเดตโปรเจกต์
 
