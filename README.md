@@ -123,6 +123,47 @@ http://localhost:8000        # หน้าแรก เช็คว่า serve
 http://localhost:8000/docs   # Swagger UI ทดสอบ API
 ```
 
+### ทดสอบผ่าน Postman
+
+เหมาะกับทดสอบที่ต้องอัปโหลดรูปภาพ + เก็บ request ไว้ใช้ซ้ำ:
+
+1. สร้าง request แบบ `POST` ไปที่ `http://127.0.0.1:8000/test-score`
+2. แท็บ **Headers** เพิ่ม:
+   - Key: `X-API-Key`
+   - Value: ค่า key ที่ได้จากเทอร์มินัลตอนรันครั้งแรก
+3. แท็บ **Body** เลือก `form-data` ใส่ฟิลด์:
+   - `category` (Text)
+   - `subcategory` (Text)
+   - `description` (Text)
+   - `image` (type: **File**)
+4. กด **Send**
+
+ถ้าอยากทดสอบซ้ำบ่อยๆ แนะนำบันทึก request นี้ไว้ใน Collection ของ Postman แล้ว export/share ให้ทีมใช้ต่อได้เลย
+
+## 🔑 การขอ API Key (Value: ค่า key ที่ได้จากเทอร์มินัลตอนรันครั้งแรก)
+
+Endpoint ที่ต้องยืนยันตัวตน (เช่น `/test-score`) จะถูกป้องกันด้วย `X-API-Key` header
+
+### วิธีดู API Key ครั้งแรก
+
+เมื่อรัน container ครั้งแรกและยังไม่มีไฟล์ `api_keys.json` ระบบจะ generate key แบบสุ่มให้อัตโนมัติ 
+**และ print ออกมาทาง log เพียงครั้งเดียวเท่านั้น** (จะไม่แสดงซ้ำอีก)
+
+```bash
+# เปิด log แบบ follow ไว้ก่อน (terminal 1)
+docker logs -f kaifong_ai_v2
+
+# เปิด terminal อีกหน้าต่างแยกต่างหาก แล้วยิง request ไป trigger (terminal 2)
+curl -X POST http://localhost:8000/test-score
+```
+
+จะเห็น log แบบนี้ขึ้นมาใน terminal 1:
+
+```
+⚠️  ยังไม่มีไฟล์ api_keys.json — สร้าง API Key เริ่มต้นให้แล้ว
+    API KEY (เก็บไว้ให้ดี ไม่แสดงซ้ำอีก): a1b2c3d4e5f6...
+```
+
 ---
 
 # ข้อมูลฐานข้อมูล
