@@ -35,7 +35,7 @@ import psycopg2.extras
 # ============================================================
 # Config — env-driven so the same image works across environments
 # ============================================================
-DATABASE_URL = "postgresql://kaifong:kaifong1234@localhost:5433/kaifongdb" # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
+DATABASE_URL = os.environ.get("DATABASE_URL", "")  # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
 
 MAX_K = int(os.environ.get("CLUSTER_MAX_K", 6))
 PCA_COMPONENTS = int(os.environ.get("CLUSTER_PCA_COMPONENTS", 2))
@@ -62,13 +62,41 @@ def clean_raw_data(df):
             df[col] = df[col].str.replace(r'\s+', ' ', regex=True)
     return df
 
-def load_data(engine):
-    tables = ['complaints', 'categories', 'subcategories', 'priority_levels', 'workflow_logs']
+def get_active_tenants(engine):
+    tenants = pd.read_sql(
+        'SELECT tenant_id, tenant_code, tenant_name FROM public.tenants WHERE is_active = TRUE',
+        engine
+    )
+    log(f'Active tenants: {len(tenants)}')
+    return tenants
+
+
+def load_data(engine, tenant_id):
+    # Tables that carry their own tenant_id column -> filter directly
+    direct_tables = ['complaints', 'categories', 'subcategories', 'priority_levels']
     dfs = {}
-    for t in tables:
-        dfs[t] = pd.read_sql(f'SELECT * FROM public.{t}', engine)
+    for t in direct_tables:
+        dfs[t] = pd.read_sql(
+            f'SELECT * FROM public.{t} WHERE tenant_id = %(tenant_id)s',
+            engine, params={'tenant_id': tenant_id}
+        )
         log(f'{t:20s}: {len(dfs[t]):>7,} rows')
-    v_sla = pd.read_sql('SELECT * FROM public.v_complaint_sla', engine)
+
+    # workflow_logs has no tenant_id column of its own -> scope via complaints FK
+    dfs['workflow_logs'] = pd.read_sql(
+        '''SELECT wl.* FROM public.workflow_logs wl
+           JOIN public.complaints c ON c.complaint_id = wl.complaint_id
+           WHERE c.tenant_id = %(tenant_id)s''',
+        engine, params={'tenant_id': tenant_id}
+    )
+    log(f'{"workflow_logs":20s}: {len(dfs["workflow_logs"]):>7,} rows')
+
+    v_sla = pd.read_sql(
+        '''SELECT v.* FROM public.v_complaint_sla v
+           JOIN public.complaints c ON c.complaint_id = v.complaint_id
+           WHERE c.tenant_id = %(tenant_id)s''',
+        engine, params={'tenant_id': tenant_id}
+    )
     log(f'{"v_complaint_sla":20s}: {len(v_sla):>7,} rows')
     return dfs, v_sla
 
@@ -308,29 +336,35 @@ def build_cluster_meta(cluster_df, profile, k_final, centroids_pca):
     return cluster_meta
 
 
-def write_to_db(database_url, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols):
+def write_to_db(database_url, tenant_id, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols):
     conn_pg = psycopg2.connect(database_url)
     cur = conn_pg.cursor()
 
     try:
+        # Scoped to THIS tenant only — a tenant's run never compares against or
+        # deactivates another tenant's active run.
         cur.execute("""
             SELECT run_id, silhouette_score FROM cluster_model_runs
-            WHERE is_active = TRUE ORDER BY trained_at DESC LIMIT 1
-        """)
+            WHERE tenant_id = %s AND is_active = TRUE ORDER BY trained_at DESC LIMIT 1
+        """, (tenant_id,))
         current_active = cur.fetchone()
         current_active_run_id, current_active_sil = current_active if current_active else (None, None)
 
         is_better = (current_active_sil is None) or (sil_avg > current_active_sil)
 
         if is_better:
-            cur.execute("UPDATE cluster_model_runs SET is_active = FALSE WHERE is_active = TRUE")
+            cur.execute(
+                "UPDATE cluster_model_runs SET is_active = FALSE WHERE tenant_id = %s AND is_active = TRUE",
+                (tenant_id,)
+            )
 
         cur.execute("""
             INSERT INTO cluster_model_runs
-                (model_name, k, silhouette_score, n_districts, features_used, is_active, trained_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+                (tenant_id, model_name, k, silhouette_score, n_districts, features_used, is_active, trained_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING run_id
-        """, ('K-means', k_final, round(sil_avg, 4), len(cluster_df), len(feature_cols), is_better, datetime.now()))
+        """, (tenant_id, 'K-means', k_final, round(sil_avg, 4), len(cluster_df), len(feature_cols),
+              is_better, datetime.now()))
         run_id = cur.fetchone()[0]
 
         if is_better:
@@ -347,12 +381,12 @@ def write_to_db(database_url, k_final, sil_avg, cluster_df, feature_cols, cluste
         for c in cluster_meta:
             cur.execute("""
                 INSERT INTO cluster_groups
-                    (run_id, cluster_label_no, label, color, top_category, avg_volume, risk_score, insight,
-                     centroid_pca)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (run_id, tenant_id, cluster_label_no, label, color, top_category, avg_volume, risk_score,
+                     insight, centroid_pca)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING cluster_id
             """, (
-                run_id, c['id'], c['label'], c['color'],
+                run_id, tenant_id, c['id'], c['label'], c['color'],
                 c.get('category'), c.get('avg_volume'), c['risk_score'], c.get('insight'),
                 c.get('centroid_pca'),
             ))
@@ -364,7 +398,7 @@ def write_to_db(database_url, k_final, sil_avg, cluster_df, feature_cols, cluste
             for district, row in group.iterrows():
                 pca_coords = [float(row[c]) for c in pca_cols] if all(pd.notna(row[c]) for c in pca_cols) else None
                 district_rows.append((
-                    cid, district,
+                    cid, tenant_id, district,
                     int(row['total_complaints']),
                     float(row['sla_breach_rate']) if pd.notna(row['sla_breach_rate']) else None,
                     float(row['resolve_rate']) if pd.notna(row['resolve_rate']) else None,
@@ -374,7 +408,8 @@ def write_to_db(database_url, k_final, sil_avg, cluster_df, feature_cols, cluste
 
         psycopg2.extras.execute_values(cur, """
             INSERT INTO cluster_district_map
-                (cluster_id, district, total_complaints, sla_breach_rate, resolve_rate, avg_resolution_hrs, pca_coords)
+                (cluster_id, tenant_id, district, total_complaints, sla_breach_rate, resolve_rate,
+                 avg_resolution_hrs, pca_coords)
             VALUES %s
         """, district_rows)
 
@@ -389,17 +424,21 @@ def write_to_db(database_url, k_final, sil_avg, cluster_df, feature_cols, cluste
         conn_pg.close()
 
 
-def main():
-    log('=== Starting complaint clustering training job ===')
-    engine = create_engine(DATABASE_URL)
+def run_for_tenant(engine, tenant_id, tenant_code):
+    log(f'--- [{tenant_code}] Starting clustering for tenant {tenant_id} ---')
 
-    dfs, v_sla = load_data(engine)
+    dfs, v_sla = load_data(engine, tenant_id)
+    if dfs['complaints'].empty:
+        log(f'[{tenant_code}] No complaints for this tenant -> skipping')
+        return
+
     df = build_base_df(dfs, v_sla)
     cluster_df = build_district_profile(df)
 
     if len(cluster_df) < 6:
-        log(f'Not enough districts with sufficient data ({len(cluster_df)}) to cluster meaningfully. Aborting run.')
-        sys.exit(1)
+        log(f'[{tenant_code}] Not enough districts with sufficient data ({len(cluster_df)}) '
+            f'to cluster meaningfully -> skipping this tenant')
+        return
 
     x_scaled, feature_cols, pca, x_pca, pca_cols = scale_and_weight(cluster_df)
 
@@ -413,7 +452,7 @@ def main():
     cluster_df[pca_cols] = x_pca
 
     sil_avg = silhouette_score(x_scaled, cluster_labels)
-    log(f'Final K-means k={k_final} | Silhouette={sil_avg:.4f}')
+    log(f'[{tenant_code}] Final K-means k={k_final} | Silhouette={sil_avg:.4f}')
 
     key_metrics = ['total_complaints', 'resolve_rate', 'reject_rate',
                    'sla_breach_rate', 'avg_resolution_hrs',
@@ -425,9 +464,38 @@ def main():
     centroids_pca = pca.transform(kmeans.cluster_centers_)
     cluster_meta = build_cluster_meta(cluster_df, profile, k_final, centroids_pca)
 
-    write_to_db(DATABASE_URL, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols)
+    write_to_db(DATABASE_URL, tenant_id, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols)
 
-    log('=== Job finished successfully ===')
+    log(f'=== [{tenant_code}] Job finished successfully ===')
+
+
+def main():
+    log('=== Starting complaint clustering training job (multi-tenant) ===')
+    if not DATABASE_URL:
+        raise RuntimeError(
+            'DATABASE_URL is not set. Set it as an environment variable '
+            '(e.g. in docker-compose.yml under environment:).'
+        )
+    engine = create_engine(DATABASE_URL)
+
+    tenants = get_active_tenants(engine)
+    if tenants.empty:
+        log('No active tenants found in public.tenants -> nothing to do')
+        return
+
+    failures = []
+    for _, row in tenants.iterrows():
+        try:
+            run_for_tenant(engine, row['tenant_id'], row['tenant_code'])
+        except Exception as e:
+            # One tenant failing must not stop the rest from clustering.
+            log(f'❌ [{row["tenant_code"]}] Tenant job failed: {e}')
+            failures.append(row['tenant_code'])
+
+    if failures:
+        raise RuntimeError(f'Tenants failed this run: {failures}')
+
+    log('=== All tenants finished successfully ===')
 
 
 if __name__ == '__main__':

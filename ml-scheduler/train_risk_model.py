@@ -56,7 +56,7 @@ import requests
 # ============================================================
 # Config — env-driven so the same image works across environments
 # ============================================================
-DATABASE_URL = "postgresql://kaifong:kaifong1234@localhost:5433/kaifongdb" # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
+DATABASE_URL = os.environ.get("DATABASE_URL", "")  # e.g. postgresql://kaifong:kaifong1234@db:5432/kaifongdb
 
 ACCEPT_ROC_AUC = float(os.environ.get("RISK_ACCEPT_ROC_AUC", 0.75))   # validation threshold to stop retrain loop
 MAX_RETRAIN_ROUNDS = int(os.environ.get("RISK_MAX_RETRAIN_ROUNDS", 3))
@@ -76,23 +76,23 @@ ALL_FEATURES = CAT_FEATURES + NUM_FEATURES
 
 THAI_LABELS = {
     'hour_of_day':            'เวลาที่แจ้งเรื่อง (ชั่วโมง)',
-    'day_of_week':             'วันในสัปดาห์ที่แจ้งเรื่อง',
+    'day_of_week':             'วันที่แจ้งเรื่อง',
     'month_of_year':           'เดือนที่แจ้งเรื่อง',
-    'is_weekend':              'แจ้งเรื่องช่วงวันหยุดสุดสัปดาห์',
+    'is_weekend':              'แจ้งเรื่องช่วงวันหยุด',
     'is_working_hours':        'แจ้งเรื่องในเวลาทำการ',
-    'cat_breach_rate_hist':    'อัตราเกิน SLA ของหมวดหมู่นี้ (ในอดีต)',
-    'dist_breach_rate_hist':   'อัตราเกิน SLA ของพื้นที่นี้ (ในอดีต)',
-    'sub_breach_rate_hist':    'อัตราเกิน SLA ของประเภทย่อยนี้ (ในอดีต)',
-    'cat_volume':              'ปริมาณเคสสะสมของหมวดหมู่นี้',
-    'dist_volume':             'ปริมาณเคสสะสมของพื้นที่นี้',
-    'sla_response_time_min':   'เวลาตอบสนองตาม SLA (นาที)',
-    'sla_resolution_time_min': 'เวลาที่กำหนดแก้ไขตาม SLA (นาที)',
-    'has_sla_matrix':          'มีการกำหนด SLA ไว้ชัดเจน',
-    'has_coordinates':         'มีพิกัดตำแหน่งแนบมาด้วย',
-    'detail_len':              'ความยาวของรายละเอียดที่แจ้ง',
+    'cat_breach_rate_hist':    'อัตราเกิน SLA ของหมวดหมู่ปัญหา',
+    'dist_breach_rate_hist':   'อัตราเกิน SLA ของพื้นที่',
+    'sub_breach_rate_hist':    'อัตราเกิน SLA ของประเภทย่อย',
+    'cat_volume':              'จำนวนเรื่องในหมวดหมู่ปัญหา',
+    'dist_volume':             'จำนวนเรื่องในพื้นที่',
+    'sla_response_time_min':   'SLA การตอบสนอง (นาที)',
+    'sla_resolution_time_min': 'SLA การแก้ไข (นาที)',
+    'has_sla_matrix':          'มีการกำหนด SLA',
+    'has_coordinates':         'มีพิกัดตำแหน่ง',
+    'detail_len':              'ความยาวของรายละเอียด',
 }
 CAT_LABEL_PREFIX = {
-    'category_name':    'หมวดหมู่',
+    'category_name':    'หมวดหมู่ปัญหา',
     'subcategory_name': 'ประเภทย่อย',
     'priority_code':    'ระดับความสำคัญ',
     'district':          'พื้นที่',
@@ -129,15 +129,49 @@ def risk_tier(p):
 
 
 # ============================================================
-# 1. Load data
+# 0. Tenants
 # ============================================================
-def load_data(engine):
-    tables = ['complaints', 'categories', 'subcategories', 'priority_levels', 'sla_matrix', 'workflow_logs']
+def get_active_tenants(engine):
+    """Every training run is scoped to one tenant. Pull the tenant list once,
+    then load_data/build_labeled_df/etc. are all called once per tenant."""
+    tenants = pd.read_sql(
+        'SELECT tenant_id, tenant_code, tenant_name FROM public.tenants WHERE is_active = TRUE',
+        engine
+    )
+    log(f'Active tenants: {len(tenants)}')
+    return tenants
+
+
+# ============================================================
+# 1. Load data (scoped to a single tenant_id)
+# ============================================================
+def load_data(engine, tenant_id):
+    # Tables that carry their own tenant_id column -> filter directly
+    direct_tables = ['complaints', 'categories', 'subcategories', 'priority_levels', 'sla_matrix']
     dfs = {}
-    for t in tables:
-        dfs[t] = pd.read_sql(f'SELECT * FROM public.{t}', engine)
+    for t in direct_tables:
+        dfs[t] = pd.read_sql(
+            f'SELECT * FROM public.{t} WHERE tenant_id = %(tenant_id)s',
+            engine, params={'tenant_id': tenant_id}
+        )
         log(f'{t:20s}: {len(dfs[t]):>7,} rows')
-    v_sla = pd.read_sql('SELECT * FROM public.v_complaint_sla', engine)
+
+    # workflow_logs has no tenant_id column of its own -> scope via complaints FK
+    dfs['workflow_logs'] = pd.read_sql(
+        '''SELECT wl.* FROM public.workflow_logs wl
+           JOIN public.complaints c ON c.complaint_id = wl.complaint_id
+           WHERE c.tenant_id = %(tenant_id)s''',
+        engine, params={'tenant_id': tenant_id}
+    )
+    log(f'{"workflow_logs":20s}: {len(dfs["workflow_logs"]):>7,} rows')
+
+    # v_complaint_sla is derived from complaints -> scope the same way
+    v_sla = pd.read_sql(
+        '''SELECT v.* FROM public.v_complaint_sla v
+           JOIN public.complaints c ON c.complaint_id = v.complaint_id
+           WHERE c.tenant_id = %(tenant_id)s''',
+        engine, params={'tenant_id': tenant_id}
+    )
     log(f'{"v_complaint_sla":20s}: {len(v_sla):>7,} rows')
     return dfs, v_sla
 
@@ -471,14 +505,18 @@ def score_open_complaints(complaints, categories, subcategories, priority_lvl, s
 # 11. Save model artifact
 # ============================================================
 def save_artifact(best_model_obj, preprocessor, best_model_name, enc, final_test_metrics,
-                   best, cutoff_date, round_idx, passed, feature_importance_json):
-    MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    model_version = f"v3_{best_model_name.lower().replace(' ', '_')}_{datetime.now():%Y%m%d}"
+                   best, cutoff_date, round_idx, passed, feature_importance_json, tenant_code):
+    tenant_dir = MODEL_DIR / tenant_code
+    tenant_dir.mkdir(parents=True, exist_ok=True)
+    # tenant_code is part of the version string itself, not just the path,
+    # so model_version stays globally readable in logs/DB even if joblib files move
+    model_version = f"v3_{tenant_code.lower()}_{best_model_name.lower().replace(' ', '_')}_{datetime.now():%Y%m%d}"
 
     artifact = {
         'model': best_model_obj,
         'preprocessor': preprocessor,
         'model_version': model_version,
+        'tenant_code': tenant_code,
         'model_name': best_model_name,
         'cat_features': CAT_FEATURES,
         'num_features': NUM_FEATURES,
@@ -504,7 +542,7 @@ def save_artifact(best_model_obj, preprocessor, best_model_name, enc, final_test
         'accept_roc_auc': ACCEPT_ROC_AUC,
     }
 
-    artifact_path = MODEL_DIR / f'{model_version}.joblib'
+    artifact_path = tenant_dir / f'{model_version}.joblib'
     joblib.dump(artifact, artifact_path)
     log(f'Saved model artifact: {artifact_path}')
     return model_version
@@ -514,7 +552,7 @@ def save_artifact(best_model_obj, preprocessor, best_model_name, enc, final_test
 # 12. Write to DB
 # ============================================================
 def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff_date,
-                 round_idx, passed, feature_importance_json, df_open):
+                 round_idx, passed, feature_importance_json, df_open, tenant_id):
     conn_pg = psycopg2.connect(DATABASE_URL)
     cur = conn_pg.cursor()
 
@@ -527,7 +565,12 @@ def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff
         pr_auc_value = float(final_test_metrics['avg_prec'])
         acc_value = float(final_test_metrics['accuracy'])
 
-        cur.execute("SELECT model_version, roc_auc FROM model_registry WHERE status = 'active'")
+        # Scoped to THIS tenant only — a tenant's model never compares against,
+        # promotes over, or archives another tenant's model.
+        cur.execute(
+            "SELECT model_version, roc_auc FROM model_registry WHERE tenant_id = %s AND status = 'active'",
+            (tenant_id,)
+        )
         current_active = cur.fetchone()
 
         should_promote = (current_active is None) or (roc_auc_value > current_active[1])
@@ -539,14 +582,26 @@ def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff
             f"val_roc_auc={best['val_roc_auc']:.4f}; test_roc_auc={roc_auc_value:.4f}"
         )
 
+        # Archive the currently-active model FIRST, before inserting the new one.
+        # model_registry has a partial unique index allowing only one 'active' row
+        # PER TENANT (uq_model_registry_one_active_per_tenant), so promoting a new
+        # model must free up 'active' before the INSERT below — otherwise the two
+        # 'active' rows briefly coexist and the INSERT violates that index.
+        if should_promote and current_active:
+            cur.execute(
+                """UPDATE model_registry SET status = 'archived'
+                   WHERE tenant_id = %s AND status = 'active' AND model_version != %s""",
+                (tenant_id, model_version)
+            )
+
         cur.execute("""
             INSERT INTO model_registry
-                (model_version, model_name, target_variable, roc_auc, pr_auc, accuracy,
+                (tenant_id, model_version, model_name, target_variable, roc_auc, pr_auc, accuracy,
                  feature_list, feature_importance, train_cutoff_date, status, promoted_at, notes)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (model_version) DO NOTHING
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (tenant_id, model_version) DO NOTHING
         """, (
-            model_version, best_model_name, TARGET, roc_auc_value, pr_auc_value, acc_value,
+            tenant_id, model_version, best_model_name, TARGET, roc_auc_value, pr_auc_value, acc_value,
             json.dumps(ALL_FEATURES),
             json.dumps(feature_importance_json, ensure_ascii=False),
             cutoff_date, new_status,
@@ -554,21 +609,15 @@ def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff
             retrain_notes,
         ))
 
-        if should_promote and current_active:
-            cur.execute(
-                "UPDATE model_registry SET status = 'archived' WHERE status = 'active' AND model_version != %s",
-                (model_version,)
-            )
-
         if not df_open.empty:
             risk_rows = [
-                (str(cid_), float(prob), str(tier), new_status, model_version, shap_json)
+                (tenant_id, str(cid_), float(prob), str(tier), new_status, model_version, shap_json)
                 for cid_, prob, tier, shap_json in
                 df_open[['complaint_id', 'risk_prob', 'risk_tier', 'shap_top_factors']].itertuples(index=False, name=None)
             ]
             psycopg2.extras.execute_values(cur, """
                 INSERT INTO complaint_risk_log
-                    (complaint_id, risk_score, risk_tier, model_status, model_version, shap_top_factors)
+                    (tenant_id, complaint_id, risk_score, risk_tier, model_status, model_version, shap_top_factors)
                 VALUES %s
                 ON CONFLICT (complaint_id, model_version)
                 DO UPDATE SET risk_score = EXCLUDED.risk_score,
@@ -576,7 +625,7 @@ def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff
                               model_status = EXCLUDED.model_status,
                               shap_top_factors = EXCLUDED.shap_top_factors,
                               scored_at = now()
-            """, risk_rows, template="(%s, %s, %s, %s, %s, %s)")
+            """, risk_rows, template="(%s, %s, %s, %s, %s, %s, %s)")
         else:
             risk_rows = []
 
@@ -599,14 +648,15 @@ def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff
         conn_pg.close()
 
 
-def notify_dashboard(model_version):
+def notify_dashboard(model_version, tenant_code):
     if not DASHBOARD_REFRESH_API:
         log('DASHBOARD_REFRESH_API not set -> skipping refresh webhook')
         return
     try:
         res = requests.post(
             DASHBOARD_REFRESH_API,
-            json={"model_version": model_version, "scored_at": datetime.now().isoformat()},
+            json={"model_version": model_version, "tenant_code": tenant_code,
+                  "scored_at": datetime.now().isoformat()},
             timeout=10,
         )
         res.raise_for_status()
@@ -616,13 +666,16 @@ def notify_dashboard(model_version):
 
 
 # ============================================================
-# Main
+# Main — one full train/score/promote pass, scoped to a single tenant
 # ============================================================
-def main():
-    log('=== Starting complaint risk prediction training job ===')
-    engine = create_engine(DATABASE_URL)
+def run_for_tenant(engine, tenant_id, tenant_code):
+    log(f'--- [{tenant_code}] Starting risk training for tenant {tenant_id} ---')
 
-    dfs, v_sla = load_data(engine)
+    dfs, v_sla = load_data(engine, tenant_id)
+    if dfs['complaints'].empty:
+        log(f'[{tenant_code}] No complaints for this tenant -> skipping')
+        return
+
     df, reject_ids, categories, subcategories, priority_lvl, sla_matrix, complaints = build_labeled_df(dfs, v_sla)
     df = add_time_features(df)
 
@@ -640,7 +693,7 @@ def main():
     X_train, y_train = build_xy(df_train)
     X_val, y_val = build_xy(df_val)
     X_test, y_test = build_xy(df_test)
-    log(f'Breach rate — train={y_train.mean():.2%} val={y_val.mean():.2%} test={y_test.mean():.2%}')
+    log(f'[{tenant_code}] Breach rate — train={y_train.mean():.2%} val={y_val.mean():.2%} test={y_test.mean():.2%}')
 
     preprocessor = build_preprocessor()
     X_train_proc = preprocessor.fit_transform(X_train)
@@ -649,13 +702,13 @@ def main():
 
     smote = SMOTE(random_state=42, k_neighbors=5)
     X_train_res, y_train_res = smote.fit_resample(X_train_proc, y_train)
-    log(f'After SMOTE: {X_train_res.shape[0]:,} samples, positive rate={y_train_res.mean():.2%}')
+    log(f'[{tenant_code}] After SMOTE: {X_train_res.shape[0]:,} samples, positive rate={y_train_res.mean():.2%}')
 
     best_model_name, best, round_idx, passed = retrain_loop(X_train_res, y_train_res, X_val_proc, y_val)
     best_model_obj = best['model']
 
     final_test_metrics = final_evaluation(best_model_obj, X_test_proc, y_test)
-    log(f'Final TEST metrics ({best_model_name}): ROC-AUC={final_test_metrics["roc_auc"]:.4f} '
+    log(f'[{tenant_code}] Final TEST metrics ({best_model_name}): ROC-AUC={final_test_metrics["roc_auc"]:.4f} '
         f'PR-AUC={final_test_metrics["avg_prec"]:.4f} Accuracy={final_test_metrics["accuracy"]:.4f}')
 
     results_for_importance = {best_model_name: {'model': best_model_obj}}
@@ -668,18 +721,49 @@ def main():
 
     model_version = save_artifact(
         best_model_obj, preprocessor, best_model_name, enc, final_test_metrics,
-        best, cutoff_date, round_idx, passed, feature_importance_json
+        best, cutoff_date, round_idx, passed, feature_importance_json, tenant_code
     )
 
     should_promote = write_to_db(
         model_version, best_model_name, final_test_metrics, best, cutoff_date,
-        round_idx, passed, feature_importance_json, df_open
+        round_idx, passed, feature_importance_json, df_open, tenant_id
     )
 
     if should_promote:
-        notify_dashboard(model_version)
+        notify_dashboard(model_version, tenant_code)
 
-    log('=== Job finished successfully ===')
+    log(f'=== [{tenant_code}] Job finished successfully ===')
+
+
+def main():
+    log('=== Starting complaint risk prediction training job (multi-tenant) ===')
+    if not DATABASE_URL:
+        raise RuntimeError(
+            'DATABASE_URL is not set. Set it as an environment variable '
+            '(e.g. in docker-compose.yml under environment:).'
+        )
+    engine = create_engine(DATABASE_URL)
+
+    tenants = get_active_tenants(engine)
+    if tenants.empty:
+        log('No active tenants found in public.tenants -> nothing to do')
+        return
+
+    failures = []
+    for _, row in tenants.iterrows():
+        try:
+            run_for_tenant(engine, row['tenant_id'], row['tenant_code'])
+        except Exception as e:
+            # One tenant failing must not stop the rest from training.
+            log(f'❌ [{row["tenant_code"]}] Tenant job failed: {e}')
+            failures.append(row['tenant_code'])
+
+    if failures:
+        # Non-zero exit so entrypoint.sh's retry-next-cycle logging still fires,
+        # but every tenant that succeeded has already been committed to the DB.
+        raise RuntimeError(f'Tenants failed this run: {failures}')
+
+    log('=== All tenants finished successfully ===')
 
 
 if __name__ == '__main__':

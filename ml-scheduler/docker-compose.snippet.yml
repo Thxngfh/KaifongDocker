@@ -1,0 +1,28 @@
+# เพิ่ม service ก้อนนี้เข้าไปใน docker-compose.yml หลัก (ต่อท้าย kaifong_ai_v2)
+# แล้วเพิ่ม 2 บรรทัดใต้ volumes: ท้ายไฟล์ (ml_models, ml_logs)
+# ไม่ต้องเพิ่ม networks: เพราะไฟล์นี้ไม่ได้ประกาศ custom network ไว้
+# ทุก service จะอยู่ default network เดียวกันอยู่แล้ว เรียกกันด้วยชื่อ service ได้เลย
+
+  ml-scheduler:
+    build: ./ml-scheduler
+    container_name: kaifong_ml_scheduler
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kaifong:kaifong1234@postgres:5432/kaifongdb
+      CLUSTER_MAX_K: "6"
+      CLUSTER_PCA_COMPONENTS: "2"
+      RISK_ACCEPT_ROC_AUC: "0.75"
+      RISK_MAX_RETRAIN_ROUNDS: "3"
+      RISK_TOP_N_FACTORS: "5"
+      RISK_MODEL_DIR: /app/models
+      DASHBOARD_REFRESH_API: ""     # ใส่ webhook ถ้ามี ไม่มีก็เว้นว่างไว้ได้
+    volumes:
+      - ml_models:/app/models        # เก็บโมเดลที่ train เสร็จไว้ ไม่หายตอน rebuild
+      - ml_logs:/app/logs            # เก็บ log ไว้ ไม่หายตอน restart
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+# เพิ่มบรรทัดนี้เข้าไปใน volumes: ท้ายไฟล์ (ต่อจาก kaifong_db:)
+#   ml_models:
+#   ml_logs:

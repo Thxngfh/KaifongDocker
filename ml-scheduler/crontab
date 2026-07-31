@@ -1,0 +1,21 @@
+# /etc/cron.d/ml-retrain-cron
+#
+# Runs the weekly ML retraining job (clustering + risk model).
+# Cron has no native "every 7 days from install date" field, so a fixed
+# weekly day/time is used instead — this is equivalent to "every 7 days"
+# in practice and much easier to reason about / debug than a rolling offset.
+#
+# Schedule: every Sunday at 02:00 (server time inside the container)
+# Change the day/time below if you'd like a different slot, e.g.
+#   0 3 * * 1   -> every Monday at 03:00
+#
+# Format: minute hour day-of-month month day-of-week command
+# ┌───────────── minute (0-59)
+# │ ┌───────────── hour (0-23)
+# │ │ ┌───────────── day of month (1-31)
+# │ │ │ ┌───────────── month (1-12)
+# │ │ │ │ ┌───────────── day of week (0-6) (Sunday=0)
+# │ │ │ │ │
+0 2 * * 0 root /app/scripts/run_training.sh >> /app/logs/cron.log 2>&1
+
+# cron files must end with a newline

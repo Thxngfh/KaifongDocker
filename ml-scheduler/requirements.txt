@@ -1,0 +1,11 @@
+numpy
+pandas
+SQLAlchemy
+psycopg2-binary
+scikit-learn
+xgboost
+lightgbm
+imbalanced-learn
+joblib
+requests
+shap
