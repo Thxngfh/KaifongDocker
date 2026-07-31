@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
           LEFT JOIN subcategories  sub ON sub.subcategory_id = c.subcategory_id
           LEFT JOIN v_complaint_sla vcs ON vcs.complaint_id  = c.complaint_id
           LEFT JOIN complaint_risk_log crl ON crl.complaint_id = c.complaint_id
-                                           AND crl.model_status = 'active'
+                                           AND crl.model_version = v.model_version
           WHERE ${whereSql}
       ) t
       ${groupSql}
