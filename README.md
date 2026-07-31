@@ -140,6 +140,25 @@ http://localhost:8000/docs   # Swagger UI ทดสอบ API
 
 ถ้าอยากทดสอบซ้ำบ่อยๆ แนะนำบันทึก request นี้ไว้ใน Collection ของ Postman แล้ว export/share ให้ทีมใช้ต่อได้เลย
 
+## 🔑 การขอ API Key (Value: ค่า key ที่ได้จากเทอร์มินัลตอนรันครั้งแรก)
+
+Endpoint ที่ต้องยืนยันตัวตน (เช่น `/test-score`) จะถูกป้องกันด้วย `X-API-Key` header
+
+### วิธีดู API Key ครั้งแรก
+
+เมื่อรัน container ครั้งแรกและยังไม่มีไฟล์ `api_keys.json` ระบบจะ generate key แบบสุ่มให้อัตโนมัติ 
+**และ print ออกมาทาง log เพียงครั้งเดียวเท่านั้น** (จะไม่แสดงซ้ำอีก)
+
+```bash
+# เปิด log แบบ follow ไว้ก่อน (terminal 1)
+docker logs -f kaifong_ai_v2
+
+# เปิด terminal อีกหน้าต่างแยกต่างหาก แล้วยิง request ไป trigger (terminal 2)
+curl -X POST http://localhost:8000/test-score
+```
+
+จะเห็น log แบบนี้ขึ้นมาใน terminal 1:
+
 ---
 
 # ข้อมูลฐานข้อมูล
