@@ -21,7 +21,7 @@ git lfs install
 ## 1. Clone Project
 
 ```bash
-git clone https://github.com/Thxngfh/KaifongDocker.git
+git clone https://github.com/s6604053630405-sirasak/KaifongDocker.git
 cd KaifongDocker
 ```
 
