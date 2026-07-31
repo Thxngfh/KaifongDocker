@@ -84,8 +84,22 @@ services:
       postgres:
         condition: service_healthy 
 
+  db-scheduler:
+    build: ./db-scheduler
+    container_name: kaifong_db_scheduler
+    init: true 
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kaifong:kaifong1234@postgres:5432/kaifongdb
+    volumes:
+      - ./db-scheduler:/app/scripts   # bind mount ไว้เลย แก้ SQL แล้วรันได้ทันที
+      - db_logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   kaifong_db:
   ml_models:
   ml_logs:
-      
+  db_logs:

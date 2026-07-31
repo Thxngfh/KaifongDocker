@@ -1,0 +1,1 @@
+*/2 * * * * /app/scripts/refresh_realtime.sh >> /app/logs/refresh_realtime.log 2>&1
