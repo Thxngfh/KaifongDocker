@@ -159,6 +159,11 @@ curl -X POST http://localhost:8000/test-score
 
 จะเห็น log แบบนี้ขึ้นมาใน terminal 1:
 
+```
+⚠️  ยังไม่มีไฟล์ api_keys.json — สร้าง API Key เริ่มต้นให้แล้ว
+    API KEY (เก็บไว้ให้ดี ไม่แสดงซ้ำอีก): a1b2c3d4e5f6...
+```
+
 ---
 
 # ข้อมูลฐานข้อมูล
