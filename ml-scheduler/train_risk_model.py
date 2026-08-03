@@ -485,7 +485,13 @@ def score_open_complaints(complaints, categories, subcategories, priority_lvl, s
             shap_class1 = arr[:, :, 1] if arr.ndim == 3 else arr
     else:
         explainer = shap.LinearExplainer(best_model_obj, X_open_proc)
-        shap_class1 = np.asarray(explainer.shap_values(X_open_proc))
+        # Fix: LinearExplainer อาจ return list, (n,f) หรือ (n,f,2) ขึ้นกับ shap version
+        shap_raw_lin = explainer.shap_values(X_open_proc)
+        shap_class1 = np.asarray(
+            shap_raw_lin[1] if isinstance(shap_raw_lin, list) else shap_raw_lin
+        )
+        if shap_class1.ndim == 3:
+            shap_class1 = shap_class1[:, :, 1]
 
     n_feat = min(shap_class1.shape[1], len(all_feat_names))
 
@@ -567,8 +573,10 @@ def write_to_db(model_version, best_model_name, final_test_metrics, best, cutoff
 
         # Scoped to THIS tenant only — a tenant's model never compares against,
         # promotes over, or archives another tenant's model.
+        # Fix: ใช้ FOR UPDATE เพื่อป้องกัน race condition เมื่อมี concurrent job รันพร้อมกัน
         cur.execute(
-            "SELECT model_version, roc_auc FROM model_registry WHERE tenant_id = %s AND status = 'active'",
+            "SELECT model_version, roc_auc FROM model_registry "
+            "WHERE tenant_id = %s AND status = 'active' FOR UPDATE",
             (tenant_id,)
         )
         current_active = cur.fetchone()

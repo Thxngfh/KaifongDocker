@@ -231,11 +231,18 @@ def scale_and_weight(cluster_df):
     for i, ratio in enumerate(pca.explained_variance_ratio_):
         log(f'PCA (reference only): PC{i + 1}={ratio:.1%}')
 
-    return x_scaled, feature_cols, pca, x_pca, pca_cols
+    # Fix: return scaler_plot ด้วย เพื่อใช้ transform เขตใหม่โดยไม่ต้อง retrain
+    return x_scaled, feature_cols, pca, x_pca, pca_cols, scaler_plot
 
 
 def find_best_k(x_scaled, n_districts):
-    k_range = range(2, min(MAX_K + 1, n_districts // 2))
+    k_range = list(range(2, min(MAX_K + 1, n_districts // 2)))
+
+    # Fix: ถ้า n_districts น้อยเกินไปจน k_range ว่าง → force k=2
+    if not k_range:
+        log(f'Not enough districts ({n_districts}) to search k range -> forcing k=2')
+        return 2
+
     sil_scores = []
     for k in k_range:
         km = KMeans(n_clusters=k, n_init=20, random_state=42)
@@ -244,7 +251,7 @@ def find_best_k(x_scaled, n_districts):
         sil_scores.append(sil)
         log(f'  k={k}: inertia={km.inertia_:.1f}  silhouette={sil:.4f}')
 
-    best_k = list(k_range)[sil_scores.index(max(sil_scores))]
+    best_k = k_range[sil_scores.index(max(sil_scores))]
     best_sil = max(sil_scores)
     log(f'Best k = {best_k}  (silhouette={best_sil:.4f})')
     return best_k
@@ -336,7 +343,7 @@ def build_cluster_meta(cluster_df, profile, k_final, centroids_pca):
     return cluster_meta
 
 
-def write_to_db(database_url, tenant_id, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols):
+def write_to_db(database_url, tenant_id, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols, pca, scaler_plot, kmeans):
     conn_pg = psycopg2.connect(database_url)
     cur = conn_pg.cursor()
 
@@ -416,6 +423,26 @@ def write_to_db(database_url, tenant_id, k_final, sil_avg, cluster_df, feature_c
         conn_pg.commit()
         log(f'Wrote clustering results to DB: run_id={run_id}, {len(cluster_meta)} clusters, '
             f'{len(district_rows)} district mappings')
+
+        # Fix: บันทึก scaler + pca + kmeans ไว้สำหรับ inference เขตใหม่โดยไม่ต้อง retrain
+        import pickle, pathlib
+        model_dir = pathlib.Path(os.environ.get('CLUSTER_MODEL_DIR', '/app/models')) / str(tenant_id)
+        model_dir.mkdir(parents=True, exist_ok=True)
+        artifact = {
+            'kmeans':       kmeans,
+            'scaler_plot':  scaler_plot,
+            'pca':          pca,
+            'feature_cols': feature_cols,
+            'pca_cols':     pca_cols,
+            'cluster_meta': cluster_meta,
+            'run_id':       run_id,
+            'trained_at':   datetime.now().isoformat(),
+        }
+        artifact_path = model_dir / f'cluster_run_{run_id}.pkl'
+        with open(artifact_path, 'wb') as f:
+            pickle.dump(artifact, f)
+        log(f'Saved cluster artifact: {artifact_path}')
+
     except Exception:
         conn_pg.rollback()
         raise
@@ -440,7 +467,7 @@ def run_for_tenant(engine, tenant_id, tenant_code):
             f'to cluster meaningfully -> skipping this tenant')
         return
 
-    x_scaled, feature_cols, pca, x_pca, pca_cols = scale_and_weight(cluster_df)
+    x_scaled, feature_cols, pca, x_pca, pca_cols, scaler_plot = scale_and_weight(cluster_df)
 
     best_k = find_best_k(x_scaled, len(cluster_df))
     run_dbscan_validation(x_scaled)
@@ -464,7 +491,7 @@ def run_for_tenant(engine, tenant_id, tenant_code):
     centroids_pca = pca.transform(kmeans.cluster_centers_)
     cluster_meta = build_cluster_meta(cluster_df, profile, k_final, centroids_pca)
 
-    write_to_db(DATABASE_URL, tenant_id, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols)
+    write_to_db(DATABASE_URL, tenant_id, k_final, sil_avg, cluster_df, feature_cols, cluster_meta, pca_cols, pca, scaler_plot, kmeans)
 
     log(f'=== [{tenant_code}] Job finished successfully ===')
 
