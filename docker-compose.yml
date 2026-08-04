@@ -84,6 +84,23 @@ services:
       postgres:
         condition: service_healthy 
 
+  risk-listener:
+    build: ./ml-scheduler
+    container_name: kaifong_risk_listener
+    restart: unless-stopped
+    entrypoint: ["python3", "/app/scripts/listener.py"]   # <-- override entrypoint เดิม (ไม่ใช้ cron)
+    environment:
+      DATABASE_URL: postgresql://kaifong:kaifong1234@postgres:5432/kaifongdb
+      RISK_MODEL_DIR: /app/models
+      RISK_TOP_N_FACTORS: "5"
+    volumes:
+      - ml_models:/app/models     # ต้องเป็น volume เดียวกับ ml-scheduler ห้ามสร้างใหม่
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ml-scheduler:
+        condition: service_started
+
   db-scheduler:
     build: ./db-scheduler
     container_name: kaifong_db_scheduler

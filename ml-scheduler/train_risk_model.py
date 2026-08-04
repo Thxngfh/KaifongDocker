@@ -46,6 +46,11 @@ from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score
 from imblearn.over_sampling import SMOTE
+from risk_features import (
+    TARGET, CAT_FEATURES, NUM_FEATURES, ALL_FEATURES, THAI_LABELS, CAT_LABEL_PREFIX,
+    clean_raw_data, describe_feature, risk_tier,
+    add_time_features, apply_hist_encoding, add_static_features, build_xy,
+)
 
 import psycopg2
 import psycopg2.extras
