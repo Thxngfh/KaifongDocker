@@ -12,6 +12,7 @@ WORKDIR /app
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
+COPY data_validation.py      /app/scripts/data_validation.py
 COPY train_cluster_model.py  /app/scripts/train_cluster_model.py
 COPY train_risk_model.py     /app/scripts/train_risk_model.py
 COPY risk_features.py        /app/scripts/risk_features.py

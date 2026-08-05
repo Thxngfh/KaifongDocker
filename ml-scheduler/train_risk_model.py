@@ -51,6 +51,7 @@ from risk_features import (
     clean_raw_data, describe_feature, risk_tier,
     add_time_features, apply_hist_encoding, add_static_features, build_xy,
 )
+from data_validation import validate_raw_complaints, validate_labeled_df, DataValidationError
 
 import psycopg2
 import psycopg2.extras
@@ -689,7 +690,10 @@ def run_for_tenant(engine, tenant_id, tenant_code):
         log(f'[{tenant_code}] No complaints for this tenant -> skipping')
         return
 
+    validate_raw_complaints(dfs['complaints'], tenant_code)
+
     df, reject_ids, categories, subcategories, priority_lvl, sla_matrix, complaints = build_labeled_df(dfs, v_sla)
+    validate_labeled_df(df, tenant_code)
     df = add_time_features(df)
 
     df_train, df_val, df_test, cutoff_date = temporal_split(df)
